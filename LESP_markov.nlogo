@@ -1,4 +1,5 @@
 extensions [table]
+directed-link-breed [paths path]
 ;state of the world is x, y, heading (0, 90, 180, 270)
 ;actions: "fd 1", "lt 90", "rt 90"
 globals [u headings actions]
@@ -49,6 +50,12 @@ to go
   ]
 end
 
+to link-create
+  ask turtles [
+    create-path-to one-of other turtles
+  ]
+end
+
 
 to value-iteration
   let delta 1000
@@ -61,10 +68,10 @@ to value-iteration
   while [delta > epsilon * (1 - gamma) / gamma][
     set delta 0
     ask patches[
-      foreach headings [
+      foreach headings [ ?1 ->
         let x pxcor
         let y pycor
-        let dir ?
+        let dir ?1
         let best-action 0
         ask my-turtle [
           setxy x y
@@ -92,11 +99,11 @@ to-report get-best-action
   let dir heading
   let best-action 0
   let best-utility -1000
-  foreach actions[
-    run ?
+  foreach actions[ ?1 ->
+    run ?1
     let utility-of-action get-utility xcor ycor heading
     if (utility-of-action > best-utility)[
-      set best-action ?
+      set best-action ?1
       set best-utility utility-of-action
     ]
     setxy x y
@@ -119,10 +126,10 @@ end
 GRAPHICS-WINDOW
 210
 10
-649
-470
-16
-16
+647
+448
+-1
+-1
 13.0
 1
 10
@@ -161,10 +168,10 @@ NIL
 1
 
 SLIDER
-20
-106
-192
-139
+17
+176
+189
+209
 gamma
 gamma
 0
@@ -176,10 +183,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-20
-146
-192
-179
+17
+216
+189
+249
 epsilon
 epsilon
 0
@@ -191,10 +198,10 @@ NIL
 HORIZONTAL
 
 PLOT
-6
-248
-206
-398
+3
+297
+203
+447
 delta
 NIL
 NIL
@@ -226,15 +233,15 @@ NIL
 1
 
 SLIDER
-20
-185
-192
-218
+17
+255
+189
+288
 num-turtles
 num-turtles
 0
 100
-1
+9.0
 1
 1
 NIL
@@ -258,13 +265,30 @@ NIL
 1
 
 TEXTBOX
-105
-91
-255
-109
+102
+161
+252
+179
 gamma = discount
 11
 0.0
+1
+
+BUTTON
+103
+58
+196
+91
+Link-turtles
+link-create
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 @#$#@#$#@
@@ -631,9 +655,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 5.0.2
+NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -649,7 +672,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@
