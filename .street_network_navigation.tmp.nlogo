@@ -1,127 +1,133 @@
-extensions [table]
-directed-link-breed [paths path]
-;state of the world is x, y, heading (0, 90, 180, 270)
-;actions: "fd 1", "lt 90", "rt 90"
-globals [u headings actions]
+breed[nodes node]         ; to represent the nodes of the network
+breed[searchers searcher] ; to represent the agents that will make the search
 
-
-to put-utility [x y dir utility]
-  let state (list x y dir)
-  table:put u state utility
-end
-
-to-report get-utility [x y dir]
-  let state (list x y dir)
-  if (table:has-key? u state)[
-    report table:get u (list x y dir)
-  ]
-  put-utility x y dir 0
-  report 0
-end
+; Searchers will have som additional properties for their functioning.
+searchers-own [
+  memory               ; Stores the path from the start node to here
+  cost                 ; Stores the real cost from the start
+  total-expected-cost  ; Stores the total exepcted cost from Start to the Goal that is being computed
+  localization         ; The node where the searcher is
+  active?              ; is the seacrher active? That is, we have reached the node, but
+                       ; we must consider it because its neighbors have not been explored
+]
 
 to setup
   ca
-  reset-ticks
-  ask patches [
-    let coin random 60
-    set pcolor white
-    if (coin = 0)[
-      set pcolor red
-    ]
-    if (coin = 1)[
-      set pcolor green
-    ]
-  ]
-  set headings [0 90 180 270]
-  set actions ["fd 1" "lt 90" "rt 90"]
-  set u table:make
-  create-turtles num-turtles[
-    set shape "person police"
-    ;set color blue
-    setxy random-pxcor random-pycor
-    set heading one-of headings
-  ]
-
+  create-nodes Num-nodes [
+    setxy random-xcor random-ycor
+    set shape "circle"
+    set size .5
+    set color blue]
+  ask nodes [
+    create-links-with other nodes in-radius radius]
 end
 
-to go
-  tick
-  ask turtles [
-    take-best-action
-  ]
+to test
+  ask nodes [set color blue set size .5]
+  ask links with [color = yellow][set color grey set thickness 0]
+  let start one-of nodes
+  ask start [set color green set size 1]
+  let goal one-of nodes with [distance start > max-pxcor]
+  ask goal [set color green set size 1]
+  ; We compute the path with A*
+  let path (A* start goal)
+  ; if any, we highlight it
+  if path != false [highlight-path path]
 end
 
-to link-create
-  ask turtles [
-    create-path-to one-of other turtles
-  ]
+to-report heuristic [#Goal]
+  report [distance [localization] of myself] of #Goal
 end
 
 
-to value-iteration
-  let delta 1000
-  let my-turtle 0
-  let best-utility 0
-  create-turtles 1 [
-    set my-turtle self
-    set hidden? true
+to-report A* [#Start #Goal]
+  ; Create a searcher for the Start node
+  ask #Start
+  [
+    hatch-searchers 1
+    [
+      set shape "circle"
+      set color red
+      set localization myself
+      set memory (list localization) ; the partial path will have only this node at the beginning
+      set cost 0
+      set total-expected-cost cost + heuristic #Goal ; Compute the expected cost
+      set active? true ; It is active, because we didn't calculate its neighbors yet
+     ]
   ]
-  while [delta > epsilon * (1 - gamma) / gamma][
-    set delta 0
-    ask patches[
-      foreach headings [ ?1 ->
-        let x pxcor
-        let y pycor
-        let dir ?1
-        let best-action 0
-        ask my-turtle [
-          setxy x y
-          set heading dir
-          set best-utility item 1 get-best-action
-          let current-utility get-utility x y dir
-          let new-utility (get-reward + gamma * best-utility)
-          put-utility x y dir new-utility
-          if (abs (current-utility - new-utility) > delta)[
-           set delta abs (current-utility - new-utility)
+
+  while [not any? searchers with [localization = #Goal] and any? searchers with [active?]]
+  [
+    ask min-one-of (searchers with [active?]) [total-expected-cost]
+    [
+
+      set active? false
+      ; Store this searcher and its localization in temporal variables to facilitate their use
+      let this-searcher self
+      let Lorig localization
+      ; For every neighbor node of this location
+      ask ([link-neighbors] of Lorig)
+      [
+        ; Take the link that connect it to the Location of the searcher
+        let connection link-with Lorig
+        ; The cost to reach the neighbor in this path is the previous cost plus the lenght of the link
+        let c ([cost] of this-searcher) + [link-length] of connection
+        ; Maybe in this node there are other searchers (comming from other nodes).
+        ; If this new path is better than the other, then we put a new searcher and remove the old ones
+        if not any? searchers-in-loc with [cost < c]
+        [
+          hatch-searchers 1
+          [
+            set shape "circle"
+            set color red
+            set localization myself ; the location of the new searcher is this neighbor node
+            set memory lput localization ([memory] of this-searcher) ; the path is built from the
+                                                                     ; original searcher
+            set cost c   ; real cost to reach this node
+            set total-expected-cost cost + heuristic #Goal ; expected cost to reach the goal with this path
+            set active? true  ; it is active to be explored
+            ask other searchers-in-loc [die] ; Remove other seacrhers in this node
           ]
         ]
       ]
     ]
-    plot delta
   ]
-  ask my-turtle [die]
-end
-;turtle functions
-
-; report the turtles best action given its current x, y, heading and current u
-to-report get-best-action
-  let x xcor
-  let y ycor
-  let dir heading
-  let best-action 0
-  let best-utility -1000
-  foreach actions[ ?1 ->
-    run ?1
-    let utility-of-action get-utility xcor ycor heading
-    if (utility-of-action > best-utility)[
-      set best-action ?1
-      set best-utility utility-of-action
-    ]
-    setxy x y
-    set heading dir
+  ; When the loop has finished, we have two options: no path, or a searcher has reached the goal
+  ; By default the return will be false (no path)
+  let res false
+  ; But if it is the second option
+  if any? searchers with [localization = #Goal]
+  [
+    ; we will return the path located in the memory of the searcher that reached the goal
+    let lucky-searcher one-of searchers with [localization = #Goal]
+    set res [memory] of lucky-searcher
   ]
-  report (list best-action best-utility)
+  ; Remove the searchers
+  ask searchers [die]
+  ; and report the result
+  report res
 end
 
-to-report get-reward
-  if (pcolor = green)[report 10]
-  if (pcolor = red)[report -10]
-  report 0
+; Auxiliary procedure the highlight the path when it is found. It makes use of reduce procedure with
+; highlight report
+to highlight-path [path]
+  let a reduce highlight path
 end
 
-to take-best-action
-  let best-action first get-best-action
-  run best-action
+; Auxiliaty report to highlight the path with a reduce method. It recieives two nodes, as a secondary
+; effect it will highlight the link between them, and will return the second node.
+to-report highlight [x y]
+  ask x
+  [
+    ask link-with y [set color yellow set thickness .4]
+  ]
+  report y
+end
+
+; Auxiliary nodes report to return the searchers located in it (it is like a version of turtles-here,
+; but fot he network)
+to-report searchers-in-loc
+  report searchers with [localization = myself]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -151,78 +157,43 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-BUTTON
-32
-20
-98
-53
-setup
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 SLIDER
-17
-176
-189
-209
-gamma
-gamma
+21
+107
+193
+140
+Num-nodes
+Num-nodes
 0
+1000
+242.0
 1
-0.9
-.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-17
-216
-189
-249
-epsilon
-epsilon
-0
-1
+21
+149
+193
+182
+radius
+radius
+0.0
+10.0
+3.2
 0.1
-.01
 1
 NIL
 HORIZONTAL
 
-PLOT
-3
-297
-203
-447
-delta
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" ""
-
 BUTTON
-102
-20
-202
-53
-NIL
-value-iteration
+23
+15
+89
+48
+setup
+setup
 NIL
 1
 T
@@ -233,55 +204,13 @@ NIL
 NIL
 1
 
-SLIDER
-17
-255
-189
-288
-num-turtles
-num-turtles
-0
-100
-1.0
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-33
-57
-96
-90
-go
-go
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-TEXTBOX
-102
-161
-252
-179
-gamma = discount
-11
-0.0
-1
-
-BUTTON
-103
-58
-196
-91
-Link-turtles
-link-create
+95
+14
+158
+47
+test
+test
 NIL
 1
 T
@@ -508,29 +437,6 @@ Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300
 Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
-
-person police
-false
-0
-Polygon -1 true false 124 91 150 165 178 91
-Polygon -13345367 true false 134 91 149 106 134 181 149 196 164 181 149 106 164 91
-Polygon -13345367 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
-Polygon -13345367 true false 120 90 105 90 60 195 90 210 116 158 120 195 180 195 184 158 210 210 240 195 195 90 180 90 165 105 150 165 135 105 120 90
-Rectangle -7500403 true true 123 76 176 92
-Circle -7500403 true true 110 5 80
-Polygon -13345367 true false 150 26 110 41 97 29 137 -1 158 6 185 0 201 6 196 23 204 34 180 33
-Line -13345367 false 121 90 194 90
-Line -16777216 false 148 143 150 196
-Rectangle -16777216 true false 116 186 182 198
-Rectangle -16777216 true false 109 183 124 227
-Rectangle -16777216 true false 176 183 195 205
-Circle -1 true false 152 143 9
-Circle -1 true false 152 166 9
-Polygon -1184463 true false 172 112 191 112 185 133 179 133
-Polygon -1184463 true false 175 6 194 6 189 21 180 21
-Line -1184463 false 149 24 197 24
-Rectangle -16777216 true false 101 177 122 187
-Rectangle -16777216 true false 179 164 183 186
 
 plant
 false
