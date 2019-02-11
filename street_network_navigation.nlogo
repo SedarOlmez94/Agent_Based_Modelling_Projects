@@ -1,128 +1,18 @@
-extensions [table]
-directed-link-breed [paths path]
-;state of the world is x, y, heading (0, 90, 180, 270)
-;actions: "fd 1", "lt 90", "rt 90"
-globals [u headings actions]
+breed [nodes node]
+breed [searchers searcher]
 
-
-to put-utility [x y dir utility]
-  let state (list x y dir)
-  table:put u state utility
-end
-
-to-report get-utility [x y dir]
-  let state (list x y dir)
-  if (table:has-key? u state)[
-    report table:get u (list x y dir)
-  ]
-  put-utility x y dir 0
-  report 0
-end
+searchers-own [
+  memory ; Stores the path from the start node to here
+  cost ; Stores the eral cost form the start node
+  total-expected-cost ; Stores the total expecetd cost from Start to the Goal that is being computed
+  localisation ; The node where the searcher is
+  active? ;Is the searcher active? That is have we reached the node?
+]
 
 to setup
   ca
-  reset-ticks
-  ask patches [
-    let coin random 60
-    set pcolor white
-    if (coin = 0)[
-      set pcolor red
-    ]
-    if (coin = 1)[
-      set pcolor green
-    ]
-  ]
-  set headings [0 90 180 270]
-  set actions ["fd 1" "lt 90" "rt 90"]
-  set u table:make
-  create-turtles num-turtles[
-    set shape "person police"
-    ;set color blue
-    setxy random-pxcor random-pycor
-    set heading one-of headings
-  ]
-
-end
-
-to go
-  tick
-  ask turtles [
-    take-best-action
-  ]
-end
-
-to link-create
-  ask turtles [
-    create-path-to one-of other turtles
-  ]
-end
-
-
-to value-iteration
-  let delta 1000
-  let my-turtle 0
-  let best-utility 0
-  create-turtles 1 [
-    set my-turtle self
-    set hidden? true
-  ]
-  while [delta > epsilon * (1 - gamma) / gamma][
-    set delta 0
-    ask patches[
-      foreach headings [ ?1 ->
-        let x pxcor
-        let y pycor
-        let dir ?1
-        let best-action 0
-        ask my-turtle [
-          setxy x y
-          set heading dir
-          set best-utility item 1 get-best-action
-          let current-utility get-utility x y dir
-          let new-utility (get-reward + gamma * best-utility)
-          put-utility x y dir new-utility
-          if (abs (current-utility - new-utility) > delta)[
-           set delta abs (current-utility - new-utility)
-          ]
-        ]
-      ]
-    ]
-    plot delta
-  ]
-  ask my-turtle [die]
-end
-;turtle functions
-
-; report the turtles best action given its current x, y, heading and current u
-to-report get-best-action
-  let x xcor
-  let y ycor
-  let dir heading
-  let best-action 0
-  let best-utility -1000
-  foreach actions[ ?1 ->
-    run ?1
-    let utility-of-action get-utility xcor ycor heading
-    if (utility-of-action > best-utility)[
-      set best-action ?1
-      set best-utility utility-of-action
-    ]
-    setxy x y
-    set heading dir
-  ]
-  report (list best-action best-utility)
-end
-
-to-report get-reward
-  if (pcolor = green)[report 10]
-  if (pcolor = red)[report -10]
-  report 0
-end
-
-to take-best-action
-  let best-action first get-best-action
-  run best-action
-end
+  create-nodes Num-nodes[
+    setxy random-xcor random-ycor
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -138,8 +28,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-0
-0
+1
+1
 1
 -16
 16
@@ -150,147 +40,6 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
-
-BUTTON
-32
-20
-98
-53
-setup
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-17
-176
-189
-209
-gamma
-gamma
-0
-1
-0.9
-.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-17
-216
-189
-249
-epsilon
-epsilon
-0
-1
-0.1
-.01
-1
-NIL
-HORIZONTAL
-
-PLOT
-3
-297
-203
-447
-delta
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" ""
-
-BUTTON
-102
-20
-202
-53
-NIL
-value-iteration
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-17
-255
-189
-288
-num-turtles
-num-turtles
-0
-100
-1.0
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-33
-57
-96
-90
-go
-go
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-TEXTBOX
-102
-161
-252
-179
-gamma = discount
-11
-0.0
-1
-
-BUTTON
-103
-58
-196
-91
-Link-turtles
-link-create
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -508,29 +257,6 @@ Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300
 Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
-
-person police
-false
-0
-Polygon -1 true false 124 91 150 165 178 91
-Polygon -13345367 true false 134 91 149 106 134 181 149 196 164 181 149 106 164 91
-Polygon -13345367 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
-Polygon -13345367 true false 120 90 105 90 60 195 90 210 116 158 120 195 180 195 184 158 210 210 240 195 195 90 180 90 165 105 150 165 135 105 120 90
-Rectangle -7500403 true true 123 76 176 92
-Circle -7500403 true true 110 5 80
-Polygon -13345367 true false 150 26 110 41 97 29 137 -1 158 6 185 0 201 6 196 23 204 34 180 33
-Line -13345367 false 121 90 194 90
-Line -16777216 false 148 143 150 196
-Rectangle -16777216 true false 116 186 182 198
-Rectangle -16777216 true false 109 183 124 227
-Rectangle -16777216 true false 176 183 195 205
-Circle -1 true false 152 143 9
-Circle -1 true false 152 166 9
-Polygon -1184463 true false 172 112 191 112 185 133 179 133
-Polygon -1184463 true false 175 6 194 6 189 21 180 21
-Line -1184463 false 149 24 197 24
-Rectangle -16777216 true false 101 177 122 187
-Rectangle -16777216 true false 179 164 183 186
 
 plant
 false
