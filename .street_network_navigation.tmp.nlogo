@@ -1,4 +1,4 @@
-breed [nodes node]
+;breed [nodes node]
 breed [searchers searcher]
 
 searchers-own [
@@ -22,10 +22,22 @@ to setup
   ]
 end
 
+to test
+  ask nodes [set color blue set size .5]
+  ask links with [color = yellow][set color grey set thickness 0]
+  let start one-of nodes
+  ask start [set color green set size 1]
+  let goal one-of nodes with [distance start > max-pxcor]
+  ask goal [set color green set size 1]
+  ; We compute the path with A*
+  let path (A* start goal)
+  ; if any, we highlight it
+  if path != false [highlight-path path]
+end
+
 to-report heuristic [#Goal]
   report [distance [localisation] of myself] of #Goal
 end
-
 
 to-report A* [#Start #Goal]
   ; Create a searcher for the Start Node
@@ -33,7 +45,7 @@ to-report A* [#Start #Goal]
     hatch-searchers 1 [
       set shape "circle"
       set color red
-      set localisation (list localisation)
+      set memory (list localisation)
       set cost 0
       set total-expected-cost cost + heuristic #Goal ;The expected cost
       set active? true ; It is active, because neightbours haven't been calculated yet.
@@ -70,10 +82,20 @@ to-report A* [#Start #Goal]
   report res
 end
 
-toreport searchers-in-loc
-  report searchers with [localisation = myself]
+to highlight-path [path]
+  let a reduce highlight path
 end
 
+to-report highlight [x y]
+  ask x [
+    ask link-with y [set color yellow set thickness .4]
+  ]
+  report y
+end
+
+to-report searchers-in-loc
+  report searchers with [localisation = myself]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -110,8 +132,8 @@ SLIDER
 Num-nodes
 Num-nodes
 0
-100
-50.0
+1000
+1000.0
 1
 1
 NIL
@@ -124,13 +146,47 @@ SLIDER
 182
 radius
 radius
-0
-100
-50.0
-1
+0.0
+10.0
+1.3
+0.1
 1
 NIL
 HORIZONTAL
+
+BUTTON
+23
+15
+89
+48
+setup
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+95
+14
+158
+47
+test
+test
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
