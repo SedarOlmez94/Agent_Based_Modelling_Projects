@@ -5,8 +5,8 @@ breed[searchers searcher] ; to represent the agents that will make the search
 searchers-own [
   memory               ; Stores the path from the start node to here
   cost                 ; Stores the real cost from the start
-  total-expected-cost  ; Stores the total exepcted cost from Start to the Goal that is being computed
-  localization         ; The node where the searcher is
+  total-cost           ; Stores the total exepcted cost from Start to the Goal that is being computed
+  localisation         ; The node where the searcher is
   active?              ; is the seacrher active? That is, we have reached the node, but
                        ; we must consider it because its neighbors have not been explored
 ]
@@ -36,7 +36,7 @@ to test
 end
 
 to-report heuristic [#Goal]
-  report [distance [localization] of myself] of #Goal
+  report [distance [localisation] of myself] of #Goal
 end
 
 
@@ -46,23 +46,20 @@ to-report A* [#Start #Goal]
   [
     hatch-searchers 1
     [
-      set shape "circle"
-      set color red
-      set localization myself
-      set memory (list localization) ; the partial path will have only this node at the beginning
+      node-description
+      set memory (list localisation) ; the partial path will have only this node at the beginning
       set cost 0
-      set total-expected-cost cost + heuristic #Goal ; Compute the expected cost
-      set active? true ; It is active, because we didn't calculate its neighbors yet
+      set total-cost cost + heuristic #Goal ; Compute the expected cost
      ]
   ]
 
-  while [not any? searchers with [localization = #Goal] and any? searchers with [active?]]
+  while [not any? searchers with [localisation = #Goal] and any? searchers with [active?]]
   [
-    ask min-one-of (searchers with [active?]) [total-expected-cost]
+    ask min-one-of (searchers with [active?]) [total-cost]
     [
       set active? false
       let this-searcher self
-      let Lorig localization
+      let Lorig localisation
       ask ([link-neighbors] of Lorig)
       [
         let connection link-with Lorig
@@ -74,14 +71,11 @@ to-report A* [#Start #Goal]
         [
           hatch-searchers 1
           [
-            set shape "circle"
-            set color red
-            set localization myself ; the location of the new searcher is this neighbor node
-            set memory lput localization ([memory] of this-searcher) ; the path is built from the
+            node-description
+            set total-cost cost + heuristic #Goal ; Compute the expected cost
+            set memory lput localisation ([memory] of this-searcher) ; the path is built from the
                                                                      ; original searcher
             set cost c   ; real cost to reach this node
-            set total-expected-cost cost + heuristic #Goal ; expected cost to reach the goal with this path
-            set active? true  ; it is active to be explored
             ask other searchers-in-loc [die] ; Remove other seacrhers in this node
           ]
         ]
@@ -92,10 +86,10 @@ to-report A* [#Start #Goal]
   ; By default the return will be false (no path)
   let res false
   ; But if it is the second option
-  if any? searchers with [localization = #Goal]
+  if any? searchers with [localisation = #Goal]
   [
     ; we will return the path located in the memory of the searcher that reached the goal
-    let lucky-searcher one-of searchers with [localization = #Goal]
+    let lucky-searcher one-of searchers with [localisation = #Goal]
     set res [memory] of lucky-searcher
   ]
   ; Remove the searchers
@@ -117,7 +111,14 @@ to-report highlight [x y]
 end
 
 to-report searchers-in-loc
-  report searchers with [localization = myself]
+  report searchers with [localisation = myself]
+end
+
+to node-description
+      set shape "circle"
+      set color red
+      set localisation myself
+      set active? true ; It is active, because we didn't calculate its neighbors yet
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -156,7 +157,7 @@ Num-nodes
 Num-nodes
 0
 1000
-242.0
+146.0
 1
 1
 NIL
