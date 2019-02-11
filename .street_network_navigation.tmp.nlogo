@@ -44,8 +44,7 @@ to-report A* [#Start #Goal]
       set active? false
       let this-searcher self
       let Lorig localisation
-      ask ([link-neighbors] of Lorig)[
-        let connection link-with Lorig
+      ask ([link-neighbors] of Lo)
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
