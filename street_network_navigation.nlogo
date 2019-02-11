@@ -1,11 +1,5 @@
-; In this case, we will work with turtles, not patches.
-; Specifically with two types of turtles
 breed[nodes node]         ; to represent the nodes of the network
 breed[searchers searcher] ; to represent the agents that will make the search
-
-; We don't need any extra property in the nodes. All the information will be stored
-; in the searchers, and to know if a node has been explored it is enough to see of there
-; is a searcher on it.
 
 ; Searchers will have som additional properties for their functioning.
 searchers-own [
@@ -17,8 +11,6 @@ searchers-own [
                        ; we must consider it because its neighbors have not been explored
 ]
 
-; Setup procedure: simply create the geometric network based on the number of random located nodes
-; and the maximum radius to connect two any nodes of the network
 to setup
   ca
   create-nodes Num-nodes [
@@ -30,7 +22,6 @@ to setup
     create-links-with other nodes in-radius radius]
 end
 
-; Auxiliary procedure to test the A* algorithm between two random nodes of the network
 to test
   ask nodes [set color blue set size .5]
   ask links with [color = yellow][set color grey set thickness 0]
@@ -44,15 +35,11 @@ to test
   if path != false [highlight-path path]
 end
 
-; Searcher report to compute the heuristic for this searcher: in this case, one good option
-; is the euclidean distance from the location of the node and the goal we want to reach
 to-report heuristic [#Goal]
   report [distance [localization] of myself] of #Goal
 end
 
-; The A* Algorithm es very similar to the previous one (patches). It is supposed that the
-; network is accesible by the algorithm, so we don't need to pass it as input. Therefore,
-; it will receive only the initial and final nodes.
+
 to-report A* [#Start #Goal]
   ; Create a searcher for the Start node
   ask #Start
@@ -68,22 +55,16 @@ to-report A* [#Start #Goal]
       set active? true ; It is active, because we didn't calculate its neighbors yet
      ]
   ]
-  ; The main loop will run while the Goal has not been reached and we have active searchers to
-  ; inspect. Tha means that a path connecting start and goal is still possible
+
   while [not any? searchers with [localization = #Goal] and any? searchers with [active?]]
   [
-    ; From the active searchers we take one of the minimal expected cost to the goal
     ask min-one-of (searchers with [active?]) [total-expected-cost]
     [
-      ; We will explore its neighbors, so we deactivated it
       set active? false
-      ; Store this searcher and its localization in temporal variables to facilitate their use
       let this-searcher self
       let Lorig localization
-      ; For every neighbor node of this location
       ask ([link-neighbors] of Lorig)
       [
-        ; Take the link that connect it to the Location of the searcher
         let connection link-with Lorig
         ; The cost to reach the neighbor in this path is the previous cost plus the lenght of the link
         let c ([cost] of this-searcher) + [link-length] of connection
@@ -123,14 +104,10 @@ to-report A* [#Start #Goal]
   report res
 end
 
-; Auxiliary procedure the highlight the path when it is found. It makes use of reduce procedure with
-; highlight report
 to highlight-path [path]
   let a reduce highlight path
 end
 
-; Auxiliaty report to highlight the path with a reduce method. It recieives two nodes, as a secondary
-; effect it will highlight the link between them, and will return the second node.
 to-report highlight [x y]
   ask x
   [
@@ -139,8 +116,6 @@ to-report highlight [x y]
   report y
 end
 
-; Auxiliary nodes report to return the searchers located in it (it is like a version of turtles-here,
-; but fot he network)
 to-report searchers-in-loc
   report searchers with [localization = myself]
 end
@@ -181,7 +156,7 @@ Num-nodes
 Num-nodes
 0
 1000
-1000.0
+242.0
 1
 1
 NIL
@@ -196,7 +171,7 @@ radius
 radius
 0.0
 10.0
-1.3
+3.2
 0.1
 1
 NIL
