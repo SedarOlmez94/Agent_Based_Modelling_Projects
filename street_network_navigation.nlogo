@@ -46,6 +46,34 @@ to-report A* [#Start #Goal]
       let Lorig localisation
       ask ([link-neighbors] of Lorig)[
         let connection link-with Lorig
+        let c ([cost] of this-searcher) + [link-length] of connection
+        if not any? searchers-in-loc with [cost < c][
+          hatch-searchers 1
+          [
+            set shape "circle"
+            set color red
+            set localisation myself
+            set memory lput localisation ([memory] of this-searcher)
+            set cost c
+            set total-expected-cost cost + heuristic #Goal
+            set active? true
+            ask other searchers-in-loc [die]
+  ]]]]]
+
+
+  let res false
+  if any? searchers with [localisation = #Goal][
+    let lucky-searcher one-of searchers with [localisation = #Goal]
+    set res [memory] of lucky-searcher
+  ]
+  ask searchers [die]
+  report res
+end
+
+to-report searchers-in-loc
+  report searchers with [localisation = myself]
+end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
