@@ -1,3 +1,5 @@
+;globals [a-cost b-memory c-totalcost]
+
 breed[nodes node]         ; to represent the nodes of the network
 breed[searchers searcher] ; to represent the agents that will make the search
 
@@ -33,6 +35,7 @@ to test
   let path (A* start goal)
   ; if any, we highlight it
   if path != false [highlight-path path]
+  ;output
 end
 
 to-report heuristic [#Goal]
@@ -120,6 +123,13 @@ to node-description
       set localisation myself
       set active? true ; It is active, because we didn't calculate its neighbors yet
 end
+
+;to output
+;  let selected-turtles n-of Num-nodes turtles
+;  set a-cost [cost] of selected-turtles
+;  set b-memory [memory] of selected-turtles
+;  set c-totalcost [total-cost] of selected-turtles
+;end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -157,7 +167,7 @@ Num-nodes
 Num-nodes
 0
 1000
-146.0
+344.0
 1
 1
 NIL
@@ -558,6 +568,23 @@ NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="60" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>test</go>
+    <metric>a-cost</metric>
+    <metric>b-memory</metric>
+    <metric>c-totalcost</metric>
+  </experiment>
+  <experiment name="experiment" repetitions="15" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>test</go>
+    <timeLimit steps="1"/>
+    <metric>a-cost</metric>
+    <metric>b-memory</metric>
+    <metric>c-totalcost</metric>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
