@@ -17,6 +17,7 @@ patches-own[
   turtles-num   ;; number of turtles on the patch
   destination-name
   geocode
+  geolabel
   geolabelw
   label?
 ]
@@ -118,6 +119,7 @@ to gis-to-map
     ask patches gis:intersecting vector-feature [
        set destination-name gis:property-value vector-feature "NAME"
        set geocode gis:property-value vector-feature "GEO_CODE"
+
        set geolabelw gis:property-value vector-feature "GEO_LABELW"
        set label? gis:property-value vector-feature "LABEL"
     ]
