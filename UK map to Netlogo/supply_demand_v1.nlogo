@@ -16,6 +16,9 @@ globals [
 patches-own[
   turtles-num   ;; number of turtles on the patch
   destination-name
+  geocode
+  geolabelw
+  label?
 ]
 
 turtles-own[ height_asl ]
@@ -107,11 +110,16 @@ to move-down
   draw
 end
 
+; This method maps the GIS vector data to the patch attributes, we also use centroids to
+; focus only on the data within the outlines of the boundary map and not the sea.
 to gis-to-map
   foreach gis:feature-list-of map-view [vector-feature ->
     let centroid gis:location-of gis:centroid-of vector-feature
     ask patches gis:intersecting vector-feature [
        set destination-name gis:property-value vector-feature "NAME"
+       set geocode gis:property-value vector-feature "GEO_CODE"
+       set geolabelw gis:property-value vector-feature "GEO_LABELW"
+       set label? gis:property-value vector-feature "LABEL"
     ]
   ]
 end
@@ -228,7 +236,7 @@ zoom
 zoom
 .01
 1.2
-0.35
+0.09
 .01
 1
 NIL
@@ -277,7 +285,7 @@ shift
 shift
 0
 30
-11.0
+6.0
 1
 1
 NIL
