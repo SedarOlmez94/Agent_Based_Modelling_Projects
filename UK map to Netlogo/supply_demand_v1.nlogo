@@ -14,7 +14,7 @@ globals [
 ; patches now have an elevation value drawn from the map (raster data)
 patches-own[
   turtles-num   ;; number of turtles on the patch
-  elevation
+  destination-name
 ]
 
 turtles-own[ height_asl ]
@@ -35,10 +35,9 @@ end
 
 ; Adding a dataset from GIS must be a shape file.
 to setup-map
-  set map-view gis:load-dataset "/Users/solmez/Desktop/Internship project LESP/UK map to Netlogo/data/United_Kingdom/infuse_dist_lyr_2011.shp"
+  set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
   gis:set-world-envelope gis:envelope-of map-view
   gis:set-drawing-color black
-  ;gis:apply-raster  map-view elevation
   gis:draw map-view 1
 end
 
@@ -49,18 +48,6 @@ to get-map-view
 self
   ]
 end
-
-
-;Re colour the patches using our newly created elevation patch variable.
-;to recolour-patches
-;  ask patches [
-;    ifelse elevation >= 0[
-;      set pcolor scale-color green elevation 0 2000
-;    ][
-;      set pcolor red
-;    ]
-;  ]
-;end
 
 to draw
   clear-drawing
@@ -116,6 +103,23 @@ end
 to move-down
   set center-y center-y - shift * gis-patch-size
   draw
+end
+
+to gis-to-patches
+  print gis:property-value map-view "NAME"
+  ;gis:apply-coverage countries-dataset "POP_CNTRY" population
+  ;ask patches
+  ;[ ifelse (population > 0)
+  ;  [ set pcolor scale-color red population 500000000 100000 ]
+  ;  [ set pcolor blue ] ]
+end
+
+to print-dataset
+  print gis:feature-list-of map-view
+end
+
+to print-labels
+  print gis:property-names map-view
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -335,6 +339,57 @@ BUTTON
 370
 move-down
 move-down
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+733
+490
+851
+523
+load patch data
+gis-to-patches
+NIL
+1
+T
+PATCH
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+688
+375
+791
+408
+print dataset
+print-dataset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+693
+414
+785
+447
+print labels
+print-labels
 NIL
 1
 T
