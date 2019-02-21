@@ -54,6 +54,7 @@ to draw
   clear-drawing
   setup-world-envelope
   gis:set-drawing-color gray + 1  gis:draw map-view 1
+  draw-centroids
 end
 
 to setup-world-envelope
@@ -122,29 +123,6 @@ to gis-to-map
        set centroid-value centroid
     ]
   ]
-
-    foreach gis:feature-list-of centroid-points [ vector-feature ->
-    gis:set-drawing-color red
-    gis:fill vector-feature 2.0
-;    if label-cities
-;    [ ; a feature in a point dataset may have multiple points, so we
-;      ; have a list of lists of points, which is why we need to use
-;      ; first twice here
-;      let location gis:location-of (first (first (gis:vertex-lists-of vector-feature)))
-;      ; location will be an empty list if the point lies outside the
-;      ; bounds of the current NetLogo world, as defined by our current
-;      ; coordinate transformation
-;      if not empty? location
-;      [ create-city-labels 1
-;        [ set xcor item 0 location
-;          set ycor item 1 location
-;          set size 0
-;          set label gis:property-value vector-feature "NAME"
-;        ]
-;      ]
-;    ]
-  ]
-
 end
 
 to breed_turtles
@@ -166,6 +144,15 @@ ask turtles [ die ]
   ]
 end
 
+to draw-centroids
+  foreach gis:feature-list-of centroid-points [ vector-feature ->
+    gis:set-drawing-color red
+    gis:fill vector-feature 2.0
+    ask patches gis:intersecting vector-feature [
+      set pcolor blue
+    ]
+  ]
+end
 
 to print-dataset
   print (word "MAP: " gis:feature-list-of map-view)
@@ -281,7 +268,7 @@ zoom
 zoom
 .01
 1.2
-0.5
+0.7
 .01
 1
 NIL
