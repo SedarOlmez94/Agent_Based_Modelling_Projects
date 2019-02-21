@@ -17,7 +17,6 @@ patches-own[
   turtles-num   ;; number of turtles on the patch
   destination-name
   geocode
-  geolabel
   geolabelw
   label?
 ]
@@ -119,7 +118,6 @@ to gis-to-map
     ask patches gis:intersecting vector-feature [
        set destination-name gis:property-value vector-feature "NAME"
        set geocode gis:property-value vector-feature "GEO_CODE"
-
        set geolabelw gis:property-value vector-feature "GEO_LABELW"
        set label? gis:property-value vector-feature "LABEL"
     ]
@@ -196,10 +194,10 @@ NIL
 1
 
 BUTTON
-641
-97
-726
-130
+687
+36
+772
+69
 zoom-in
 zoom-in
 NIL
@@ -213,10 +211,10 @@ NIL
 1
 
 BUTTON
-734
-97
-828
-130
+778
+36
+872
+69
 zoom-out
 zoom-out
 NIL
@@ -230,25 +228,25 @@ NIL
 1
 
 SLIDER
-641
-185
-813
-218
+780
+74
+872
+107
 zoom
 zoom
 .01
 1.2
-0.09
+0.12
 .01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-642
-137
-735
-170
+688
+74
+772
+107
 zoom-std
 zoom-std
 NIL
@@ -262,10 +260,10 @@ NIL
 1
 
 BUTTON
-741
-137
-828
-170
+793
+394
+880
+427
 NIL
 draw
 NIL
@@ -279,10 +277,10 @@ NIL
 1
 
 SLIDER
-641
-226
-813
-259
+726
+254
+832
+287
 shift
 shift
 0
@@ -294,10 +292,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-737
-300
-839
-333
+777
+179
+879
+212
 move-right
 move-right
 NIL
@@ -311,10 +309,10 @@ NIL
 1
 
 BUTTON
-640
-300
-732
-333
+680
+179
+772
+212
 move-left
 move-left
 NIL
@@ -328,10 +326,10 @@ NIL
 1
 
 BUTTON
-694
-263
-782
-296
+734
+142
+822
+175
 move-up
 move-up
 NIL
@@ -345,10 +343,10 @@ NIL
 1
 
 BUTTON
-685
-337
-790
-370
+725
+216
+830
+249
 move-down
 move-down
 NIL
@@ -362,10 +360,10 @@ NIL
 1
 
 BUTTON
-733
-490
-851
-523
+692
+394
+788
+427
 load patch data
 gis-to-map
 NIL
@@ -379,10 +377,10 @@ NIL
 1
 
 BUTTON
-688
-375
-791
-408
+690
+321
+771
+354
 print dataset
 print-dataset
 NIL
@@ -396,10 +394,10 @@ NIL
 1
 
 BUTTON
-693
-414
-785
-447
+775
+321
+856
+354
 print labels
 print-labels
 NIL
@@ -410,6 +408,56 @@ NIL
 NIL
 NIL
 NIL
+1
+
+TEXTBOX
+737
+18
+832
+36
+ZOOM CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+751
+120
+813
+138
+CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+720
+297
+843
+315
+DATASET INFORMATION
+11
+0.0
+1
+
+TEXTBOX
+735
+368
+817
+386
+MAP CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+665
+444
+815
+496
+1) click <load patch data> to merge the dataset (polygon average) = centroid with the patch variables
+10
+0.0
 1
 
 @#$#@#$#@
