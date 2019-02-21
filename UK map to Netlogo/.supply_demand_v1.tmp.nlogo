@@ -127,13 +127,8 @@ to breed_turtles
 ;
 ;    ]
 ;  ]
-
-  foreach gis:feature-list-of map-view [vector-feature ->
-    let centroid gis:location-of gis:centroid-of vector-feature
-    ask patches gis:intersecting vector-feature [
-       sprout 1
-    ]
-  ]
+ask turtles [ die ]
+  ask patches with [destination-name != False] [
 end
 
 
@@ -249,7 +244,7 @@ zoom
 zoom
 .01
 1.2
-0.2
+0.5
 .01
 1
 NIL
