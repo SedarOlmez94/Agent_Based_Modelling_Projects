@@ -110,6 +110,7 @@ to gis-to-map
        set geocode gis:property-value vector-feature "GEO_CODE"
        set geolabelw gis:property-value vector-feature "GEO_LABELW"
        set label? gis:property-value vector-feature "LABEL"
+
     ]
   ]
 end
@@ -129,7 +130,7 @@ to breed_turtles
 ;  ]
 ask turtles [ die ]
   ask patches with [destination-name != 0][
-   sprout 1
+    sprout 1
   ]
 end
 
@@ -246,7 +247,7 @@ zoom
 zoom
 .01
 1.2
-0.2
+0.5
 .01
 1
 NIL

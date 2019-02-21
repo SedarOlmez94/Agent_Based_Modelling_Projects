@@ -105,11 +105,13 @@ end
 to gis-to-map
   foreach gis:feature-list-of map-view [vector-feature ->
     let centroid gis:location-of gis:centroid-of vector-feature
+
     ask patches gis:intersecting vector-feature [
        set destination-name gis:property-value vector-feature "NAME"
        set geocode gis:property-value vector-feature "GEO_CODE"
        set geolabelw gis:property-value vector-feature "GEO_LABELW"
        set label? gis:property-value vector-feature "LABEL"
+
     ]
   ]
 end
@@ -128,7 +130,9 @@ to breed_turtles
 ;    ]
 ;  ]
 ask turtles [ die ]
-  ask patches with [destination-name != False] [
+  ask patches with [destination-name != 0][
+    sprout 1
+  ]
 end
 
 
