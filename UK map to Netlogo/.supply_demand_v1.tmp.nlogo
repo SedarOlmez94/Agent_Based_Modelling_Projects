@@ -1,27 +1,26 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
 extensions [ gis ]
+
+
 globals [
-  map-view          ;; GIS dataset
-  streets           ;; patches representing streets
+  map-view          ;; GIS dataset/map
   center-x          ;;
   center-y          ;; center of the map
-  mean-wait-time    ;; average time turtles stay at rest
   mean-motion-time  ;; average time turtles stay in motion
   mean-speed        ;; turtles'speed indicator
-  ?
+  ID
  ]
-
-; patches now have an elevation value drawn from the map (raster data)
 patches-own[
-  turtles-num   ;; number of turtles on the patch
-  destination-name
-  geocode
-  geolabelw
-  label?
+  turtles-num       ;; number of turtles on the patch
+  destination-name  ;; name of each city/borough
+  geocode           ;; the geocode (uniquevalue) for each city/borough
+  geolabelw         ;; this is also a unique value, I don't know what though.
+  label?            ;; a unique string  for each city/borough
 ]
-
-turtles-own[ height_asl ]
+turtles-own[
+  height_asl
+]
 
 to setup
   ca
@@ -32,9 +31,7 @@ to setup
 end
 
 to go
-  crt 1[ fd 10 ]
-
-  get-map-view
+  breed_turtles
 end
 
 ; Adding a dataset from GIS must be a shape file.
@@ -46,13 +43,6 @@ to setup-map
   gis:draw map-view 1
 end
 
-;Add a turtle and give it a height_asl variable it can use to interact with the raster data.
-to get-map-view
-  ask turtles [
-    set height_asl gis:raster-sample map-view
-self
-  ]
-end
 
 to draw
   clear-drawing
@@ -123,6 +113,23 @@ to gis-to-map
     ]
   ]
 end
+
+to breed_turtles
+;foreach gis:feature-list-of map-view [ vector-feature ->
+;    let centroid gis:location-of gis:centroid-of vector-feature
+;    ; centroid will be an empty list if it lies outside the bounds
+;    ; of the current NetLogo world, as defined by our current GIS
+;    ; coordinate transformation
+;    if not empty? centroid
+;    [
+;          sprout 1
+;          set ID ID + 1
+;
+;    ]
+;  ]
+ask patches with
+end
+
 
 to print-dataset
   print gis:feature-list-of map-view
@@ -236,7 +243,7 @@ zoom
 zoom
 .01
 1.2
-0.12
+0.4
 .01
 1
 NIL
@@ -285,7 +292,7 @@ shift
 shift
 0
 30
-6.0
+0.0
 1
 1
 NIL
@@ -413,7 +420,7 @@ NIL
 TEXTBOX
 697
 17
-792
+813
 35
 ZOOM CONTROLS
 11
@@ -433,7 +440,7 @@ CONTROLS
 TEXTBOX
 680
 296
-803
+819
 314
 DATASET INFORMATION
 11
