@@ -139,7 +139,7 @@ to breed_turtles
 ;    ]
 ;  ]
 ask turtles [ die ]
-  ask patches with [centroid-value != 0][
+  ask patches with [pcolor = blue][
     sprout 1
   ]
 end

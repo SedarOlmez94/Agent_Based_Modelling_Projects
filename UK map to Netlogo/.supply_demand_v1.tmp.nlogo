@@ -139,7 +139,7 @@ to breed_turtles
 ;    ]
 ;  ]
 ask turtles [ die ]
-  ask patches with [centroid-value != 0][
+  ask patches with [][
     sprout 1
   ]
 end
@@ -148,7 +148,9 @@ to draw-centroids
   foreach gis:feature-list-of centroid-points [ vector-feature ->
     gis:set-drawing-color red
     gis:fill vector-feature 2.0
-
+    ask patches gis:intersecting vector-feature [
+      set pcolor blue
+    ]
   ]
 end
 
@@ -266,7 +268,7 @@ zoom
 zoom
 .01
 1.2
-0.1
+0.7
 .01
 1
 NIL
