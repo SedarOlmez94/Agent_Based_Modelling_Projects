@@ -19,6 +19,7 @@ patches-own[
   label?            ;; a unique string  for each city/borough
   longitude
   latitude
+  centroid-value
 ]
 turtles-own[
   height_asl
@@ -113,8 +114,8 @@ to gis-to-map
        set geolabelw gis:property-value vector-feature "GEO_LABELW"
        set label? gis:property-value vector-feature "LABEL"
        set longitude gis:property-value vector-feature "LONGITUDE"
-       set latitude gis:property_value vector-featuer "LATITUDE"
-
+       set latitude gis:property-value vector-feature "LATITUDE"
+       set centroid-value centroid
     ]
   ]
 end
@@ -133,7 +134,7 @@ to breed_turtles
 ;    ]
 ;  ]
 ask turtles [ die ]
-  ask patches with [destination-name != 0][
+  ask patches with [centroid-value != 0][
     sprout 1
   ]
 end
