@@ -194,10 +194,10 @@ NIL
 1
 
 BUTTON
-641
-97
-726
-130
+647
+35
+732
+68
 zoom-in
 zoom-in
 NIL
@@ -211,10 +211,10 @@ NIL
 1
 
 BUTTON
-734
-97
-828
-130
+738
+35
+832
+68
 zoom-out
 zoom-out
 NIL
@@ -228,25 +228,25 @@ NIL
 1
 
 SLIDER
-641
-185
-813
-218
+740
+73
+832
+106
 zoom
 zoom
 .01
 1.2
-0.09
+0.12
 .01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-642
-137
-735
-170
+648
+73
+732
+106
 zoom-std
 zoom-std
 NIL
@@ -260,10 +260,10 @@ NIL
 1
 
 BUTTON
-741
-137
-828
-170
+753
+393
+840
+426
 NIL
 draw
 NIL
@@ -277,10 +277,10 @@ NIL
 1
 
 SLIDER
-641
-226
-813
-259
+686
+253
+792
+286
 shift
 shift
 0
@@ -293,9 +293,9 @@ HORIZONTAL
 
 BUTTON
 737
-300
+178
 839
-333
+211
 move-right
 move-right
 NIL
@@ -310,9 +310,9 @@ NIL
 
 BUTTON
 640
-300
+178
 732
-333
+211
 move-left
 move-left
 NIL
@@ -327,9 +327,9 @@ NIL
 
 BUTTON
 694
-263
+141
 782
-296
+174
 move-up
 move-up
 NIL
@@ -344,9 +344,9 @@ NIL
 
 BUTTON
 685
-337
+215
 790
-370
+248
 move-down
 move-down
 NIL
@@ -360,10 +360,10 @@ NIL
 1
 
 BUTTON
-733
-490
-851
-523
+652
+393
+748
+426
 load patch data
 gis-to-map
 NIL
@@ -377,10 +377,10 @@ NIL
 1
 
 BUTTON
-688
-375
-791
-408
+650
+320
+731
+353
 print dataset
 print-dataset
 NIL
@@ -394,10 +394,10 @@ NIL
 1
 
 BUTTON
-693
-414
-785
-447
+735
+320
+816
+353
 print labels
 print-labels
 NIL
@@ -408,6 +408,56 @@ NIL
 NIL
 NIL
 NIL
+1
+
+TEXTBOX
+697
+17
+792
+35
+ZOOM CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+711
+119
+773
+137
+CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+680
+296
+803
+314
+DATASET INFORMATION
+11
+0.0
+1
+
+TEXTBOX
+695
+367
+777
+385
+MAP CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+653
+435
+803
+487
+1) click <load patch data> to merge the dataset (polygon average) = centroid with the patch variables
+10
+0.0
 1
 
 @#$#@#$#@
