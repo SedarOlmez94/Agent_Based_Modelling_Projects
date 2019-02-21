@@ -28,7 +28,9 @@ turtles-own[
 
 to setup
   ca
-  ask patches [set pcolor white]
+  ask patches [
+    set pcolor white
+  ]
   setup-map
   draw
   reset-ticks
@@ -167,11 +169,11 @@ end
 GRAPHICS-WINDOW
 32
 10
-624
-603
+634
+613
 -1
 -1
-17.7
+18.0
 1
 10
 1
@@ -317,7 +319,7 @@ shift
 shift
 0
 30
-0.0
+5.0
 1
 1
 NIL

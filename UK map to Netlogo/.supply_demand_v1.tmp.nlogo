@@ -28,7 +28,9 @@ turtles-own[
 
 to setup
   ca
-  ask patches [set pcolor white]
+  ask patches [
+    set pcolor white
+  ]
   setup-map
   draw
   reset-ticks
@@ -139,7 +141,7 @@ to breed_turtles
 ;    ]
 ;  ]
 ask turtles [ die ]
-  ask patches with [][
+  ask patches with [pcolor = blue][
     sprout 1
   ]
 end
@@ -167,11 +169,11 @@ end
 GRAPHICS-WINDOW
 32
 10
-624
-603
+634
+613
 -1
 -1
-17.7
+18.0
 1
 10
 1
