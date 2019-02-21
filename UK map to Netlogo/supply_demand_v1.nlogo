@@ -17,6 +17,8 @@ patches-own[
   geocode           ;; the geocode (uniquevalue) for each city/borough
   geolabelw         ;; this is also a unique value, I don't know what though.
   label?            ;; a unique string  for each city/borough
+  longitude
+  latitude
 ]
 turtles-own[
   height_asl
@@ -110,6 +112,8 @@ to gis-to-map
        set geocode gis:property-value vector-feature "GEO_CODE"
        set geolabelw gis:property-value vector-feature "GEO_LABELW"
        set label? gis:property-value vector-feature "LABEL"
+       set longitude gis:property-value vector-feature "LONGITUDE"
+       set latitude gis:property_value vector-featuer "LATITUDE"
 
     ]
   ]
