@@ -5,6 +5,7 @@ extensions [ gis ]
 
 globals [
   map-view          ;; GIS dataset/map
+  centroid-points   ;; the GIS dataset of geometric center points
   center-x          ;;
   center-y          ;; center of the map
   mean-motion-time  ;; average time turtles stay in motion
@@ -17,6 +18,9 @@ patches-own[
   geocode           ;; the geocode (uniquevalue) for each city/borough
   geolabelw         ;; this is also a unique value, I don't know what though.
   label?            ;; a unique string  for each city/borough
+  longitude
+  latitude
+  centroid-value
 ]
 turtles-own[
   height_asl
@@ -24,7 +28,9 @@ turtles-own[
 
 to setup
   ca
-  ask patches [set pcolor white]
+  ask patches [
+    set pcolor white
+  ]
   setup-map
   draw
   reset-ticks
@@ -37,8 +43,10 @@ end
 ; Adding a dataset from GIS must be a shape file.
 to setup-map
   set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
+  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
   ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
-  gis:set-world-envelope gis:envelope-of map-view
+  gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
+                                                (gis:envelope-of centroid-points))
   gis:set-drawing-color black
   gis:draw map-view 1
 end
@@ -48,10 +56,12 @@ to draw
   clear-drawing
   setup-world-envelope
   gis:set-drawing-color gray + 1  gis:draw map-view 1
+  draw-centroids
 end
 
 to setup-world-envelope
-  gis:set-world-envelope gis:envelope-of map-view
+  gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
+                                         (gis:envelope-of centroid-points))
   let world gis:world-envelope
   let x0 (item 0 world + item 1 world) / 2  + center-x; center
   let y0 (item 2 world + item 3 world) / 2  + center-y
@@ -110,6 +120,9 @@ to gis-to-map
        set geocode gis:property-value vector-feature "GEO_CODE"
        set geolabelw gis:property-value vector-feature "GEO_LABELW"
        set label? gis:property-value vector-feature "LABEL"
+       set longitude gis:property-value vector-feature "LONGITUDE"
+       set latitude gis:property-value vector-feature "LATITUDE"
+       set centroid-value centroid
     ]
   ]
 end
@@ -128,26 +141,39 @@ to breed_turtles
 ;    ]
 ;  ]
 ask turtles [ die ]
-  ask patches with [destination-name != False] [
+  ask patches with [pcolor = blue][
+    sprout 1
+  ]
 end
 
+to draw-centroids
+  foreach gis:feature-list-of centroid-points [ vector-feature ->
+    gis:set-drawing-color red
+    gis:fill vector-feature 2.0
+    ask patches gis:intersecting vector-feature [
+      set pcolor blue
+    ]
+  ]
+end
 
 to print-dataset
-  print gis:feature-list-of map-view
+  print (word "MAP: " gis:feature-list-of map-view)
+  print (word "CENTROID: " gis:feature-list-of centroid-points)
 end
 
 to print-labels
-  print gis:property-names map-view
+  print (word "MAP: " gis:property-names map-view)
+  print (word "CENTROID: " gis:property-names centroid-points)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 32
 10
-624
-603
+634
+613
 -1
 -1
-17.7
+18.0
 1
 10
 1
@@ -244,7 +270,7 @@ zoom
 zoom
 .01
 1.2
-0.5
+0.7
 .01
 1
 NIL
