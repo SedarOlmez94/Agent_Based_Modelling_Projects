@@ -123,12 +123,26 @@ to gis-to-map
     ]
   ]
 
-  foreach gis:feature-list-of centroid-points [vector-feature ->
-    let centroid gis:location-of gis:centroid-of vector-feature
-    ask patches gis:intersecting vector-feature [
-       set destination-name gis:property-value vector-feature "NAME"
-
-    ]
+    foreach gis:feature-list-of centroid-points [ vector-feature ->
+    gis:set-drawing-color red
+    gis:fill vector-feature 2.0
+;    if label-cities
+;    [ ; a feature in a point dataset may have multiple points, so we
+;      ; have a list of lists of points, which is why we need to use
+;      ; first twice here
+;      let location gis:location-of (first (first (gis:vertex-lists-of vector-feature)))
+;      ; location will be an empty list if the point lies outside the
+;      ; bounds of the current NetLogo world, as defined by our current
+;      ; coordinate transformation
+;      if not empty? location
+;      [ create-city-labels 1
+;        [ set xcor item 0 location
+;          set ycor item 1 location
+;          set size 0
+;          set label gis:property-value vector-feature "NAME"
+;        ]
+;      ]
+;    ]
   ]
 
 end
