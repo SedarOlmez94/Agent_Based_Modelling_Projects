@@ -1,27 +1,26 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
 extensions [ gis ]
+
+
 globals [
-  map-view          ;; GIS dataset
-  streets           ;; patches representing streets
+  map-view          ;; GIS dataset/map
   center-x          ;;
   center-y          ;; center of the map
-  mean-wait-time    ;; average time turtles stay at rest
   mean-motion-time  ;; average time turtles stay in motion
   mean-speed        ;; turtles'speed indicator
-  ?
+  ID
  ]
-
-; patches now have an elevation value drawn from the map (raster data)
 patches-own[
-  turtles-num   ;; number of turtles on the patch
-  destination-name
-  geocode
-  geolabelw
-  label?
+  turtles-num       ;; number of turtles on the patch
+  destination-name  ;; name of each city/borough
+  geocode           ;; the geocode (uniquevalue) for each city/borough
+  geolabelw         ;; this is also a unique value, I don't know what though.
+  label?            ;; a unique string  for each city/borough
 ]
-
-turtles-own[ height_asl ]
+turtles-own[
+  height_asl
+]
 
 to setup
   ca
@@ -32,9 +31,7 @@ to setup
 end
 
 to go
-  crt 1[ fd 10 ]
-
-  get-map-view
+  breed_turtles
 end
 
 ; Adding a dataset from GIS must be a shape file.
@@ -46,13 +43,6 @@ to setup-map
   gis:draw map-view 1
 end
 
-;Add a turtle and give it a height_asl variable it can use to interact with the raster data.
-to get-map-view
-  ask turtles [
-    set height_asl gis:raster-sample map-view
-self
-  ]
-end
 
 to draw
   clear-drawing
@@ -124,6 +114,29 @@ to gis-to-map
   ]
 end
 
+to breed_turtles
+;foreach gis:feature-list-of map-view [ vector-feature ->
+;    let centroid gis:location-of gis:centroid-of vector-feature
+;    ; centroid will be an empty list if it lies outside the bounds
+;    ; of the current NetLogo world, as defined by our current GIS
+;    ; coordinate transformation
+;    if not empty? centroid
+;    [
+;          sprout 1
+;          set ID ID + 1
+;
+;    ]
+;  ]
+
+  foreach gis:feature-list-of map-view [vector-feature ->
+    let centroid gis:location-of gis:centroid-of vector-feature
+    ask patches gis:intersecting vector-feature [
+       sprout 1
+    ]
+  ]
+end
+
+
 to print-dataset
   print gis:feature-list-of map-view
 end
@@ -194,10 +207,10 @@ NIL
 1
 
 BUTTON
-687
-36
-772
-69
+647
+35
+732
+68
 zoom-in
 zoom-in
 NIL
@@ -211,10 +224,10 @@ NIL
 1
 
 BUTTON
-778
-36
-872
-69
+738
+35
+832
+68
 zoom-out
 zoom-out
 NIL
@@ -228,25 +241,25 @@ NIL
 1
 
 SLIDER
-780
-74
-872
-107
+740
+73
+832
+106
 zoom
 zoom
 .01
 1.2
-0.12
+0.2
 .01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-688
-74
-772
-107
+648
+73
+732
+106
 zoom-std
 zoom-std
 NIL
@@ -260,10 +273,10 @@ NIL
 1
 
 BUTTON
-793
-394
-880
-427
+753
+393
+840
+426
 NIL
 draw
 NIL
@@ -277,25 +290,25 @@ NIL
 1
 
 SLIDER
-726
-254
-832
-287
+686
+253
+792
+286
 shift
 shift
 0
 30
-6.0
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-777
-179
-879
-212
+737
+178
+839
+211
 move-right
 move-right
 NIL
@@ -309,10 +322,10 @@ NIL
 1
 
 BUTTON
-680
-179
-772
-212
+640
+178
+732
+211
 move-left
 move-left
 NIL
@@ -326,10 +339,10 @@ NIL
 1
 
 BUTTON
-734
-142
-822
-175
+694
+141
+782
+174
 move-up
 move-up
 NIL
@@ -343,10 +356,10 @@ NIL
 1
 
 BUTTON
-725
-216
-830
-249
+685
+215
+790
+248
 move-down
 move-down
 NIL
@@ -360,10 +373,10 @@ NIL
 1
 
 BUTTON
-692
-394
-788
-427
+652
+393
+748
+426
 load patch data
 gis-to-map
 NIL
@@ -377,10 +390,10 @@ NIL
 1
 
 BUTTON
-690
-321
-771
-354
+650
+320
+731
+353
 print dataset
 print-dataset
 NIL
@@ -394,10 +407,10 @@ NIL
 1
 
 BUTTON
-775
-321
-856
-354
+735
+320
+816
+353
 print labels
 print-labels
 NIL
@@ -411,50 +424,50 @@ NIL
 1
 
 TEXTBOX
-737
-18
-832
-36
+697
+17
+813
+35
 ZOOM CONTROLS
 11
 0.0
 1
 
 TEXTBOX
-751
-120
-813
-138
+711
+119
+773
+137
 CONTROLS
 11
 0.0
 1
 
 TEXTBOX
-720
-297
-843
-315
+680
+296
+819
+314
 DATASET INFORMATION
 11
 0.0
 1
 
 TEXTBOX
-735
-368
-817
-386
+695
+367
+793
+385
 MAP CONTROLS
 11
 0.0
 1
 
 TEXTBOX
-665
-444
-815
-496
+653
+435
+803
+487
 1) click <load patch data> to merge the dataset (polygon average) = centroid with the patch variables
 10
 0.0
