@@ -5,6 +5,7 @@ extensions [ gis ]
 
 globals [
   map-view          ;; GIS dataset/map
+  centroid-points   ;; the GIS dataset of geometric center points
   center-x          ;;
   center-y          ;; center of the map
   mean-motion-time  ;; average time turtles stay in motion
@@ -40,8 +41,10 @@ end
 ; Adding a dataset from GIS must be a shape file.
 to setup-map
   set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
+  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
   ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
-  gis:set-world-envelope gis:envelope-of map-view
+  gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
+                                                (gis:envelope-of centroid-points))
   gis:set-drawing-color black
   gis:draw map-view 1
 end
@@ -54,7 +57,8 @@ to draw
 end
 
 to setup-world-envelope
-  gis:set-world-envelope gis:envelope-of map-view
+  gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
+                                         (gis:envelope-of centroid-points))
   let world gis:world-envelope
   let x0 (item 0 world + item 1 world) / 2  + center-x; center
   let y0 (item 2 world + item 3 world) / 2  + center-y
@@ -118,6 +122,15 @@ to gis-to-map
        set centroid-value centroid
     ]
   ]
+
+  foreach gis:feature-list-of centroid-points [vector-feature ->
+    let centroid gis:location-of gis:centroid-of vector-feature
+    ask patches gis:intersecting vector-feature [
+       set destination-name gis:property-value vector-feature "NAME"
+
+    ]
+  ]
+
 end
 
 to breed_turtles
@@ -141,11 +154,13 @@ end
 
 
 to print-dataset
-  print gis:feature-list-of map-view
+  print (word "MAP: " gis:feature-list-of map-view)
+  print (word "CENTROID: " gis:feature-list-of centroid-points)
 end
 
 to print-labels
-  print gis:property-names map-view
+  print (word "MAP: " gis:property-names map-view)
+  print (word "CENTROID: " gis:property-names centroid-points)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
