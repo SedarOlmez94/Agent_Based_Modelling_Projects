@@ -1,6 +1,6 @@
 ## GIS to Netlogo converter
 ### Allows the user to import shape files into netlogo to create agent-based models on large spatial environments.
-The netlogo template is `BRiton.nlogo`
+The netlogo template is `supply_demand_v1.nlogo`
 
 
 The line of code to be replaced is the directory of the '.shp' file which is:
