@@ -21,6 +21,7 @@ patches-own[
   longitude
   latitude
   centroid-value
+  centroid-patch-identity
 ]
 turtles-own[
   height_asl
@@ -28,7 +29,6 @@ turtles-own[
 
 to setup
   ca
-  ;resize-world -15 15 -15 15
   ask patches [
     set pcolor white
   ]
@@ -38,7 +38,8 @@ to setup
 end
 
 to go
-  breed_turtles
+
+  tick
 end
 
 ; Adding a dataset from GIS must be a shape file.
@@ -58,6 +59,7 @@ to draw
   setup-world-envelope
   gis:set-drawing-color gray + 1  gis:draw map-view 1
   draw-centroids
+  draw-turtles
 end
 
 to setup-world-envelope
@@ -128,32 +130,24 @@ to gis-to-map
   ]
 end
 
-to breed_turtles
-;foreach gis:feature-list-of map-view [ vector-feature ->
-;    let centroid gis:location-of gis:centroid-of vector-feature
-;    ; centroid will be an empty list if it lies outside the bounds
-;    ; of the current NetLogo world, as defined by our current GIS
-;    ; coordinate transformation
-;    if not empty? centroid
-;    [
-;          sprout 1
-;          set ID ID + 1
-;
-;    ]
-;  ]
-ask turtles [ die ]
-  ask patches with [pcolor = blue][
-    sprout 1
-  ]
-end
 
 to draw-centroids
   foreach gis:feature-list-of centroid-points [ vector-feature ->
     gis:set-drawing-color red
     gis:fill vector-feature 2.0
     ask patches gis:intersecting vector-feature [
-      set pcolor blue
+      set centroid-patch-identity 1
     ]
+  ]
+end
+
+to draw-turtles
+  clear-turtles
+  ask patches with [centroid-patch-identity > 0][
+    sprout 1
+  ]
+  ask patches [
+    set centroid-patch-identity 0
   ]
 end
 
@@ -170,11 +164,11 @@ end
 GRAPHICS-WINDOW
 32
 10
-598
-577
+629
+608
 -1
 -1
-18.0
+19.0
 1
 10
 1
@@ -271,7 +265,7 @@ zoom
 zoom
 .01
 1.2
-0.7
+0.23
 .01
 1
 NIL
