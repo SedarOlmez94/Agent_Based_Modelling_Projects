@@ -28,6 +28,7 @@ turtles-own[
 
 to setup
   ca
+  ;resize-world -15 15 -15 15
   ask patches [
     set pcolor white
   ]
@@ -169,8 +170,8 @@ end
 GRAPHICS-WINDOW
 32
 10
-634
-613
+598
+577
 -1
 -1
 18.0
@@ -183,10 +184,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+-15
+15
+-15
+15
 0
 0
 1
