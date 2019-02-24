@@ -232,7 +232,7 @@ to-report A* [#Start #Goal]
         [
           hatch-searchers 1
           [
-            node-description
+            ;node-description
             set total-cost cost + heuristic #Goal ; Compute the expected cost
             set memory lput localisation ([memory] of this-searcher) ; the path is built from the
                                                                      ; original searcher
@@ -386,7 +386,7 @@ zoom
 zoom
 .01
 1.2
-0.37
+0.57
 .01
 1
 NIL
