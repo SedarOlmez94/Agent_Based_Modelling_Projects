@@ -43,7 +43,7 @@ searchers-own [
 ]
 
 resources-own [
-  time
+  total-time
 
 ]
 
@@ -359,7 +359,7 @@ BUTTON
 649
 go
 go
-NIL
+T
 1
 T
 OBSERVER
