@@ -2,7 +2,8 @@
 ; GIS dataset: https://gadm.org/index.html
 extensions [ gis ]
 
-breed[searchers searcher] ; to represent the agents that will make the search
+breed[searchers searcher] ; to represent the agents that will make the search.
+breed[resources resource] ; to represent the resources sent over the links.
 
 globals [
   map-view          ;; GIS dataset/map
@@ -74,7 +75,7 @@ to draw
   draw-links
 end
 
-to path-
+to path-draw
   ask links with [color = yellow][set color grey set thickness 0]
   let start one-of turtles
   ;ask start [set color green set size 1]
@@ -178,7 +179,13 @@ to draw-turtles
   ]
   ask turtles [
     set size .4
+    set shape "person police"
   ]
+end
+
+to create_resources
+  hatch-resources
+
 end
 
 to draw-links
@@ -382,7 +389,7 @@ zoom
 zoom
 .01
 1.2
-0.37
+0.47
 .01
 1
 NIL
@@ -615,7 +622,7 @@ radius
 radius
 0.0
 10.0
-2.0
+1.8
 0.1
 1
 NIL
@@ -637,6 +644,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+596
+686
+786
+719
+number-of-resources
+number-of-resources
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -854,6 +876,29 @@ Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300
 Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
+
+person police
+false
+0
+Polygon -1 true false 124 91 150 165 178 91
+Polygon -13345367 true false 134 91 149 106 134 181 149 196 164 181 149 106 164 91
+Polygon -13345367 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
+Polygon -13345367 true false 120 90 105 90 60 195 90 210 116 158 120 195 180 195 184 158 210 210 240 195 195 90 180 90 165 105 150 165 135 105 120 90
+Rectangle -7500403 true true 123 76 176 92
+Circle -7500403 true true 110 5 80
+Polygon -13345367 true false 150 26 110 41 97 29 137 -1 158 6 185 0 201 6 196 23 204 34 180 33
+Line -13345367 false 121 90 194 90
+Line -16777216 false 148 143 150 196
+Rectangle -16777216 true false 116 186 182 198
+Rectangle -16777216 true false 109 183 124 227
+Rectangle -16777216 true false 176 183 195 205
+Circle -1 true false 152 143 9
+Circle -1 true false 152 166 9
+Polygon -1184463 true false 172 112 191 112 185 133 179 133
+Polygon -1184463 true false 175 6 194 6 189 21 180 21
+Line -1184463 false 149 24 197 24
+Rectangle -16777216 true false 101 177 122 187
+Rectangle -16777216 true false 179 164 183 186
 
 plant
 false
