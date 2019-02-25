@@ -43,8 +43,9 @@ searchers-own [
 ]
 
 resources-own [
-  time
-
+  total-time    ; the total time it took the resource to travel the length of the link.
+  amount        ; amount of resource.
+  location
 ]
 
 to setup
@@ -58,7 +59,7 @@ to setup
 end
 
 to go
-
+  move-resources
   tick
 end
 
@@ -199,10 +200,24 @@ to create_resources
   ask patches with [resource? = "yes"][
     sprout-resources 1[
       ;set time
+      ;set location resources-on patches of myself
       set shape "truck"
       set size .8
       set color 15
     ]
+  ]
+  ask resources [
+    set amount random 20
+  ]
+end
+
+;to move-resources
+  ask links [set thickness 0]
+  ask resources [
+    let new-location one-of [link-neighbors] of location
+    ask [link-with new-location] of location [set thickness 0.5]
+    face new-location
+    set location new-location
   ]
 end
 
@@ -688,7 +703,7 @@ random-resources-generator
 random-resources-generator
 0
 961
-215.0
+348.0
 1
 1
 NIL
