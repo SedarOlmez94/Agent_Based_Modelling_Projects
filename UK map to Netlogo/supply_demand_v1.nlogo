@@ -59,7 +59,7 @@ to setup
 end
 
 to go
-  ;move-resources
+  move-resources
   tick
 end
 
@@ -200,26 +200,26 @@ to create_resources
   ask patches with [resource? = "yes"][
     sprout-resources 1[
       ;set time
-      ;set location resources-on patches of myself
+      set location patch-here
       set shape "truck"
       set size .8
       set color 15
     ]
   ]
   ask resources [
-    set amount random 20
+    set amount random 50
   ]
 end
 
-;to move-resources
-;  ask links [set thickness 0]
-;  ask resources [
-;    let new-location one-of [link-neighbors] of location
-;    ask [link-with new-location] of location [set thickness 0.5]
-;    face new-location
-;    set location new-location
-;  ]
-;end
+to move-resources
+  ask links [set thickness 0]
+  ask resources [
+    let new-location one-of [link-neighbors] of location
+    ask [link-with new-location] of location [set thickness 0.5]
+    face new-location
+    set location new-location
+  ]
+end
 
 to draw-links
     ask turtles [
@@ -708,6 +708,23 @@ random-resources-generator
 1
 NIL
 HORIZONTAL
+
+BUTTON
+352
+654
+416
+687
+go once
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
