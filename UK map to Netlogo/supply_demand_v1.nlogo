@@ -61,7 +61,7 @@ to setup
 end
 
 to go
-  move-resources
+  ;move-resources
   tick
 end
 
