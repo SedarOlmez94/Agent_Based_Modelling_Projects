@@ -4,14 +4,16 @@ extensions [ gis ]
 
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
+;breed [crimes crime]
 
 globals [
-  map-view          ;; GIS dataset/map
-  centroid-points   ;; the GIS dataset of geometric center points
-  center-x          ;;
-  center-y          ;; center of the map
-  mean-motion-time  ;; average time turtles stay in motion
-  mean-speed        ;; turtles'speed indicator
+  map-view             ;; GIS dataset/map
+  centroid-points      ;; the GIS dataset of geometric center points
+  center-x             ;;
+  center-y             ;; center of the map
+  mean-motion-time     ;; average time turtles stay in motion
+  mean-speed           ;; turtles'speed indicator
+  number-of-resources
   ID
  ]
 
@@ -25,10 +27,12 @@ patches-own[
   latitude
   centroid-value
   centroid-patch-identity
+  resource?
+  crime?
 ]
 
 turtles-own[
-  height_asl
+
 ]
 
 searchers-own [
@@ -41,7 +45,9 @@ searchers-own [
 ]
 
 resources-own [
-
+  total-time    ; the total time it took the resource to travel the length of the link.
+  amount        ; amount of resource.
+  location
 ]
 
 to setup
@@ -55,7 +61,7 @@ to setup
 end
 
 to go
-
+  move-resources
   tick
 end
 
@@ -76,12 +82,13 @@ to draw
   gis:set-drawing-color gray + 1  gis:draw map-view 1
   draw-centroids
   draw-turtles
+  create_resources
   draw-links
 end
 
 to path-draw
   ask links with [color = yellow][set color grey set thickness 0]
-  let start one-of turtles
+  let start one-of resources
   ;ask start [set color green set size 1]
   let goal one-of turtles with [distance start > max-pxcor]
   ;ask goal [set color green set size 1]
@@ -146,6 +153,15 @@ to move-down
   draw
 end
 
+;to spawn-crime
+;  ask patches with [crime? = "true"][
+;    sprout-crimes 1[
+;      set shape "circle"
+;      set size .8
+;    ]
+;  ]
+;end
+
 ; This method maps the GIS vector data to the patch attributes, we also use centroids to
 ; focus only on the data within the outlines of the boundary map and not the sea.
 to gis-to-map
@@ -170,6 +186,12 @@ to draw-centroids
     ask patches gis:intersecting vector-feature [
       set centroid-patch-identity 1
     ]
+    ask n-of random-resources-generator patches gis:intersecting vector-feature [
+        set resource? "yes"
+    ]
+    ask n-of 1 patches gis:intersecting vector-feature [
+      set crime? "yes"
+    ]
   ]
 end
 
@@ -187,10 +209,29 @@ to draw-turtles
   ]
 end
 
+
 to create_resources
-  hatch-resources number-of-resources [
+  ask patches with [resource? = "yes"][
+    sprout-resources 1[
+      ;set time
+      set location patch-here
+      set shape "truck"
+      set size .8
+      set color 15
+    ]
+  ]
+  ask resources [
+    set amount random 50
+  ]
+end
 
-
+to move-resources
+  ask links [set thickness 0]
+  ask resources [
+    let new-location one-of [link-neighbors] of location
+    ask [link-with new-location] of location [set thickness 0.5]
+    face new-location
+    set location new-location
   ]
 end
 
@@ -208,6 +249,11 @@ end
 to print-labels
   print (word "MAP: " gis:property-names map-view)
   print (word "CENTROID: " gis:property-names centroid-points)
+end
+
+to-report number_of_resources_produced
+  set number-of-resources (10 + random 1000)
+  report number-of-resources
 end
 
 to-report A* [#Start #Goal]
@@ -342,7 +388,7 @@ BUTTON
 649
 go
 go
-NIL
+T
 1
 T
 OBSERVER
@@ -395,7 +441,7 @@ zoom
 zoom
 .01
 1.2
-0.47
+0.37
 .01
 1
 NIL
@@ -628,7 +674,7 @@ radius
 radius
 0.0
 10.0
-1.8
+6.9
 0.1
 1
 NIL
@@ -651,20 +697,48 @@ NIL
 NIL
 1
 
+MONITOR
+690
+622
+784
+667
+Resources #
+number-of-resources
+17
+1
+11
+
 SLIDER
-596
-686
-786
-719
-number-of-resources
-number-of-resources
+578
+688
+817
+721
+random-resources-generator
+random-resources-generator
 0
-100
-50.0
+961
+283.0
 1
 1
 NIL
 HORIZONTAL
+
+BUTTON
+352
+654
+416
+687
+go once
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
