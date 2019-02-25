@@ -6,12 +6,13 @@ breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
 
 globals [
-  map-view          ;; GIS dataset/map
-  centroid-points   ;; the GIS dataset of geometric center points
-  center-x          ;;
-  center-y          ;; center of the map
-  mean-motion-time  ;; average time turtles stay in motion
-  mean-speed        ;; turtles'speed indicator
+  map-view             ;; GIS dataset/map
+  centroid-points      ;; the GIS dataset of geometric center points
+  center-x             ;;
+  center-y             ;; center of the map
+  mean-motion-time     ;; average time turtles stay in motion
+  mean-speed           ;; turtles'speed indicator
+  number-of-resources
   ID
  ]
 
@@ -25,6 +26,7 @@ patches-own[
   latitude
   centroid-value
   centroid-patch-identity
+  resource?
 ]
 
 turtles-own[
@@ -38,6 +40,11 @@ searchers-own [
   localisation         ; The node where the searcher is
   active?              ; is the seacrher active? That is, we have reached the node, but
                        ; we must consider it because its neighbors have not been explored
+]
+
+resources-own [
+  time
+
 ]
 
 to setup
@@ -72,6 +79,7 @@ to draw
   gis:set-drawing-color gray + 1  gis:draw map-view 1
   draw-centroids
   draw-turtles
+  create_resources
   draw-links
 end
 
@@ -166,6 +174,9 @@ to draw-centroids
     ask patches gis:intersecting vector-feature [
       set centroid-patch-identity 1
     ]
+    ask n-of random-resources-generator patches gis:intersecting vector-feature [
+        set resource? "yes"
+    ]
   ]
 end
 
@@ -183,9 +194,16 @@ to draw-turtles
   ]
 end
 
-to create_resources
-  hatch-resources
 
+to create_resources
+  ask patches with [resource? = "yes"][
+    sprout-resources 1[
+      ;set time
+      set shape "truck"
+      set size .8
+      set color 15
+    ]
+  ]
 end
 
 to draw-links
@@ -202,6 +220,11 @@ end
 to print-labels
   print (word "MAP: " gis:property-names map-view)
   print (word "CENTROID: " gis:property-names centroid-points)
+end
+
+to-report number_of_resources_produced
+  set number-of-resources (10 + random 1000)
+  report number-of-resources
 end
 
 to-report A* [#Start #Goal]
@@ -389,7 +412,7 @@ zoom
 zoom
 .01
 1.2
-0.47
+0.37
 .01
 1
 NIL
@@ -622,7 +645,7 @@ radius
 radius
 0.0
 10.0
-1.8
+2.4
 0.1
 1
 NIL
@@ -645,16 +668,27 @@ NIL
 NIL
 1
 
+MONITOR
+690
+622
+784
+667
+Resources #
+number-of-resources
+17
+1
+11
+
 SLIDER
-596
-686
-786
-719
-number-of-resources
-number-of-resources
+578
+688
+817
+721
+random-resources-generator
+random-resources-generator
 0
-100
-50.0
+961
+215.0
 1
 1
 NIL
