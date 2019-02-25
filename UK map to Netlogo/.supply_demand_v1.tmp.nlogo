@@ -74,7 +74,7 @@ to draw
   draw-links
 end
 
-to path-draw
+to path-
   ask links with [color = yellow][set color grey set thickness 0]
   let start one-of turtles
   ;ask start [set color green set size 1]
@@ -615,7 +615,7 @@ radius
 radius
 0.0
 10.0
-4.3
+2.0
 0.1
 1
 NIL
