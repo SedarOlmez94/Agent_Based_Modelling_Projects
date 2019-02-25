@@ -4,6 +4,7 @@ extensions [ gis ]
 
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
+;breed [crimes crime]
 
 globals [
   map-view             ;; GIS dataset/map
@@ -27,10 +28,11 @@ patches-own[
   centroid-value
   centroid-patch-identity
   resource?
+  crime?
 ]
 
 turtles-own[
-  height_asl
+
 ]
 
 searchers-own [
@@ -86,7 +88,7 @@ end
 
 to path-draw
   ask links with [color = yellow][set color grey set thickness 0]
-  let start one-of turtles
+  let start one-of resources
   ;ask start [set color green set size 1]
   let goal one-of turtles with [distance start > max-pxcor]
   ;ask goal [set color green set size 1]
@@ -151,6 +153,15 @@ to move-down
   draw
 end
 
+;to spawn-crime
+;  ask patches with [crime? = "true"][
+;    sprout-crimes 1[
+;      set shape "circle"
+;      set size .8
+;    ]
+;  ]
+;end
+
 ; This method maps the GIS vector data to the patch attributes, we also use centroids to
 ; focus only on the data within the outlines of the boundary map and not the sea.
 to gis-to-map
@@ -177,6 +188,9 @@ to draw-centroids
     ]
     ask n-of random-resources-generator patches gis:intersecting vector-feature [
         set resource? "yes"
+    ]
+    ask n-of 1 patches gis:intersecting vector-feature [
+      set crime? "yes"
     ]
   ]
 end
@@ -660,7 +674,7 @@ radius
 radius
 0.0
 10.0
-2.4
+6.9
 0.1
 1
 NIL
@@ -703,7 +717,7 @@ random-resources-generator
 random-resources-generator
 0
 961
-348.0
+283.0
 1
 1
 NIL
