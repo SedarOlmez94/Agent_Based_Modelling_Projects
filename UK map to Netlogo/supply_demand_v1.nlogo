@@ -2,6 +2,8 @@
 ; GIS dataset: https://gadm.org/index.html
 extensions [ gis ]
 
+breed[searchers searcher] ; to represent the agents that will make the search.
+breed[resources resource] ; to represent the resources sent over the links.
 
 globals [
   map-view          ;; GIS dataset/map
@@ -12,6 +14,7 @@ globals [
   mean-speed        ;; turtles'speed indicator
   ID
  ]
+
 patches-own[
   turtles-num       ;; number of turtles on the patch
   destination-name  ;; name of each city/borough
@@ -21,9 +24,24 @@ patches-own[
   longitude
   latitude
   centroid-value
+  centroid-patch-identity
 ]
+
 turtles-own[
   height_asl
+]
+
+searchers-own [
+  memory               ; Stores the path from the start node to here
+  cost                 ; Stores the real cost from the start
+  total-cost           ; Stores the total exepcted cost from Start to the Goal that is being computed
+  localisation         ; The node where the searcher is
+  active?              ; is the seacrher active? That is, we have reached the node, but
+                       ; we must consider it because its neighbors have not been explored
+]
+
+resources-own [
+
 ]
 
 to setup
@@ -37,7 +55,8 @@ to setup
 end
 
 to go
-  breed_turtles
+
+  tick
 end
 
 ; Adding a dataset from GIS must be a shape file.
@@ -51,12 +70,30 @@ to setup-map
   gis:draw map-view 1
 end
 
-
 to draw
   clear-drawing
   setup-world-envelope
   gis:set-drawing-color gray + 1  gis:draw map-view 1
   draw-centroids
+  draw-turtles
+  draw-links
+end
+
+to path-draw
+  ask links with [color = yellow][set color grey set thickness 0]
+  let start one-of turtles
+  ;ask start [set color green set size 1]
+  let goal one-of turtles with [distance start > max-pxcor]
+  ;ask goal [set color green set size 1]
+  ; We compute the path with A*
+  let path (A* start goal)
+  ; if any, we highlight it
+  if path != false [highlight-path path]
+  ;output
+end
+
+to-report heuristic [#Goal]
+  report [distance [localisation] of myself] of #Goal
 end
 
 to setup-world-envelope
@@ -70,7 +107,6 @@ to setup-world-envelope
   set world (list (x0 - W0) (x0 + W0) (y0 - H0) (y0 + H0))
   gis:set-world-envelope world
 end
-
 
 to zoom-in  set zoom max list .01 precision (zoom - .1) 2
   draw
@@ -127,32 +163,40 @@ to gis-to-map
   ]
 end
 
-to breed_turtles
-;foreach gis:feature-list-of map-view [ vector-feature ->
-;    let centroid gis:location-of gis:centroid-of vector-feature
-;    ; centroid will be an empty list if it lies outside the bounds
-;    ; of the current NetLogo world, as defined by our current GIS
-;    ; coordinate transformation
-;    if not empty? centroid
-;    [
-;          sprout 1
-;          set ID ID + 1
-;
-;    ]
-;  ]
-ask turtles [ die ]
-  ask patches with [pcolor = blue][
-    sprout 1
-  ]
-end
-
 to draw-centroids
   foreach gis:feature-list-of centroid-points [ vector-feature ->
     gis:set-drawing-color red
     gis:fill vector-feature 2.0
     ask patches gis:intersecting vector-feature [
-      set pcolor blue
+      set centroid-patch-identity 1
     ]
+  ]
+end
+
+to draw-turtles
+  clear-turtles
+  ask patches with [centroid-patch-identity > 0][
+    sprout 1
+  ]
+  ask patches [
+    set centroid-patch-identity 0
+  ]
+  ask turtles [
+    set size .4
+    set shape "person police"
+  ]
+end
+
+to create_resources
+  hatch-resources number-of-resources [
+
+
+  ]
+end
+
+to draw-links
+    ask turtles [
+    create-links-with other turtles in-radius radius
   ]
 end
 
@@ -165,15 +209,96 @@ to print-labels
   print (word "MAP: " gis:property-names map-view)
   print (word "CENTROID: " gis:property-names centroid-points)
 end
+
+to-report A* [#Start #Goal]
+  ; Create a searcher for the Start node
+  ask #Start
+  [
+    hatch-searchers 1
+    [
+      node-description
+      set memory (list localisation) ; the partial path will have only this node at the beginning
+      set cost 0
+      set total-cost cost + heuristic #Goal ; Compute the expected cost
+     ]
+  ]
+
+  while [not any? searchers with [localisation = #Goal] and any? searchers with [active?]]
+  [
+    ask min-one-of (searchers with [active?]) [total-cost]
+    [
+      set active? false
+      let this-searcher self
+      let Lorig localisation
+      ask ([link-neighbors] of Lorig)
+      [
+        let connection link-with Lorig
+        ; The cost to reach the neighbor in this path is the previous cost plus the lenght of the link
+        let c ([cost] of this-searcher) + [link-length] of connection
+        ; Maybe in this node there are other searchers (comming from other nodes).
+        ; If this new path is better than the other, then we put a new searcher and remove the old ones
+        if not any? searchers-in-loc with [cost < c]
+        [
+          hatch-searchers 1
+          [
+            node-description
+            set total-cost cost + heuristic #Goal ; Compute the expected cost
+            set memory lput localisation ([memory] of this-searcher) ; the path is built from the
+                                                                     ; original searcher
+            set cost c   ; real cost to reach this node
+            ask other searchers-in-loc [die] ; Remove other seacrhers in this node
+          ]
+        ]
+      ]
+    ]
+  ]
+  ; When the loop has finished, we have two options: no path, or a searcher has reached the goal
+  ; By default the return will be false (no path)
+  let res false
+  ; But if it is the second option
+  if any? searchers with [localisation = #Goal]
+  [
+    ; we will return the path located in the memory of the searcher that reached the goal
+    let lucky-searcher one-of searchers with [localisation = #Goal]
+    set res [memory] of lucky-searcher
+  ]
+  ; Remove the searchers
+  ask searchers [die]
+  ; and report the result
+  report res
+end
+
+to-report searchers-in-loc
+  report searchers with [localisation = myself]
+end
+
+to node-description
+      set shape "circle"
+      set color red
+      set localisation myself
+      set active? true ; It is active, because we didn't calculate its neighbors yet
+end
+
+to highlight-path [path]
+  let a reduce highlight path
+end
+
+to-report highlight [x y]
+  ask x
+  [
+    ask link-with y [set color yellow set thickness .4]
+  ]
+  report y
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 32
 10
-634
-613
+629
+608
 -1
 -1
-18.0
+19.0
 1
 10
 1
@@ -183,10 +308,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+-15
+15
+-15
+15
 0
 0
 1
@@ -270,7 +395,7 @@ zoom
 zoom
 .01
 1.2
-0.7
+0.47
 .01
 1
 NIL
@@ -319,7 +444,7 @@ shift
 shift
 0
 30
-5.0
+6.0
 1
 1
 NIL
@@ -493,6 +618,53 @@ TEXTBOX
 10
 0.0
 1
+
+SLIDER
+656
+529
+828
+562
+radius
+radius
+0.0
+10.0
+1.8
+0.1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+688
+583
+784
+616
+NIL
+path-draw
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+596
+686
+786
+719
+number-of-resources
+number-of-resources
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -710,6 +882,29 @@ Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300
 Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
+
+person police
+false
+0
+Polygon -1 true false 124 91 150 165 178 91
+Polygon -13345367 true false 134 91 149 106 134 181 149 196 164 181 149 106 164 91
+Polygon -13345367 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
+Polygon -13345367 true false 120 90 105 90 60 195 90 210 116 158 120 195 180 195 184 158 210 210 240 195 195 90 180 90 165 105 150 165 135 105 120 90
+Rectangle -7500403 true true 123 76 176 92
+Circle -7500403 true true 110 5 80
+Polygon -13345367 true false 150 26 110 41 97 29 137 -1 158 6 185 0 201 6 196 23 204 34 180 33
+Line -13345367 false 121 90 194 90
+Line -16777216 false 148 143 150 196
+Rectangle -16777216 true false 116 186 182 198
+Rectangle -16777216 true false 109 183 124 227
+Rectangle -16777216 true false 176 183 195 205
+Circle -1 true false 152 143 9
+Circle -1 true false 152 166 9
+Polygon -1184463 true false 172 112 191 112 185 133 179 133
+Polygon -1184463 true false 175 6 194 6 189 21 180 21
+Line -1184463 false 149 24 197 24
+Rectangle -16777216 true false 101 177 122 187
+Rectangle -16777216 true false 179 164 183 186
 
 plant
 false
