@@ -154,7 +154,7 @@ to setup-world-envelope
 end
 
 to zoom-in  set zoom max list .01 precision (zoom - .1) 2
-  draw
+  setup
 end
 
 to zoom-out set zoom min list 1.2 precision (zoom + .1) 2
@@ -262,6 +262,9 @@ to create_resources
       set color 15
     ]
   ]
+  ask patches [
+    set resource? 0
+  ]
   ask resources [
     set amount random 50
   ]
@@ -270,7 +273,13 @@ end
 to create_forces
   ask patches with [forces? = "yes"][
     sprout-forces 1 [ ; we wrote piece of code on a train
+      set size .5
+      set color black
+      set shape "house"
     ]
+  ]
+  ask patches [
+    set forces? 0
   ]
 
 end
@@ -491,7 +500,7 @@ zoom
 zoom
 .01
 1.2
-0.94
+0.54
 .01
 1
 NIL
@@ -767,7 +776,7 @@ random-resources-generator
 random-resources-generator
 0
 961
-227.0
+485.0
 1
 1
 NIL
