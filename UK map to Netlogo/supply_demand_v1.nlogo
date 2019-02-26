@@ -10,6 +10,7 @@ breed [forces force]      ;one agent per police force, stores resourcing informa
 globals [
   map-view             ;; GIS dataset/map
   centroid-points      ;; the GIS dataset of geometric center points
+  police-force-area    ;; the dataset of the police force area for England and Wales.
   center-x             ;;
   center-y             ;; center of the map
   mean-motion-time     ;; average time turtles stay in motion
@@ -89,6 +90,7 @@ end
 to setup-map
   set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
   set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
+  ;set police-force-area gis:load-dataset "data/police_force_areas/Police_Force_Areas_December_2016_Full_Clipped_Boundaries_in_England_and_Wales.shp"
 
   ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
   gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
