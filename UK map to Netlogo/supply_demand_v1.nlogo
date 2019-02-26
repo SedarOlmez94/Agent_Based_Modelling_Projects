@@ -5,6 +5,7 @@ extensions [ gis ]
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
 ;breed [crimes crime]
+breed [forces force]      ;one agent per police force, stores resourcing information for that police service.
 
 globals [
   map-view             ;; GIS dataset/map
@@ -29,10 +30,28 @@ patches-own[
   centroid-patch-identity
   resource?
   crime?
+  forces?
 ]
 
 turtles-own[
 
+]
+
+; the forces are like buildings with a number of resources that they can dispatch, and as they leave
+; the forces
+forces-own[
+  resource-total                     ;total number of resources in police force.
+  resourceA-percentage               ;percentage of resources with type A
+  resourceB-percentage               ;percentage of resources with type B
+  resourceA-total                    ;total number of type A resource
+  resourceB-total                    ;total number of type B resource
+  resourceA-percentage-public-order  ;percentage of type A resource public order trained
+  resourceB-percentage-public-order  ;percentage of type B resource public order trained
+  resourceA-public-order-total       ;total number of type A resource public order trained.
+  resourceB-public-order-total       ;total number of type B resource public order trained.
+  public-order-total                 ;total amount of public order across all types.
+
+  time-to-mobilise                   ;the delay before a resource can be mobilised for force.
 ]
 
 searchers-own [
@@ -55,6 +74,7 @@ to setup
   ask patches [
     set pcolor white
   ]
+  setup-forces ; we wrote piece of code on a train
   setup-map
   draw
   reset-ticks
@@ -69,6 +89,7 @@ end
 to setup-map
   set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
   set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
+
   ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
   gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
                                                 (gis:envelope-of centroid-points))
@@ -84,6 +105,7 @@ to draw
   draw-turtles
   create_resources
   draw-links
+  create_forces
 end
 
 to path-draw
@@ -97,6 +119,22 @@ to path-draw
   ; if any, we highlight it
   if path != false [highlight-path path]
   ;output
+end
+
+to setup-forces
+  ask forces[
+    set resource-total (random 20 + 1) * 100
+    set resourceA-percentage random-float 1
+    set resourceB-percentage 1 - resourceA-percentage
+    set resourceA-total (resource-total * resourceA-percentage)
+    set resourceB-total (resource-total * resourceB-percentage)
+    set resourceA-percentage-public-order random-float 0.1
+    set resourceB-percentage-public-order random-float 0.1
+    set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
+    set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
+    set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    set time-to-mobilise random 11
+  ]
 end
 
 to-report heuristic [#Goal]
@@ -185,6 +223,7 @@ to draw-centroids
     gis:fill vector-feature 2.0
     ask patches gis:intersecting vector-feature [
       set centroid-patch-identity 1
+      set forces? "yes"
     ]
     ask n-of random-resources-generator patches gis:intersecting vector-feature [
         set resource? "yes"
@@ -199,6 +238,9 @@ to draw-turtles
   clear-turtles
   ask patches with [centroid-patch-identity > 0][
     sprout 1
+;    sprout-forces 1 [ ; we wrote piece of code on a train
+;      setup-forces ; we wrote piece of code on a train
+;    ]
   ]
   ask patches [
     set centroid-patch-identity 0
@@ -223,6 +265,14 @@ to create_resources
   ask resources [
     set amount random 50
   ]
+end
+
+to create_forces
+  ask patches with [forces? = "yes"][
+    sprout-forces 1 [ ; we wrote piece of code on a train
+    ]
+  ]
+
 end
 
 to move-resources
@@ -441,7 +491,7 @@ zoom
 zoom
 .01
 1.2
-0.37
+0.94
 .01
 1
 NIL
@@ -674,7 +724,7 @@ radius
 radius
 0.0
 10.0
-6.9
+0.9
 0.1
 1
 NIL
@@ -717,7 +767,7 @@ random-resources-generator
 random-resources-generator
 0
 961
-283.0
+227.0
 1
 1
 NIL
