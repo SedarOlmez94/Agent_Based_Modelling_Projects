@@ -274,10 +274,10 @@ end
 to create_forces
   ask patches with [forces? = "yes"][
     sprout-forces 1 [ ; we wrote piece of code on a train
-      setup-forces ; we wrote piece of code on a train
       set size .5
       set color black
       set shape "house"
+
     ]
   ]
   ask patches [
