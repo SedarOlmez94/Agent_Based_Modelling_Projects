@@ -1,0 +1,37 @@
+(SCENARIO)
+CRIME:
+- 100 units_required
+- minimise_impact = ResourceB
+- resources_requirement_cycles = 4
+
+
+calculate T for all forces
+crime occurs somewhere CRIME_LOCATION
+
+create list M with all resources with T <= resources_requirement_cycles
+delete from M all forces where not(minimise_impact) = 0
+
+loop until units fulfilled or resources_requirement_cycles = 0
+
+	find in M resource with min(t) AND max(M(not(minimise_impact))) #Finding the maximum resource value which is not the minimise impact resource call this resource 1A
+
+
+	X = [1A]
+
+	if for all resources in X there exists a t = 0 then subtract resource with t = 0 from units_required
+	
+	if units_required <= 0 then [print "crime prevented" break]
+	
+	subtract 1 from all resource times in X
+
+	M = M - 1A
+
+
+
+
+max(array):
+	max = array[0]
+	for i in range (M):
+		if (M[i] > max):
+			max = M[i]
+	return max	
