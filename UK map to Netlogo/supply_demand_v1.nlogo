@@ -118,8 +118,10 @@ end
 to path-draw
   ask links with [color = yellow][set color grey set thickness 0]
   let start one-of resources
+  print start
   ;ask start [set color green set size 1]
-  let goal one-of turtles with [distance start > max-pxcor]
+  let goal one-of turtles
+  print goal
   ;ask goal [set color green set size 1]
   ; We compute the path with A*
   let path (A* start goal)
@@ -240,10 +242,9 @@ to draw-centroids
     ask patches gis:intersecting vector-feature [
       set centroid-patch-identity 1
       set forces? "yes"
+      set resource? "yes"
     ]
-    ask n-of random-resources-generator patches gis:intersecting vector-feature [
-        set resource? "yes"
-    ]
+
     ask n-of 1 patches gis:intersecting vector-feature [
       set crime? "yes"
     ]
@@ -282,7 +283,7 @@ to create_resources
     set resource? 0
   ]
   ask resources [
-    set amount random 50
+    ;set amount random 50
   ]
 end
 
@@ -517,7 +518,7 @@ zoom
 zoom
 .01
 1.2
-1.04
+0.6
 .01
 1
 NIL
@@ -750,7 +751,7 @@ radius
 radius
 0.0
 10.0
-0.9
+4.0
 0.1
 1
 NIL
@@ -783,21 +784,6 @@ number-of-resources
 17
 1
 11
-
-SLIDER
-578
-688
-817
-721
-random-resources-generator
-random-resources-generator
-0
-961
-485.0
-1
-1
-NIL
-HORIZONTAL
 
 BUTTON
 352
