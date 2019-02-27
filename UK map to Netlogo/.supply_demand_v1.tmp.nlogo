@@ -10,7 +10,7 @@ breed [forces force]      ;one agent per police force, stores resourcing informa
 globals [
   map-view             ;; GIS dataset/map
   centroid-points      ;; the GIS dataset of geometric center points
-  police-force-area    ;; the dataset of the police force area for England and Wales.
+  police-force-view    ;; the dataset of the police force area for England and Wales.
   center-x             ;;
   center-y             ;; center of the map
   mean-motion-time     ;; average time turtles stay in motion
@@ -27,6 +27,10 @@ patches-own[
   label?            ;; a unique string  for each city/borough
   longitude
   latitude
+  force-longitude
+  force-latitude
+  police-force-name
+  patchworkm
   centroid-value
   centroid-patch-identity
   resource?
@@ -88,12 +92,14 @@ end
 ; Adding a dataset from GIS must be a shape file.
 to setup-map
   set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
-  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
+  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_4.shp"
+  ;set police-force-view gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
   ;set police-force-area gis:load-dataset "data/police_force_areas/Police_Force_Areas_December_2016_Full_Clipped_Boundaries_in_England_and_Wales.shp"
 
   ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
   gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
                                                 (gis:envelope-of centroid-points))
+                                                ;(gis:envelope-of police-force-view))
   gis:set-drawing-color black
   gis:draw map-view 1
 end
@@ -216,6 +222,15 @@ to gis-to-map
        set centroid-value centroid
     ]
   ]
+  foreach gis:feature-list-of centroid-points [vector-feature ->
+    let centroid gis:location-of gis:centroid-of vector-feature
+    ask patches gis:intersecting vector-feature [
+      set police-force-name gis:property-value vector-feature "NAME"
+      set patchworkm gis:property-value vector-feature "PATCHWORKM"
+      set force-longitude gis:property-value vector-feature "LONGITUDE"
+      set force-latitude gis:property-value vector-feature "LATITUDE"
+    ]
+  ]
 end
 
 to draw-centroids
@@ -274,10 +289,10 @@ end
 to create_forces
   ask patches with [forces? = "yes"][
     sprout-forces 1 [ ; we wrote piece of code on a train
+      setup-forces ; we wrote piece of code on a train
       set size .5
       set color black
       set shape "house"
-
     ]
   ]
   ask patches [
