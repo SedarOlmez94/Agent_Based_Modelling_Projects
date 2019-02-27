@@ -10,7 +10,7 @@ breed [forces force]      ;one agent per police force, stores resourcing informa
 globals [
   map-view             ;; GIS dataset/map
   centroid-points      ;; the GIS dataset of geometric center points
-  police-force-area    ;; the dataset of the police force area for England and Wales.
+  police-force-view    ;; the dataset of the police force area for England and Wales.
   center-x             ;;
   center-y             ;; center of the map
   mean-motion-time     ;; average time turtles stay in motion
@@ -27,6 +27,10 @@ patches-own[
   label?            ;; a unique string  for each city/borough
   longitude
   latitude
+  force-longitude
+  force-latitude
+  police-force-name
+  patchworkm
   centroid-value
   centroid-patch-identity
   resource?
@@ -88,12 +92,14 @@ end
 ; Adding a dataset from GIS must be a shape file.
 to setup-map
   set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
-  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
+  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_4.shp"
+  ;set police-force-view gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
   ;set police-force-area gis:load-dataset "data/police_force_areas/Police_Force_Areas_December_2016_Full_Clipped_Boundaries_in_England_and_Wales.shp"
 
   ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
   gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
                                                 (gis:envelope-of centroid-points))
+                                                ;(gis:envelope-of police-force-view))
   gis:set-drawing-color black
   gis:draw map-view 1
 end
@@ -112,8 +118,10 @@ end
 to path-draw
   ask links with [color = yellow][set color grey set thickness 0]
   let start one-of resources
+  print start
   ;ask start [set color green set size 1]
-  let goal one-of turtles with [distance start > max-pxcor]
+  let goal one-of turtles
+  print goal
   ;ask goal [set color green set size 1]
   ; We compute the path with A*
   let path (A* start goal)
@@ -216,6 +224,15 @@ to gis-to-map
        set centroid-value centroid
     ]
   ]
+  foreach gis:feature-list-of centroid-points [vector-feature ->
+    let centroid gis:location-of gis:centroid-of vector-feature
+    ask patches gis:intersecting vector-feature [
+      set police-force-name gis:property-value vector-feature "NAME"
+      set patchworkm gis:property-value vector-feature "PATCHWORKM"
+      set force-longitude gis:property-value vector-feature "LONGITUDE"
+      set force-latitude gis:property-value vector-feature "LATITUDE"
+    ]
+  ]
 end
 
 to draw-centroids
@@ -225,10 +242,9 @@ to draw-centroids
     ask patches gis:intersecting vector-feature [
       set centroid-patch-identity 1
       set forces? "yes"
+      set resource? "yes"
     ]
-    ask n-of random-resources-generator patches gis:intersecting vector-feature [
-        set resource? "yes"
-    ]
+
     ask n-of 1 patches gis:intersecting vector-feature [
       set crime? "yes"
     ]
@@ -267,7 +283,7 @@ to create_resources
     set resource? 0
   ]
   ask resources [
-    set amount random 50
+    ;set amount random 50
   ]
 end
 
@@ -502,7 +518,7 @@ zoom
 zoom
 .01
 1.2
-1.04
+0.6
 .01
 1
 NIL
@@ -735,7 +751,7 @@ radius
 radius
 0.0
 10.0
-0.9
+4.0
 0.1
 1
 NIL
@@ -769,6 +785,7 @@ number-of-resources
 1
 11
 
+<<<<<<< HEAD
 SLIDER
 578
 688
@@ -784,6 +801,8 @@ random-resources-generator
 NIL
 HORIZONTAL
 
+=======
+>>>>>>> bd880797bbfb76706ffb8cb83cf5368ff4f6bf3d
 BUTTON
 352
 654
