@@ -778,7 +778,7 @@ random-resources-generator
 random-resources-generator
 0
 961
-485.0
+232.0
 1
 1
 NIL
