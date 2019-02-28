@@ -4,6 +4,7 @@ extensions [ gis ]
 
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
+;breed [crimes crime]
 breed [forces force]      ;one agent per police force, stores resourcing information for that police service.
 
 globals [
@@ -59,6 +60,8 @@ searchers-own [
 ]
 
 resources-own [
+
+  amount        ; amount of resource.
   location
 ]
 
