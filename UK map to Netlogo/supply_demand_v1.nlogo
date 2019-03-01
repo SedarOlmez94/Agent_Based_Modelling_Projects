@@ -4,35 +4,49 @@ extensions [ gis ]
 
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
-;breed [crimes crime]
+breed [forces force]      ;one agent per police force, stores resourcing information for that police service.
 
 globals [
   map-view             ;; GIS dataset/map
   centroid-points      ;; the GIS dataset of geometric center points
+  police-force-view    ;; the dataset of the police force area for England and Wales.
   center-x             ;;
   center-y             ;; center of the map
-  mean-motion-time     ;; average time turtles stay in motion
-  mean-speed           ;; turtles'speed indicator
   number-of-resources
-  ID
  ]
 
 patches-own[
-  turtles-num       ;; number of turtles on the patch
   destination-name  ;; name of each city/borough
   geocode           ;; the geocode (uniquevalue) for each city/borough
   geolabelw         ;; this is also a unique value, I don't know what though.
   label?            ;; a unique string  for each city/borough
   longitude
   latitude
+  force-longitude
+  force-latitude
+  police-force-name
+  patchworkm
   centroid-value
   centroid-patch-identity
   resource?
   crime?
+  forces?
 ]
 
-turtles-own[
-
+; the forces are like buildings with a number of resources that they can dispatch, and as they leave
+; the forces
+forces-own[
+  resource-total                     ;total number of resources in police force.
+  resourceA-percentage               ;percentage of resources with type A
+  resourceB-percentage               ;percentage of resources with type B
+  resourceA-total                    ;total number of type A resource
+  resourceB-total                    ;total number of type B resource
+  resourceA-percentage-public-order  ;percentage of type A resource public order trained
+  resourceB-percentage-public-order  ;percentage of type B resource public order trained
+  resourceA-public-order-total       ;total number of type A resource public order trained.
+  resourceB-public-order-total       ;total number of type B resource public order trained.
+  public-order-total                 ;total amount of public order across all types.
+  time-to-mobilise                   ;the delay before a resource can be mobilised for force.
 ]
 
 searchers-own [
@@ -45,8 +59,6 @@ searchers-own [
 ]
 
 resources-own [
-  total-time    ; the total time it took the resource to travel the length of the link.
-  amount        ; amount of resource.
   location
 ]
 
@@ -61,17 +73,21 @@ to setup
 end
 
 to go
-  move-resources
+  ;move-resources
   tick
 end
 
 ; Adding a dataset from GIS must be a shape file.
 to setup-map
   set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
-  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
+  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_4.shp"
+  ;set police-force-view gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
+  ;set police-force-area gis:load-dataset "data/police_force_areas/Police_Force_Areas_December_2016_Full_Clipped_Boundaries_in_England_and_Wales.shp"
+
   ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
   gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
                                                 (gis:envelope-of centroid-points))
+                                                ;(gis:envelope-of police-force-view))
   gis:set-drawing-color black
   gis:draw map-view 1
 end
@@ -84,19 +100,38 @@ to draw
   draw-turtles
   create_resources
   draw-links
+  create_forces
 end
 
 to path-draw
   ask links with [color = yellow][set color grey set thickness 0]
   let start one-of resources
+  print start
   ;ask start [set color green set size 1]
-  let goal one-of turtles with [distance start > max-pxcor]
+  let goal one-of turtles
+  print goal
   ;ask goal [set color green set size 1]
   ; We compute the path with A*
   let path (A* start goal)
   ; if any, we highlight it
   if path != false [highlight-path path]
   ;output
+end
+
+to setup-forces
+  ask forces[
+    set resource-total (random 20 + 1) * 100
+    set resourceA-percentage random-float 1
+    set resourceB-percentage 1 - resourceA-percentage
+    set resourceA-total (resource-total * resourceA-percentage)
+    set resourceB-total (resource-total * resourceB-percentage)
+    set resourceA-percentage-public-order random-float 0.1
+    set resourceB-percentage-public-order random-float 0.1
+    set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
+    set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
+    set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    set time-to-mobilise random 11
+  ]
 end
 
 to-report heuristic [#Goal]
@@ -116,7 +151,7 @@ to setup-world-envelope
 end
 
 to zoom-in  set zoom max list .01 precision (zoom - .1) 2
-  draw
+  setup
 end
 
 to zoom-out set zoom min list 1.2 precision (zoom + .1) 2
@@ -165,7 +200,7 @@ end
 ; This method maps the GIS vector data to the patch attributes, we also use centroids to
 ; focus only on the data within the outlines of the boundary map and not the sea.
 to gis-to-map
-  foreach gis:feature-list-of map-view [vector-feature ->
+  foreach gis:feature-list-of map-view [ vector-feature ->
     let centroid gis:location-of gis:centroid-of vector-feature
     ask patches gis:intersecting vector-feature [
        set destination-name gis:property-value vector-feature "NAME"
@@ -177,6 +212,15 @@ to gis-to-map
        set centroid-value centroid
     ]
   ]
+  foreach gis:feature-list-of centroid-points [ vector-feature ->
+    let centroid gis:location-of gis:centroid-of vector-feature
+    ask patches gis:intersecting vector-feature [
+      set police-force-name gis:property-value vector-feature "NAME"
+      set patchworkm gis:property-value vector-feature "PATCHWORKM"
+      set force-longitude gis:property-value vector-feature "LONGITUDE"
+      set force-latitude gis:property-value vector-feature "LATITUDE"
+    ]
+  ]
 end
 
 to draw-centroids
@@ -185,10 +229,10 @@ to draw-centroids
     gis:fill vector-feature 2.0
     ask patches gis:intersecting vector-feature [
       set centroid-patch-identity 1
+      set forces? "yes"
+      set resource? "yes"
     ]
-    ask n-of random-resources-generator patches gis:intersecting vector-feature [
-        set resource? "yes"
-    ]
+
     ask n-of 1 patches gis:intersecting vector-feature [
       set crime? "yes"
     ]
@@ -199,6 +243,9 @@ to draw-turtles
   clear-turtles
   ask patches with [centroid-patch-identity > 0][
     sprout 1
+;    sprout-forces 1 [ ; we wrote piece of code on a train
+;      setup-forces ; we wrote piece of code on a train
+;    ]
   ]
   ask patches [
     set centroid-patch-identity 0
@@ -220,9 +267,27 @@ to create_resources
       set color 15
     ]
   ]
-  ask resources [
-    set amount random 50
+  ask patches [
+    set resource? 0
   ]
+  ask resources [
+    ;set amount random 50
+  ]
+end
+
+to create_forces
+  ask patches with [forces? = "yes"][
+    sprout-forces 1 [ ; we wrote piece of code on a train
+      setup-forces ; we wrote piece of code on a train
+      set size .5
+      set color black
+      set shape "house"
+    ]
+  ]
+  ask patches [
+    set forces? 0
+  ]
+
 end
 
 to move-resources
@@ -441,7 +506,7 @@ zoom
 zoom
 .01
 1.2
-0.37
+0.6
 .01
 1
 NIL
@@ -674,7 +739,7 @@ radius
 radius
 0.0
 10.0
-6.9
+4.0
 0.1
 1
 NIL
@@ -707,38 +772,6 @@ number-of-resources
 17
 1
 11
-
-SLIDER
-578
-688
-817
-721
-random-resources-generator
-random-resources-generator
-0
-961
-283.0
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-352
-654
-416
-687
-go once
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -994,19 +1027,12 @@ Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
 sheep
 false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
+0
+Rectangle -7500403 true true 151 225 180 285
+Rectangle -7500403 true true 47 225 75 285
+Rectangle -7500403 true true 15 75 210 225
+Circle -7500403 true true 135 75 150
+Circle -16777216 true false 165 76 116
 
 square
 false
@@ -1091,13 +1117,6 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
-
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
 
 x
 false

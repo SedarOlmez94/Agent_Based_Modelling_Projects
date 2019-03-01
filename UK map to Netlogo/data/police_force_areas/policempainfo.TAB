@@ -1,0 +1,40 @@
+!table
+!version 700
+!charset WindowsLatin1
+
+Definition Table
+  Type NATIVE Charset "WindowsLatin1"
+  Fields 9
+    Objectid Decimal (10, 0) ;
+    Pfa16cd Char (80) ;
+    Pfa16nm Char (80) ;
+    Bng_e Decimal (10, 0) ;
+    Bng_n Decimal (10, 0) ;
+    Long Float ;
+    Lat Float ;
+    St_areasha Float ;
+    St_lengths Float ;
+begin_metadata
+"\Shapefile" = ""
+"\Shapefile\PersistentCache" = "FALSE"
+"\Shapefile\CacheType" = "NATIVE"
+"\Spatial Reference" = ""
+"\Spatial Reference\Geographic" = ""
+"\Spatial Reference\Geographic\Projection" = ""
+"\Spatial Reference\Geographic\Projection\Clause" = "CoordSys Earth Projection 1, 104"
+"\DefaultStyles" = ""
+"\DefaultStyles\Pen" = ""
+"\DefaultStyles\Pen\LineWidth" = "1"
+"\DefaultStyles\Pen\LineStyle" = "0"
+"\DefaultStyles\Pen\Color" = "0"
+"\DefaultStyles\Pen\Pattern" = "2"
+"\DefaultStyles\Brush" = ""
+"\DefaultStyles\Brush\Pattern" = "2"
+"\DefaultStyles\Brush\Forecolor" = "16777215"
+"\DefaultStyles\Brush\Backcolor" = "16777215"
+"\DefaultStyles\Brush\Transparent" = "FALSE"
+"\MapInfo" = ""
+"\MapInfo\TableID" = "5a6ab212-cc38-4076-ab2f-2abf4cbc7c12"
+"\MapInfo\ParentTableID" = "1435fa45-922f-4415-bda7-cf6f909cc6d1"
+"\IsReadOnly" = "FALSE"
+end_metadata
