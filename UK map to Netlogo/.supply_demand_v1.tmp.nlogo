@@ -233,7 +233,14 @@ to draw-centroids
       set forces? "yes"
       set resource? "yes"
     ]
-    ;; WORK ON THIS! DOESN'T SPAWN.
+    ask n-of 1 patches gis:intersecting vector-feature [
+      set crime? "yes"
+    ]
+  ]
+end
+
+to draw-crimes
+    foreach gis:feature-list-of centroid-points [ vector-feature ->
     ask n-of 1 patches gis:intersecting vector-feature [
       set crime? "yes"
     ]
@@ -287,7 +294,7 @@ to create_forces
   ]
 end
 
-;; WORK ON THIS! DOESN'T SPAWN.
+;
 to spawn-crime
   ask patches with [crime? = "yes"][
     sprout-crimes 1[

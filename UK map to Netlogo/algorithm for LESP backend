@@ -13,12 +13,15 @@ delete from M all forces where not(minimise_impact) = 0
 
 loop until units fulfilled or resources_requirement_cycles = 0
 
-	find in M resource with min(t) AND max(M(not(minimise_impact))) #Finding the maximum resource value which is not the minimise impact resource call this resource 1A
+	find in M resource with min(t) AND max(M(not(minimise_impact))) 
+	#Finding the maximum resource value which is not the minimise impact 
+	#resource call this resource 1A
 
 
 	X = [1A]
 
-	if for all resources in X there exists a t = 0 then subtract resource with t = 0 from units_required
+	if for all resources in X there exists a t = 0 then subtract 
+		resource with t = 0 from units_required
 	
 	if units_required <= 0 then [print "crime prevented" break]
 	
