@@ -24,18 +24,19 @@ patches-own[
   latitude                  ;; the latitude of the UK map corresponding to patch.
   force-longitude           ;; the longitude of the police force.
   force-latitude            ;; the latitude of the police force.
-  police-force-name         ;; the name of the police force
+  police-force-name-patch   ;; the name of the police force
   patchworkm                ;; I don't know but it is a floating point value.
   centroid-value            ;; the longitude and latitudee of the centroid
   centroid-patch-identity   ;; we set this temp variable to 1 for all patches that have a centroid, then we draw the centroid then set it back to 0.
   resource?                 ;; does this patch have a resource on it? yes if it has a centroid or no.
   crime?                    ;; does this patch have a crime on it? yes if it has a centroid or no.
-  forces?
+  forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
 ]
 
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
 ; the forces
 forces-own[
+  police-force-ID                    ; ID of the police force.
   resource-total                     ;total number of resources in police force.
   resourceA-percentage               ;percentage of resources with type A
   resourceB-percentage               ;percentage of resources with type B
@@ -99,8 +100,8 @@ to draw
   draw-centroids
   draw-turtles
   create_resources
-  draw-links
   create_forces
+  draw-links
 end
 
 to path-draw
@@ -215,7 +216,7 @@ to gis-to-map
   foreach gis:feature-list-of centroid-points [ vector-feature ->
     let centroid gis:location-of gis:centroid-of vector-feature
     ask patches gis:intersecting vector-feature [
-      set police-force-name gis:property-value vector-feature "NAME"
+      set police-force-name-patch gis:property-value vector-feature "NAME"
       set patchworkm gis:property-value vector-feature "PATCHWORKM"
       set force-longitude gis:property-value vector-feature "LONGITUDE"
       set force-latitude gis:property-value vector-feature "LATITUDE"
@@ -287,7 +288,6 @@ to create_forces
   ask patches [
     set forces? 0
   ]
-
 end
 
 to move-resources
@@ -301,8 +301,12 @@ to move-resources
 end
 
 to draw-links
-    ask turtles [
-    create-links-with other turtles in-radius radius
+    ask forces [
+    create-links-with other forces in-radius 4.0
+  ]
+  ask forces with [xcor = -3] [
+    create-links-with forces with [xcor = 1]
+    create-links-with forces with [xcor = 2]
   ]
 end
 
