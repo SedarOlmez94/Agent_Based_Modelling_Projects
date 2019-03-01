@@ -451,9 +451,9 @@ ticks
 30.0
 
 BUTTON
-271
+278
 616
-334
+341
 649
 setup
 setup
@@ -793,6 +793,23 @@ number-of-resources
 17
 1
 11
+
+BUTTON
+425
+616
+512
+649
+watch crime
+watch one-of crimes
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
