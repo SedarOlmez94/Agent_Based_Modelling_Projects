@@ -1,6 +1,7 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
-extensions [ gis ]
+extensions [ gis view2.5d]
+
 
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
@@ -49,6 +50,7 @@ forces-own[
   resourceB-public-order-total       ;total number of type B resource public order trained.
   public-order-total                 ;total amount of public order across all types.
   time-to-mobilise                   ;the delay before a resource can be mobilised for force.
+
 ]
 
 crimes-own [
@@ -76,6 +78,7 @@ to setup
     set pcolor white
   ]
   setup-map
+  move-down
   draw
   reset-ticks
 end
@@ -140,6 +143,7 @@ to setup-forces
     set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
     set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
     set time-to-mobilise random 11
+    set police-force-ID (police-force-ID + 1)
   ]
 end
 
@@ -189,7 +193,7 @@ end
 
 to move-up
   set center-y center-y + shift * gis-patch-size
-  draw
+ draw
 end
 
 to move-down
@@ -221,6 +225,7 @@ to gis-to-map
       set force-latitude gis:property-value vector-feature "LATITUDE"
     ]
   ]
+
 end
 
 to draw-centroids
@@ -232,10 +237,6 @@ to draw-centroids
       set centroid-patch-identity 1
       set forces? "yes"
       set resource? "yes"
-    ]
-    ;; WORK ON THIS! DOESN'T SPAWN.
-    ask n-of 1 patches gis:intersecting vector-feature [
-      set crime? "yes"
     ]
   ]
 end
@@ -289,16 +290,21 @@ end
 
 ;; WORK ON THIS! DOESN'T SPAWN.
 to spawn-crime
-  ask patches with [crime? = "yes"][
-    sprout-crimes 1[
+  ask one-of turtles[
+    ; one crime spawns for now, once our algorithm works we can try multiple crimes.
+    hatch-crimes 1[
       set shape "circle"
       set size .10
-      set color red
+      set color 15
+      setup-crime
     ]
   ]
-  ask patches [
-    set crime? 0
-  ]
+end
+
+to setup-crime
+  set units_required (random 20 + 1) * 10
+  set minimise_impact one-of ["A" "B"]
+  set resources_requirement_cycles random 11
 end
 
 to move-resources
@@ -315,9 +321,9 @@ to draw-links
     ask forces [
     create-links-with other forces in-radius 4.0
   ]
-  ask forces with [xcor = -3] [
-    create-links-with forces with [xcor = 1 and ycor = -7]
-    create-links-with forces with [xcor = 2 and ycor = -9]
+  ask forces with [xcor = -4 and ycor = -15] [
+    create-links-with forces with [xcor = 1 and ycor = -11]
+    create-links-with forces with [xcor = 3 and ycor = -14]
   ]
 end
 
