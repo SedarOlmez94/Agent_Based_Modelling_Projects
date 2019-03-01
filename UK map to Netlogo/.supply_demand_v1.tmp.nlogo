@@ -5,6 +5,7 @@ extensions [ gis ]
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
 breed [forces force]      ;one agent per police force, stores resourcing information for that police service.
+breed [crimes crime]
 
 globals [
   map-view             ;; GIS dataset/map
@@ -48,6 +49,12 @@ forces-own[
   resourceB-public-order-total       ;total number of type B resource public order trained.
   public-order-total                 ;total amount of public order across all types.
   time-to-mobilise                   ;the delay before a resource can be mobilised for force.
+]
+
+crimes-own [
+  units_required
+  minimise_impact
+  resources_requirement_cycles
 ]
 
 searchers-own [
@@ -102,6 +109,7 @@ to draw
   create_resources
   create_forces
   draw-links
+  spawn-crime
 end
 
 to path-draw
@@ -189,15 +197,6 @@ to move-down
   draw
 end
 
-;to spawn-crime
-;  ask patches with [crime? = "true"][
-;    sprout-crimes 1[
-;      set shape "circle"
-;      set size .8
-;    ]
-;  ]
-;end
-
 ; This method maps the GIS vector data to the patch attributes, we also use centroids to
 ; focus only on the data within the outlines of the boundary map and not the sea.
 to gis-to-map
@@ -228,12 +227,20 @@ to draw-centroids
   foreach gis:feature-list-of centroid-points [ vector-feature ->
     gis:set-drawing-color red
     gis:fill vector-feature 2.0
+
     ask patches gis:intersecting vector-feature [
       set centroid-patch-identity 1
       set forces? "yes"
       set resource? "yes"
     ]
+    ask n-of 1 patches gis:intersecting vector-feature [
+      set crime? "yes"
+    ]
+  ]
+end
 
+to draw-crimes
+    foreach gis:feature-list-of centroid-points [ vector-feature ->
     ask n-of 1 patches gis:intersecting vector-feature [
       set crime? "yes"
     ]
@@ -244,9 +251,6 @@ to draw-turtles
   clear-turtles
   ask patches with [centroid-patch-identity > 0][
     sprout 1
-;    sprout-forces 1 [ ; we wrote piece of code on a train
-;      setup-forces ; we wrote piece of code on a train
-;    ]
   ]
   ask patches [
     set centroid-patch-identity 0
@@ -290,6 +294,20 @@ to create_forces
   ]
 end
 
+;
+to spawn-crime
+  ask patches with [crime? = "yes"][
+    sprout-crimes 1[
+      set shape "circle"
+      set size .10
+      set color red
+    ]
+  ]
+  ask patches [
+    set crime? 0
+  ]
+end
+
 to move-resources
   ask links [set thickness 0]
   ask resources [
@@ -305,8 +323,8 @@ to draw-links
     create-links-with other forces in-radius 4.0
   ]
   ask forces with [xcor = -3] [
-    create-links-with forces with [xcor = 1]
-    create-links-with forces with [xcor = 2]
+    create-links-with forces with [xcor = 1 and ycor = -7]
+    create-links-with forces with [xcor = 2 and ycor = -9]
   ]
 end
 
@@ -510,7 +528,7 @@ zoom
 zoom
 .01
 1.2
-0.6
+0.5
 .01
 1
 NIL
