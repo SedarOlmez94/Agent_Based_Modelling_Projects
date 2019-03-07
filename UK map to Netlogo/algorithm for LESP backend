@@ -1,33 +1,31 @@
 (SCENARIO)
 CRIME:
-- 100 units_required
-- minimise_impact = ResourceB
+- units_required = 20
+- minimise_impact = B
 - resources_requirement_cycles = 4
 
 
 calculate T for all forces
 crime occurs somewhere CRIME_LOCATION
 
-create list M with all resources with T <= resources_requirement_cycles
-delete from M all forces where not(minimise_impact) = 0
+create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
+delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
 
-loop until units fulfilled or resources_requirement_cycles = 0
+loop untill units_required = 0 or resources_requirement_cycles = 0:
 
-	find in M resource with min(t) AND max(M(not(minimise_impact))) 
-	#Finding the maximum resource value which is not the minimise impact 
-	#resource call this resource 1A
+	find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M" 
 
+	(new list object) X = [1A] (add "1A to X")
 
-	X = [1A]
-
-	if for all resources in X there exists a t = 0 then subtract 
-		resource with t = 0 from units_required
+	if for all resources in X there exists a time-to-mobilise = 0 then subtract 
+		resource with time-to-mobilise = 0 from units_required
 	
-	if units_required <= 0 then [print "crime prevented" break]
-	
-	subtract 1 from all resource times in X
+	if units_required <= 0 then [print "crime prevented"
+	    print names of all forces resources pulled and amount of resources pulled. BREAK]
 
-	M = M - 1A
+	subtract 1 from all resources time-to-mobilise in X
+
+	M = M - 1A remove the force added to X from the list M.
 
 
 
