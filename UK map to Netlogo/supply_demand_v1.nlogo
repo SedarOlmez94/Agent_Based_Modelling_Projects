@@ -153,6 +153,34 @@ to setup-crime
   set resources_requirement_cycles random 11
 end
 
+to crime-resource-planner
+;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
+;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
+
+;loop untill units_required = 0 or resources_requirement_cycles = 0:
+
+	;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
+
+	;(new list object) X = [1A] (add "1A to X")
+
+	;if for all resources in X there exists a time-to-mobilise = 0 then subtract
+		;resource with time-to-mobilise = 0 from units_required
+	
+	;if units_required <= 0 then [print "crime prevented"
+	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
+
+	;subtract 1 from all resources time-to-mobilise in X
+
+	;M = M - 1A remove the force added to X from the list M.
+
+;max(A):
+	;max = array[0]
+	;for i in range (M):
+		;if (M[i] > max):
+			;max = M[i]
+	;return max	
+end
+
 to-report heuristic [#Goal]
   report [distance [localisation] of myself] of #Goal
 end
