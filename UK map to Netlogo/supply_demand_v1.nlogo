@@ -288,7 +288,6 @@ to create_forces
   ]
 end
 
-;; WORK ON THIS! DOESN'T SPAWN.
 to spawn-crime
   ask one-of turtles[
     ; one crime spawns for now, once our algorithm works we can try multiple crimes.
@@ -801,6 +800,23 @@ BUTTON
 649
 watch crime
 watch one-of crimes
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+519
+616
+622
+649
+reset perspective
+rp
 NIL
 1
 T

@@ -1,6 +1,7 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
-extensions [ gis ]
+extensions [ gis view2.5d]
+
 
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
@@ -287,7 +288,6 @@ to create_forces
   ]
 end
 
-;; WORK ON THIS! DOESN'T SPAWN.
 to spawn-crime
   ask one-of turtles[
     ; one crime spawns for now, once our algorithm works we can try multiple crimes.
@@ -295,6 +295,7 @@ to spawn-crime
       set shape "circle"
       set size .10
       set color 15
+      setup-crime
     ]
   ]
 end
@@ -302,8 +303,7 @@ end
 to setup-crime
   set units_required (random 20 + 1) * 10
   set minimise_impact one-of ["A" "B"]
-  set resources_requirement_cycles random 1
-
+  set resources_requirement_cycles random 11
 end
 
 to move-resources
@@ -450,9 +450,9 @@ ticks
 30.0
 
 BUTTON
-271
+278
 616
-334
+341
 649
 setup
 setup
@@ -792,6 +792,40 @@ number-of-resources
 17
 1
 11
+
+BUTTON
+425
+616
+512
+649
+watch crime
+watch one-of crimes
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+519
+616
+622
+649
+reset perspective
+rp
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
