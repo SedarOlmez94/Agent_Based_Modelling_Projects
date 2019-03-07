@@ -156,19 +156,13 @@ end
 
 to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
-  let time_to_mobilise_list [time-to-mobilise] of forces
-  let resources_requirement_cycles_list [resources_requirement_cycles] of crimes
-;  foreach forces[
-;    if [time-to-mobilise <= (ask crimes [resources_requirement_cycles])][
-;      print "true"
-;    ]
-;  ]
   let M []
+  let time_to_mobilise_list [time-to-mobilise] of forces
+  print time_to_mobilise_list
+  ;let resources_requirement_cycles_list [resources_requirement_cycles] of crimes
+  set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
+  print M
 
-  ;let number-of-forces count forces
-  ;while [number-of-forces != 0][
-    ;if[]
-  ;]
 ;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
 
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
