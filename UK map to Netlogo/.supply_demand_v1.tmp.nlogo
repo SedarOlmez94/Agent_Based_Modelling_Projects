@@ -56,7 +56,7 @@ forces-own[
 crimes-own [
   units_required                ;; the number of units requied to stop the crime.
   minimise_impact               ;; minimising the impact on a specific resource i.e. A or B
-  resources_requirement_cycles  ;; the number of cycles till
+  resources_requirement_cycles  ;; the number of cycles in which the resources must be received.
 ]
 
 searchers-own [
@@ -145,6 +145,12 @@ to setup-forces
     set time-to-mobilise random 11
     set police-force-ID (police-force-ID + 1)
   ]
+end
+
+to setup-crime
+  set units_required (random 20 + 1) * 10
+  set minimise_impact one-of ["A" "B"]
+  set resources_requirement_cycles random 11
 end
 
 to-report heuristic [#Goal]
@@ -298,12 +304,6 @@ to spawn-crime
       setup-crime
     ]
   ]
-end
-
-to setup-crime
-  set units_required (random 20 + 1) * 10
-  set minimise_impact one-of ["A" "B"]
-  set resources_requirement_cycles random 11
 end
 
 to move-resources

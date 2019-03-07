@@ -147,6 +147,12 @@ to setup-forces
   ]
 end
 
+to setup-crime
+  set units_required (random 20 + 1) * 10
+  set minimise_impact one-of ["A" "B"]
+  set resources_requirement_cycles random 11
+end
+
 to-report heuristic [#Goal]
   report [distance [localisation] of myself] of #Goal
 end
@@ -298,12 +304,6 @@ to spawn-crime
       setup-crime
     ]
   ]
-end
-
-to setup-crime
-  set units_required (random 20 + 1) * 10
-  set minimise_impact one-of ["A" "B"]
-  set resources_requirement_cycles random 11
 end
 
 to move-resources
