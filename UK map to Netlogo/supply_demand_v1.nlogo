@@ -156,12 +156,15 @@ end
 
 to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
-  let all_forces [who] of forces
-  let all_crimes_cycles [resources_requirement_cycles] of crimes
+  let time_to_mobilise_list [time-to-mobilise] of forces
+  let resources_requirement_cycles_list [resources_requirement_cycles] of crimes
+;  foreach forces[
+;    if [time-to-mobilise <= (ask crimes [resources_requirement_cycles])][
+;      print "true"
+;    ]
+;  ]
   let M []
-  foreach all_forces [
 
-  ]
   ;let number-of-forces count forces
   ;while [number-of-forces != 0][
     ;if[]
