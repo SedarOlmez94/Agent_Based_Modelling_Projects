@@ -54,9 +54,9 @@ forces-own[
 ]
 
 crimes-own [
-  units_required
-  minimise_impact
-  resources_requirement_cycles
+  units_required                ;; the number of units requied to stop the crime.
+  minimise_impact               ;; minimising the impact on a specific resource i.e. A or B
+  resources_requirement_cycles  ;; the number of cycles till
 ]
 
 searchers-own [
