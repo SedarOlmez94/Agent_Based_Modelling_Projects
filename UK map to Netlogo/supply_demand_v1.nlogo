@@ -80,6 +80,7 @@ to setup
   setup-map
   move-down
   draw
+  crime-resource-planner
   reset-ticks
 end
 
@@ -155,6 +156,12 @@ end
 
 to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
+  let resources_list_M [police-force-ID] of forces
+  print resources_list_M
+  ;let number-of-forces count forces
+  ;while [number-of-forces != 0][
+    ;if[]
+  ;]
 ;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
 
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
