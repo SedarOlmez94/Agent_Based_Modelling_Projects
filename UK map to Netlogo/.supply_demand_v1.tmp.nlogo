@@ -155,6 +155,13 @@ end
 
 to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
+  ;insert-item index list value
+  let resources_list_M sort-on [police-force-ID] forces
+  print resources_list_M
+  let number-of-forces count forces
+  while [number-of-forces != 0][
+    ;if[]
+  ]
 ;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
 
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
@@ -172,13 +179,13 @@ to crime-resource-planner
 	;subtract 1 from all resources time-to-mobilise in X
 
 	;M = M - 1A remove the force added to X from the list M.
-A = [
-max(array):
-	max = array[0]
-	for i in range (M):
-		if (M[i] > max):
-			max = M[i]
-	return max	
+
+;max(A):
+	;max = array[0]
+	;for i in range (M):
+		;if (M[i] > max):
+			;max = M[i]
+	;return max	
 end
 
 to-report heuristic [#Goal]
