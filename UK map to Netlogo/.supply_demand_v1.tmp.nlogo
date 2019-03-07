@@ -54,9 +54,9 @@ forces-own[
 ]
 
 crimes-own [
-  units_required
-  minimise_impact
-  resources_requirement_cycles
+  units_required                ;; the number of units requied to stop the crime.
+  minimise_impact               ;; minimising the impact on a specific resource i.e. A or B
+  resources_requirement_cycles  ;; the number of cycles in which the resources must be received.
 ]
 
 searchers-own [
@@ -80,6 +80,7 @@ to setup
   setup-map
   move-down
   draw
+  crime-resource-planner
   reset-ticks
 end
 
@@ -145,6 +146,57 @@ to setup-forces
     set time-to-mobilise random 11
     set police-force-ID (police-force-ID + 1)
   ]
+end
+
+to setup-crime
+  set units_required (random 20 + 1) * 10
+  set minimise_impact one-of ["A" "B"]
+  set resources_requirement_cycles random 11
+end
+
+to crime-resource-planner
+;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
+  let M []
+  let time_to_mobilise_list [time-to-mobilise] of forces
+  print time_to_mobilise_list
+  ;let resources_requirement_cycles_list [resources_requirement_cycles] of crimes
+  set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
+  print M
+;  foreach forces[
+;    if [time-to-mobilise <= (ask crimes [resources_requirement_cycles])][
+;      print "true"
+;    ]
+;  ]
+
+
+  ;let number-of-forces count forces
+  ;while [number-of-forces != 0][
+    ;if[]
+  ;]
+;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
+
+;loop untill units_required = 0 or resources_requirement_cycles = 0:
+
+	;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
+
+	;(new list object) X = [1A] (add "1A to X")
+
+	;if for all resources in X there exists a time-to-mobilise = 0 then subtract
+		;resource with time-to-mobilise = 0 from units_required
+	
+	;if units_required <= 0 then [print "crime prevented"
+	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
+
+	;subtract 1 from all resources time-to-mobilise in X
+
+	;M = M - 1A remove the force added to X from the list M.
+
+;max(A):
+	;max = array[0]
+	;for i in range (M):
+		;if (M[i] > max):
+			;max = M[i]
+	;return max	
 end
 
 to-report heuristic [#Goal]
@@ -298,12 +350,6 @@ to spawn-crime
       setup-crime
     ]
   ]
-end
-
-to setup-crime
-  set units_required (random 20 + 1) * 10
-  set minimise_impact one-of ["A" "B"]
-  set resources_requirement_cycles random 11
 end
 
 to move-resources
