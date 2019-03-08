@@ -201,6 +201,17 @@ to crime-resource-planner
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
   while [(crime_units_required != 0) or (resource_cycles != 0)]
   [
+    let min_resource_list count M_3 with-min [time-to-mobilise]
+    let max_resource_impact max M_resources
+    print (word "max_resource" max_resource_impact)
+;    ask forces[
+;
+;    ]
+
+
+
+
+
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
     if crime_units_required = 0 or resource_cycles = 0 [
