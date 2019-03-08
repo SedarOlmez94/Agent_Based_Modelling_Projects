@@ -160,6 +160,8 @@ to crime-resource-planner
   let M []
   let M_resources []
   let M_3 []
+
+
   ;; here we set the target_resource to the resource type we want to target not the one to minimise.
   ask crimes [ifelse minimise_impact = "A"[
       set target_resource "B"
@@ -195,15 +197,16 @@ to crime-resource-planner
   print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
 
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
-  while [[units_required] of crimes != 0 or [resources_requirement_cycles] of crimes != 0]
-  [
-    ask crimes [
+  ask crimes [
+    while [units_required != 0 or resources_requirement_cycles != 0]
+    [
       set units_required units_required - 1
       set resources_requirement_cycles resources_requirement_cycles - 1
       print (word "units required: "units_required)
       print (word "resources requirement cycles: " resources_requirement_cycles)
     ]
   ]
+
   	;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
 
   	;(new list object) X = [1A] (add "1A to X")
