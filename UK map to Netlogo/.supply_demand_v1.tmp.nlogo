@@ -190,7 +190,7 @@ to crime-resource-planner
   ]
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
-  print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0" M_3)
+  print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is !"M_3)
 
 
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
