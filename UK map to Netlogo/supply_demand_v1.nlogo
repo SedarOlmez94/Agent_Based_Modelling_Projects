@@ -80,7 +80,6 @@ to setup
   setup-map
   move-down
   draw
-  crime-resource-planner
   reset-ticks
 end
 
@@ -170,7 +169,8 @@ to crime-resource-planner
   ]
   print target_resource
   set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
-  print M ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
+  ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
+  print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
 
 ;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
   ask forces [
@@ -180,8 +180,10 @@ to crime-resource-planner
       set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
     ]
   ]
-  print M_resources ;; all the resources which are not 0 and are not the ones to minimise_impact on
+  ;; all the resources which are not 0 and are not the ones to minimise_impact on
   ;; we now need to create a list of all the forces which satisfy both M  and M_resources
+  print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
+
 
   ask forces with [(member? resourceA-public-order-total M_resources) or (member? resourceB-public-order-total M_resources)][
       if member? time-to-mobilise M [
@@ -190,31 +192,38 @@ to crime-resource-planner
   ]
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
-  print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0" M_3)
-
+  print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
 
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
+  while [[units_required] of crimes != 0 or [resources_requirement_cycles] of crimes != 0]
+  [
+    ask crimes [
+      set units_required units_required - 1
+      set resources_requirement_cycles resources_requirement_cycles - 1
+      print (word "units required: "units_required)
+      print (word "resources requirement cycles: " resources_requirement_cycles)
+    ]
+  ]
+  	;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
 
-	;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
+  	;(new list object) X = [1A] (add "1A to X")
 
-	;(new list object) X = [1A] (add "1A to X")
+  	;if for all resources in X there exists a time-to-mobilise = 0 then subtract
+   		;resource with time-to-mobilise = 0 from units_required
+  	
+  	;if units_required <= 0 then [print "crime prevented"
+   	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
 
-	;if for all resources in X there exists a time-to-mobilise = 0 then subtract
-		;resource with time-to-mobilise = 0 from units_required
-	
-	;if units_required <= 0 then [print "crime prevented"
-	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
+  	;subtract 1 from all resources time-to-mobilise in X
 
-	;subtract 1 from all resources time-to-mobilise in X
+  	;M = M - 1A remove the force added to X from the list M.
 
-	;M = M - 1A remove the force added to X from the list M.
-
-;max(A):
-	;max = array[0]
-	;for i in range (M):
-		;if (M[i] > max):
-			;max = M[i]
-	;return max	
+  ;max(A):
+  	;max = array[0]
+   	;for i in range (M):
+    		;if (M[i] > max):
+      			;max = M[i]
+         	;return max	
 end
 
 to-report heuristic [#Goal]
@@ -514,10 +523,10 @@ ticks
 30.0
 
 BUTTON
-278
-616
-341
-649
+113
+615
+176
+648
 setup
 setup
 NIL
@@ -531,10 +540,10 @@ NIL
 1
 
 BUTTON
-352
-616
-415
-649
+187
+615
+250
+648
 go
 go
 T
@@ -858,10 +867,10 @@ number-of-resources
 11
 
 BUTTON
-425
-616
-512
-649
+260
+615
+347
+648
 watch crime
 watch one-of crimes
 NIL
@@ -875,16 +884,33 @@ NIL
 1
 
 BUTTON
-519
-616
-622
-649
+354
+615
+457
+648
 reset perspective
 rp
 NIL
 1
 T
 OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+464
+615
+565
+648
+plan response
+crime-resource-planner
+NIL
+1
+T
+TURTLE
 NIL
 NIL
 NIL
