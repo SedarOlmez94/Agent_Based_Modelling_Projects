@@ -203,10 +203,11 @@ to crime-resource-planner
   [
     let min_resource_list count M_3 with-min [time-to-mobilise]
     let max_resource_impact max M_resources
-    print (word "max_resource" max_resource_impact)
-;    ask forces[
-;
-;    ]
+    print (word max_resource_impact)
+    ask forces[
+
+    ]
+
 
 
 
