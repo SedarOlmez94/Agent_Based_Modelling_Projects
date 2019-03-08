@@ -161,6 +161,7 @@ to crime-resource-planner
   let M []
   let M_resources []
   let M_3 []
+  let M_not_minimise_impact []
   let crime_units_required (item 0 ([units_required] of crimes))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))
 
@@ -174,7 +175,7 @@ to crime-resource-planner
   print target_resource
   set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
-  print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
+  ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
 
 ;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
   ask forces [
@@ -186,7 +187,7 @@ to crime-resource-planner
   ]
   ;; all the resources which are not 0 and are not the ones to minimise_impact on
   ;; we now need to create a list of all the forces which satisfy both M  and M_resources
-  print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
+  ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
 
 
   ask forces with [(member? resourceA-public-order-total M_resources) or (member? resourceB-public-order-total M_resources)][
@@ -196,21 +197,31 @@ to crime-resource-planner
   ]
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
-  print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
+  ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
 
+  ask forces [
+    if member? time-to-mobilise M_3[
+      ifelse member? resourceA-public-order-total M_resources[
+        set M_not_minimise_impact fput resourceA-public-order-total M_not_minimise_impact
+      ][
+        set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
+      ]
+    ]
+  ]
+
+  print (word "All the resources we can use " M_not_minimise_impact
+  word " and all their times to mobilise " M)
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
   while [(crime_units_required != 0) or (resource_cycles != 0)]
   [
-    let min_resource_list count M_3 with-min [time-to-mobilise]
+    let min_resource_list min M_3
     let max_resource_impact max M_resources
-    print (word max_resource_impact)
+
     ask forces[
-
+      if member? min_resource_list M[
+        print("FOUND")
+      ]
     ]
-
-
-
-
 
 
     set crime_units_required (crime_units_required - 1)
@@ -224,7 +235,7 @@ to crime-resource-planner
 
 
 
-  	;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
+  	
 
   	;(new list object) X = [1A] (add "1A to X")
 
