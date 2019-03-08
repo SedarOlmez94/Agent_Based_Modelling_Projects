@@ -158,7 +158,6 @@ to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
   ;let time_to_mobilise_list [time-to-mobilise] of forces
   let target_resource 0
-  let counter 0
   let M []
   let M_resources []
   let M_3 []
@@ -217,13 +216,12 @@ to crime-resource-planner
   [
     let min_resource_list min M_3
     let max_resource_impact max M_resources
-    print (word "max_resource" max_resource_impact)
-;    ask forces[
-;
-;    ]
-
-
-
+    ;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
+    ask forces[
+      if member? min_resource_list M[
+        print("FOUND")
+      ]
+    ]
 
 
     set crime_units_required (crime_units_required - 1)
@@ -237,7 +235,7 @@ to crime-resource-planner
 
 
 
-  	;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
+  	
 
   	;(new list object) X = [1A] (add "1A to X")
 
