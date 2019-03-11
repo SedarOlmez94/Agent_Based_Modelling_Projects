@@ -119,10 +119,8 @@ end
 to path-draw
   ask links with [color = yellow][set color grey set thickness 0]
   let start one-of resources
-  print start
   ;ask start [set color green set size 1]
-  let goal one-of turtles
-  print goal
+  let goal one-of crimes
   ;ask goal [set color green set size 1]
   ; We compute the path with A*
   let path (A* start goal)
@@ -161,21 +159,18 @@ to crime-resource-planner
   let M []
   let M_resources []
   let M_3 []
+  let X []
   let M_not_minimise_impact []
   let crime_units_required (item 0 ([units_required] of crimes))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))
 
-  ;; here we set the target_resource to the resource type we want to target not the one to minimise.
-  ask crimes [ifelse minimise_impact = "A"[
-      set target_resource "B"
-    ][
-      set target_resource "A"
-    ]
-  ]
+  set target_resource set_target_resource target_resource
   print target_resource
-  set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
+
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
   ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
+  set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
+
 
 ;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
   ask forces [
@@ -189,54 +184,37 @@ to crime-resource-planner
   ;; we now need to create a list of all the forces which satisfy both M  and M_resources
   ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
 
-
-  ask forces with [(member? resourceA-public-order-total M_resources) or (member? resourceB-public-order-total M_resources)][
-      if member? time-to-mobilise M [
-        set M_3 fput time-to-mobilise M_3
-      ]
+  ask forces with [(member? resourceA-public-order-total M_Resources) or (member? resourceB-public-order-total M_Resources)][
+    if member? time-to-mobilise M [
+      set M_3 fput time-to-mobilise M_3
+    ]
   ]
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
 
-  ask forces [
-    if member? time-to-mobilise M_3[
-      ifelse member? resourceA-public-order-total M_resources[
-        set M_not_minimise_impact fput resourceA-public-order-total M_not_minimise_impact
-      ][
-        set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
-      ]
-    ]
-  ]
+  time_to_mobilise_for_all_forces M_3 M_Resources M
 
-  print (word "All the resources we can use " M_not_minimise_impact
-  word " and all their times to mobilise " M)
-;loop untill units_required = 0 or resources_requirement_cycles = 0:
+
+  ;loop untill units_required = 0 or resources_requirement_cycles = 0:
   while [(crime_units_required != 0) or (resource_cycles != 0)]
   [
-    let min_resource_list min M_3
-    let max_resource_impact max M_resources
-    ;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
-    ask forces[
-      if member? min_resource_list M[
-        print("FOUND")
-      ]
-    ]
+    ; Line 4 in the algorithm finds the resource with the min-to-mobilise.
+    ; Added the time-to-mobilise which we want to X. (Line 6 of the algorithm)
+    set X fput first min-max M_3 M_resources X
 
+    if member? 0 X [
+
+    ]
 
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
     if crime_units_required = 0 or resource_cycles = 0 [
-      print (word "units required" crime_units_required)
-      print (word "resources requirement cycles: " resource_cycles)
+;      print (word "units required" crime_units_required)
+;      print (word "resources requirement cycles: " resource_cycles)
       stop
     ]
   ]
-
-
-
-  	
-
   	;(new list object) X = [1A] (add "1A to X")
 
   	;if for all resources in X there exists a time-to-mobilise = 0 then subtract
@@ -248,13 +226,49 @@ to crime-resource-planner
   	;subtract 1 from all resources time-to-mobilise in X
 
   	;M = M - 1A remove the force added to X from the list M.
+end
 
-  ;max(A):
-  	;max = array[0]
-   	;for i in range (M):
-    		;if (M[i] > max):
-      			;max = M[i]
-         	;return max	
+to-report set_target_resource [target_resource]
+  ;; here we set the target_resource to the resource type we want to target not the one to minimise.
+  ask crimes [ifelse minimise_impact = "A"[
+      set target_resource "B"
+    ][
+      set target_resource "A"
+    ]
+  ]
+  report target_resource
+end
+
+to time_to_mobilise_for_all_forces [list1 list2 list3]
+  let M_not_minimise_impact []
+  ask forces [
+    if member? time-to-mobilise list1[
+      ifelse member? resourceA-public-order-total list2[
+        set M_not_minimise_impact fput resourceA-public-order-total M_not_minimise_impact
+      ][
+        set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
+      ]
+    ]
+  ]
+
+  print (word "All the resources we can use " M_not_minimise_impact
+  word " and all their times to mobilise " list3)
+end
+
+to-report min-max [list1 list2]
+  let min_resource_time_1 0
+  let list_of_units_potentially_used []
+  set min_resource_time_1 min list1
+  ask forces[
+    if min_resource_time_1 = time-to-mobilise [
+      ifelse member? resourceA-public-order-total list2[
+        set list_of_units_potentially_used fput resourceA-public-order-total list_of_units_potentially_used
+      ][
+        set list_of_units_potentially_used fput resourceB-public-order-total list_of_units_potentially_used
+       ]
+     ]
+  ]
+  report list_of_units_potentially_used
 end
 
 to-report heuristic [#Goal]
