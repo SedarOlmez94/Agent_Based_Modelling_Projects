@@ -163,14 +163,9 @@ to crime-resource-planner
   let crime_units_required (item 0 ([units_required] of crimes))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))
 
-  ;; here we set the target_resource to the resource type we want to target not the one to minimise.
-  ask crimes [ifelse minimise_impact = "A"[
-      set target_resource "B"
-    ][
-      set target_resource "A"
-    ]
-  ]
-  print target_resource
+  print
+  ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
+  ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
   set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
 
 
@@ -225,6 +220,16 @@ to crime-resource-planner
   	;M = M - 1A remove the force added to X from the list M.
 end
 
+to-report set_target_resource [target_resource]
+  ;; here we set the target_resource to the resource type we want to target not the one to minimise.
+  ask crimes [ifelse minimise_impact = "A"[
+      set target_resource "B"
+    ][
+      set target_resource "A"
+    ]
+  ]
+  report target_resource
+end
 
 to time_to_mobilise_for_all_forces [list1 list2 list3]
   let M_not_minimise_impact []
