@@ -215,13 +215,17 @@ to crime-resource-planner
   while [(crime_units_required != 0) or (resource_cycles != 0)]
   [
     set min_resource_time_1 min M_3
+    ;print (word "MIN_TIME!" min_resource_time)
+    ;set max_resource_impact max M_resources
 
+    ;print (word "MAX_RESOURCE!" max_resource_impact)
+    ;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
     ask forces[
       if min_resource_time_1 = time-to-mobilise [
         ifelse member? resourceA-public-order-total M_resources[
           set list_of_units_potentially_used fput resourceA-public-order-total list_of_units_potentially_used
         ][
-          set list_of_units_potentially_used fput resourceB-public-order-total list_of_units_potentially_used
+
         ]
       ]
     ]
