@@ -156,12 +156,10 @@ to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
   ;let time_to_mobilise_list [time-to-mobilise] of forces
   let target_resource 0
-  let min_resource_time_1 0
   let M []
   let M_resources []
   let M_3 []
   let M_not_minimise_impact []
-  let list_of_units_potentially_used []
   let crime_units_required (item 0 ([units_required] of crimes))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))
 
@@ -214,21 +212,9 @@ to crime-resource-planner
 ;loop untill units_required = 0 or resources_requirement_cycles = 0:
   while [(crime_units_required != 0) or (resource_cycles != 0)]
   [
-    set min_resource_time_1 min M_3
-    ;print (word "MIN_TIME!" min_resource_time)
-    ;set max_resource_impact max M_resources
 
-    ;print (word "MAX_RESOURCE!" max_resource_impact)
-    ;find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum value of the resource which is not the one to minimise_impact on stored in M"
-    ask forces[
-      if min_resource_time_1 = time-to-mobilise [
-        ifelse member? resourceA-public-order-total M_resources[
-          set list_of_units_potentially_used fput resourceA-public-order-total list_of_units_potentially_used
-        ][
 
-        ]
-      ]
-    ]
+    print min-max M_3 M_resources
 
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
@@ -256,6 +242,22 @@ to crime-resource-planner
     		;if (M[i] > max):
       			;max = M[i]
          	;return max	
+end
+
+to-report min-max [list1 list2]
+  let min_resource_time_1 0
+  let list_of_units_potentially_used []
+  set min_resource_time_1 min list1
+  ask forces[
+    if min_resource_time_1 = time-to-mobilise [
+      ifelse member? resourceA-public-order-total list2[
+        set list_of_units_potentially_used fput resourceA-public-order-total list_of_units_potentially_used
+      ][
+        set list_of_units_potentially_used fput resourceB-public-order-total list_of_units_potentially_used
+       ]
+     ]
+  ]
+  report list_of_units_potentially_used
 end
 
 to-report heuristic [#Goal]
