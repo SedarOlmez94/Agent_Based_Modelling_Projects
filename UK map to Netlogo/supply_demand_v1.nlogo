@@ -159,12 +159,14 @@ to crime-resource-planner
   let M []
   let M_resources []
   let M_3 []
+  let X []
   let M_not_minimise_impact []
   let crime_units_required (item 0 ([units_required] of crimes))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))
 
   set target_resource set_target_resource target_resource
   print target_resource
+
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
   ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
   set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
@@ -198,7 +200,12 @@ to crime-resource-planner
   while [(crime_units_required != 0) or (resource_cycles != 0)]
   [
     ; Line 4 in the algorithm finds the resource with the min-to-mobilise.
-    print min-max M_3 M_resources
+    ; Added the time-to-mobilise which we want to X. (Line 6 of the algorithm)
+    set X fput first min-max M_3 M_resources X
+
+    if member? 0 X [
+
+    ]
 
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
