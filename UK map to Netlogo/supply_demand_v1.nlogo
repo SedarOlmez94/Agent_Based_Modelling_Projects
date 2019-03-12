@@ -233,9 +233,11 @@ to time-to-mobilise-in-X [X M_3]
   ask forces [
     ifelse (member? time-to-mobilise X) and (member? resourceA-public-order-total M_3) [
       set resource_to_sub resourceA-public-order-total
+      ;print("A!!!")
       ][
       if (member? time-to-mobilise X) and (member? resourceB-public-order-total M_3)[
         set resource_to_sub resourceB-public-order-total
+        ;print ("B!!!")
       ]
     ]
   ]
