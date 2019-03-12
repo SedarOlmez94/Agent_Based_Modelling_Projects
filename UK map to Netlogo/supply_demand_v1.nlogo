@@ -234,6 +234,15 @@ end
 
 to-report time-to-mobilise-in-X [X M_3]
   let resource_to_sub 0
+  ask forces [
+    if member? time-to-mobilise X [
+      ifelse member? resourceA-public-order-total M_3 [
+        set resource_to_sub resourceA-public-order-total
+      ][
+        set resource_to_sub resourceB-public-order-total
+      ]
+    ]
+  ]
 
   report resource_to_sub
 end
