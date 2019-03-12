@@ -201,11 +201,22 @@ to crime-resource-planner
   [
     ; Line 4 in the algorithm finds the resource with the min-to-mobilise.
     ; Added the time-to-mobilise which we want to X. (Line 6 of the algorithm)
+
+    ;(new list object) X = [1A] (add "1A to X")
     set X fput first min-max M_3 M_resources X
 
     if member? 0 X [
+      ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
+      ;resource with time-to-mobilise = 0 from units_required
       time-to-mobilise-in-X X M_3
     ]
+  	
+  	;if units_required <= 0 then [print "crime prevented"
+   	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
+    check-crime-prevented X
+  	;subtract 1 from all resources time-to-mobilise in X
+
+  	;M = M - 1A remove the force added to X from the list M.
 
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
@@ -215,17 +226,28 @@ to crime-resource-planner
       stop
     ]
   ]
-  	;(new list object) X = [1A] (add "1A to X")
 
-  	;if for all resources in X there exists a time-to-mobilise = 0 then subtract
-   		;resource with time-to-mobilise = 0 from units_required
-  	
-  	;if units_required <= 0 then [print "crime prevented"
-   	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
 
-  	;subtract 1 from all resources time-to-mobilise in X
+end
 
-  	;M = M - 1A remove the force added to X from the list M.
+to check-crime-prevented [X]
+  let forces_resources_pulled []
+  ask forces [
+    foreach X [ I ->
+      ifelse I = resourceA-public-order-total [
+        set forces_resources_pulled fput police-force-id forces_resources_pulled
+        set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
+      ][
+        if I = re
+      ]
+    ]
+
+  ]
+  ask crimes [
+    if units_required <= 0 [
+      print (word "CRIMES PREVENTED, all resources pulled" )
+    ]
+  ]
 end
 
 to time-to-mobilise-in-X [X M_3]
@@ -237,7 +259,7 @@ to time-to-mobilise-in-X [X M_3]
       ][
       if (member? time-to-mobilise X) and (member? resourceB-public-order-total M_3)[
         set resource_to_sub resourceB-public-order-total
-        print ("B!!!")
+        ;print ("B!!!")
       ]
     ]
   ]
