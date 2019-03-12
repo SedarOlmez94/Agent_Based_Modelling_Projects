@@ -217,7 +217,7 @@ to crime-resource-planner
 
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
     ; exists in X.
-    ;subtract-from-X X
+    show subtract-from-X X
 
   	;M = M - 1A remove the force added to X from the list M.
 
@@ -233,16 +233,20 @@ to crime-resource-planner
 
 end
 
-to subtract-from-X [X]
+to-report subtract-from-X [X]
+  let times-to-mobilise []
   ask forces [
     ifelse member? resourceA-public-order-total X [
       set time-to-mobilise time-to-mobilise - 1
+      set times-to-mobilise fput time-to-mobilise times-to-mobilise
     ][
       if member? resourceB-public-order-total X [
         set time-to-mobilise time-to-mobilise - 1
+        set times-to-mobilise fput time-to-mobilise times-to-mobilise
       ]
     ]
   ]
+  report times-to-mobilise
 end
 
 to check-crime-prevented [X crime_units_required]
