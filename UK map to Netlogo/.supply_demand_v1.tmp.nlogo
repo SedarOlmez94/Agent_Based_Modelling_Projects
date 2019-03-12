@@ -204,11 +204,7 @@ to crime-resource-planner
     set X fput first min-max M_3 M_resources X
 
     if member? 0 X [
-      let resources_to_subtract time-to-mobilise-in-X X M_3
-
-      ask crimes [
-        set units_required (units_required - resources_to_subtract)
-      ]
+      time-to-mobilise-in-X X M_3
     ]
 
     set crime_units_required (crime_units_required - 1)
@@ -232,20 +228,21 @@ to crime-resource-planner
   	;M = M - 1A remove the force added to X from the list M.
 end
 
-to-report time-to-mobilise-in-X [X M_3]
+to time-to-mobilise-in-X [X M_3]
   let resource_to_sub 0
   ask forces [
-    if member? time-to-mobilise X [
-      ifelse member? resourceA-public-order-total M_3 [
-        set resource_to_sub resourceA-public-order-total
+    ifelse (member? time-to-mobilise X) and (member? resourceA-public-order-total M_3) [
+      set resource_to_sub resourceA-public-order-total
       ][
-        set resource_to_sub resourceB-public-order-o
+      if (member? time-to-mobilise X) and (member? resourceB-public-order-total M_3)[
+        set resource_to_sub resourceB-public-order-total
       ]
     ]
-
   ]
-
-  report resource_to_sub
+  print (word "TEST!!!" resource_to_sub)
+  ask crimes [
+    set units_required (units_required - resource_to_sub)
+  ]
 end
 
 to-report set_target_resource [target_resource]
