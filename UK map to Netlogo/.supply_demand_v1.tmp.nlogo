@@ -239,6 +239,7 @@ to time-to-mobilise-in-X [X M_3]
       ]
     ]
   ]
+  print (word "TEST!!!" resource_to_sub)
   ask crimes [
     set units_required (units_required - resource_to_sub)
   ]
