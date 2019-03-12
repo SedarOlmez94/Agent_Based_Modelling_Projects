@@ -208,12 +208,12 @@ to crime-resource-planner
     if member? 0 X [
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      time-to-mobilise-in-X X M_3
+      time-to-mobilise-in-X X M_3 crime_units_required
     ]
   	
   	;if units_required <= 0 then [print "crime prevented"
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
-    check-crime-prevented X
+    check-crime-prevented X crime_units_required
   	;subtract 1 from all resources time-to-mobilise in X
 
   	;M = M - 1A remove the force added to X from the list M.
@@ -230,27 +230,30 @@ to crime-resource-planner
 
 end
 
-to check-crime-prevented [X]
+to check-crime-prevented [X crime_units_required]
   let forces_resources_pulled []
+
   ask forces [
     foreach X [ I ->
       ifelse I = resourceA-public-order-total [
         set forces_resources_pulled fput police-force-id forces_resources_pulled
         set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
       ][
-        if I = re
+        if I = resourceB-public-order-total [
+          set forces_resources_pulled fput police-force-id forces_resources_pulled
+          set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
+        ]
       ]
     ]
+  ]
 
-  ]
-  ask crimes [
     if units_required <= 0 [
-      print (word "CRIMES PREVENTED, all resources pulled" )
+      print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
     ]
-  ]
+
 end
 
-to time-to-mobilise-in-X [X M_3]
+to time-to-mobilise-in-X [X M_3 crime_units_required]
   let resource_to_sub 0
   ask forces [
     ifelse (member? time-to-mobilise X) and (member? resourceA-public-order-total M_3) [
@@ -263,9 +266,9 @@ to time-to-mobilise-in-X [X M_3]
       ]
     ]
   ]
-  ask crimes [
-    set units_required (units_required - resource_to_sub)
-  ]
+  set crime_units_required (crime_units_required - resource_to_sub)
+
+
 end
 
 to-report set_target_resource [target_resource]
