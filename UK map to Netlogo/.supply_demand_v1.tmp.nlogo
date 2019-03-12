@@ -214,7 +214,10 @@ to crime-resource-planner
   	;if units_required <= 0 then [print "crime prevented"
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
     check-crime-prevented X crime_units_required
-  	;subtract 1 from all resources time-to-mobilise in X
+
+  	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
+    ; exists in X.
+    ;subtract-from-X X
 
   	;M = M - 1A remove the force added to X from the list M.
 
@@ -228,6 +231,18 @@ to crime-resource-planner
   ]
 
 
+end
+
+to subtract-from-X [X]
+  ask forces [
+    ifelse member? resourceA-public-order-total X [
+      set time-to-mobilise time-to-mobilise - 1
+    ][
+      if member? resourceB-public-order-total X [
+        set time-to-mobilise time-to-mobilise - 1
+      ]
+    ]
+  ]
 end
 
 to check-crime-prevented [X crime_units_required]
@@ -246,10 +261,9 @@ to check-crime-prevented [X crime_units_required]
       ]
     ]
   ]
-
-    if units_required <= 0 [
-      print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
-    ]
+  if crime_units_required <= 0 [
+    print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
+  ]
 
 end
 
