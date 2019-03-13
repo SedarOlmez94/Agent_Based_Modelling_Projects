@@ -225,8 +225,8 @@ to crime-resource-planner
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
     if crime_units_required = 0 or resource_cycles = 0 [
-;      print (word "units required" crime_units_required)
-;      print (word "resources requirement cycles: " resource_cycles)
+      print (word "units required" crime_units_required)
+      print (word "resources requirement cycles: " resource_cycles)
       stop
     ]
   ]

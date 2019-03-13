@@ -220,13 +220,13 @@ to crime-resource-planner
     show subtract-from-X X
 
   	;M_3 = M_3 - 1A remove the force added to X from the list M.
-    set M_3 remove  M_3
+    set M_3 remove last X M_3
 
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
     if crime_units_required = 0 or resource_cycles = 0 [
-;      print (word "units required" crime_units_required)
-;      print (word "resources requirement cycles: " resource_cycles)
+      print (word "units required" crime_units_required)
+      print (word "resources requirement cycles: " resource_cycles)
       stop
     ]
   ]
