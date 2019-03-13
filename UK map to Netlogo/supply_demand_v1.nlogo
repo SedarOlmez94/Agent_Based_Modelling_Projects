@@ -155,24 +155,24 @@ end
 to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
   ;let time_to_mobilise_list [time-to-mobilise] of forces
-  let target_resource 0
-  let M []
-  let M_resources []
-  let M_3 []
-  let X []
-  let M_not_minimise_impact []
-  let crime_units_required (item 0 ([units_required] of crimes))
-  let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))
+  let target_resource 0                                                      ; the placeholder for the resource we wish to target
+  let M []                                                                   ; the M list which contains all resources with time-to-mobilise <= the number of cycles to tackle the crime.
+  let M_resources []                                                         ; list contains the number of resources which are not 0
+  let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
+  let X []                                                                   ; contains the resources we can use each time tick (main list)
+  let M_not_minimise_impact []                                               ; list contains only the resources which we dont have to minimise impact on
+  let crime_units_required (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
+  let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
 
-  set target_resource set_target_resource target_resource
-  print target_resource
+  set target_resource set_target_resource target_resource ; returns the resource type we wish to target, the negation of the resource we wish to minimise (opposite)
+  print target_resource ; print the letter of the resource type we wish to target.
 
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
   ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
-  set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes])
+  set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes]) ; LINE 1 from algorithm.txt
 
 
-;delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
+;delete from M all forces where not(minimise_impact) = 0 (no quantity of resource to be used i.e. A or B in this case) LINE 2 from algorithm.txt
   ask forces [
     ifelse target_resource = "A"[
       set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
@@ -180,58 +180,62 @@ to crime-resource-planner
       set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
     ]
   ]
+
   ;; all the resources which are not 0 and are not the ones to minimise_impact on
   ;; we now need to create a list of all the forces which satisfy both M  and M_resources
   ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
-
   ask forces with [(member? resourceA-public-order-total M_Resources) or (member? resourceB-public-order-total M_Resources)][
     if member? time-to-mobilise M [
       set M_3 fput time-to-mobilise M_3
     ]
   ]
+
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
-
   time_to_mobilise_for_all_forces M_3 M_Resources M
 
 
-  ;loop untill units_required = 0 or resources_requirement_cycles = 0:
+  ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
   while [(crime_units_required != 0) or (resource_cycles != 0)]
   [
-    ; Line 4 in the algorithm finds the resource with the min-to-mobilise.
-    ; Added the time-to-mobilise which we want to X. (Line 6 of the algorithm)
+    ; in the algorithm finds the resource with the min-to-mobilise.
+    ; Added the time-to-mobilise which we want to X.
 
     ;(new list object) X = [1A] (add "1A to X")
-    set X fput first min-max M_3 M_resources X
+    set X fput first min-max M_3 M_resources X ;LINES 4, 5, 6 from algorithm.txt
 
-    if member? 0 X [
+    if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
       time-to-mobilise-in-X X M_3 crime_units_required
     ]
   	
-  	;if units_required <= 0 then [print "crime prevented"
+  	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
-    check-crime-prevented X crime_units_required
+    check-crime-prevented X crime_units_required ; this function is only invoked if the units_required (crime_units_required) is 0 or smaller than 0
 
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
-    ; exists in X.
+    ; exists in X. LINE 11 from algorithm.txt
     show subtract-from-X X
 
-  	;M_3 = M_3 - 1A remove the force added to X from the list M.
+  	;M_3 = M_3 - 1A remove the force added to X from the list M == M_3. LINE 12 from algorithm.txt
     set M_3 remove last X M_3
 
+    ; we subtract one from the units required and resource cycles each iteration to see if the computation is finished and plus a time tick has passed.
+    ; remember the crime_units_required list contains the time-to-mobilise of all the resources we wish to use so naturally as ticks occur the resource time
+    ; also reduces.
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
     if crime_units_required = 0 or resource_cycles = 0 [
+      ; we print out the number of units we were able to aquire
       print (word "units provided: " crime_units_required)
+      ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
+      ; are the number of resources we were able to get to the force which has the crime.
       print (word "resources requirement cycles: " resource_cycles)
       stop
     ]
   ]
-
-
 end
 
 to-report subtract-from-X [X]
@@ -269,7 +273,6 @@ to check-crime-prevented [X crime_units_required]
   if crime_units_required <= 0 [
     print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
   ]
-
 end
 
 to time-to-mobilise-in-X [X M_3 crime_units_required]
