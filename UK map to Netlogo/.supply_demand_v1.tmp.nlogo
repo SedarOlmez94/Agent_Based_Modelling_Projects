@@ -220,7 +220,7 @@ to crime-resource-planner
     show subtract-from-X X
 
   	;M_3 = M_3 - 1A remove the force added to X from the list M.
-    set M_3 remove last X M_3
+    set M_3 remove  M_3
 
     set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
