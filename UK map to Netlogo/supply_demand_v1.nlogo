@@ -15,6 +15,7 @@ globals [
   center-x             ;;
   center-y             ;; center of the map
   number-of-resources
+  crime_units_required_view
  ]
 
 patches-own[
@@ -163,6 +164,7 @@ to crime-resource-planner
   let M_not_minimise_impact []                                               ; list contains only the resources which we dont have to minimise impact on
   let crime_units_required (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
+  let list_of_units_potentially_used []
 
   set target_resource set_target_resource target_resource ; returns the resource type we wish to target, the negation of the resource we wish to minimise (opposite)
   print target_resource ; print the letter of the resource type we wish to target.
@@ -203,7 +205,7 @@ to crime-resource-planner
     ; Added the time-to-mobilise which we want to X.
 
     ;(new list object) X = [1A] (add "1A to X")
-    set X fput first min-max M_3 M_resources X ;LINES 4, 5, 6 from algorithm.txt
+    set X fput (first min-max M_3 M_resources list_of_units_potentially_used) X  ;LINES 4, 5, 6 from algorithm.txt
 
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
@@ -229,6 +231,7 @@ to crime-resource-planner
     set resource_cycles (resource_cycles - 1)
     if crime_units_required = 0 or resource_cycles = 0 [
       ; we print out the number of units we were able to aquire
+      set crime_units_required_view crime_units_required
       print (word "units provided: " crime_units_required)
       ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
       ; are the number of resources we were able to get to the force which has the crime.
@@ -289,8 +292,6 @@ to time-to-mobilise-in-X [X M_3 crime_units_required]
     ]
   ]
   set crime_units_required (crime_units_required - resource_to_sub)
-
-
 end
 
 to-report set_target_resource [target_resource]
@@ -320,19 +321,21 @@ to time_to_mobilise_for_all_forces [list1 list2 list3]
   word " and all their times to mobilise " list3)
 end
 
-to-report min-max [list1 list2]
-  let min_resource_time_1 0
-  let list_of_units_potentially_used []
-  set min_resource_time_1 min list1
+; list1 = M_3
+; list2 = M_resources
+to-report min-max [list1 list2 list_of_units_potentially_used]
+  let min_resource_time_1 min list1
+
   ask forces[
-    if min_resource_time_1 = time-to-mobilise [
-      ifelse member? resourceA-public-order-total list2[
+    ifelse min_resource_time_1 = time-to-mobilise and member? resourceA-public-order-total list2 [
         set list_of_units_potentially_used fput resourceA-public-order-total list_of_units_potentially_used
       ][
+      if min_resource_time_1 = time-to-mobilise[
         set list_of_units_potentially_used fput resourceB-public-order-total list_of_units_potentially_used
-       ]
-     ]
+      ]
+    ]
   ]
+  print(word "list_of_units_potentially_used: " list_of_units_potentially_used)
   report list_of_units_potentially_used
 end
 
@@ -966,12 +969,12 @@ NIL
 1
 
 MONITOR
-690
-622
-784
-667
-Resources #
-number-of-resources
+658
+626
+816
+671
+units of resource provided
+crime_units_required_view
 17
 1
 11
