@@ -208,18 +208,18 @@ to crime-resource-planner
     ; in the algorithm finds the resource with the min-to-mobilise.
     ; Added the time-to-mobilise which we want to X.
 
+        ;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
+   	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
+    check-crime-prevented X M_Resources crime_units_required forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required) is 0 or smaller than 0
+
     ;(new list object) X = [1A] (add "1A to X")
     set X fput first (min-max M_3 M_resources list_of_units_potentially_used min_resource_time_1) X ;LINES 4, 5, 6 from algorithm.txt
-
+    print (X)
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
       time-to-mobilise-in-X X M_3 crime_units_required resource_to_sub
     ]
-  	
-    ;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
-   	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
-    check-crime-prevented X M_Resources crime_units_required forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required) is 0 or smaller than 0
 
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
     ; exists in X. LINE 11 from algorithm.txt
@@ -246,7 +246,6 @@ to crime-resource-planner
   ]
 end
 
-
 to-report subtract-from-X [X times-to-mobilise]
   ask forces [
     ifelse member? resourceA-public-order-total X [
@@ -265,18 +264,18 @@ end
 to check-crime-prevented [X M_Resources crime_units_required forces_resources_pulled]
   ask forces [
     foreach M_Resources [ I ->
-      ;foreach X [ M -> [
-        ifelse I = resourceA-public-order-total[
+      foreach X [ M ->
+        ifelse (I = resourceA-public-order-total) and (M = time-to-mobilise)[
           set forces_resources_pulled fput police-force-id forces_resources_pulled
           set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
         ][
-          if I = resourceB-public-order-total [
+          if (I = resourceB-public-order-total) and (M = time-to-mobilise)[
             set forces_resources_pulled fput police-force-id forces_resources_pulled
             set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
           ]
         ]
-      ;]
-    ]
+        ]
+      ]
     ]
 
   if crime_units_required <= 0[
@@ -286,28 +285,14 @@ to check-crime-prevented [X M_Resources crime_units_required forces_resources_pu
 end
 
 to time-to-mobilise-in-X [X M_3 crime_units_required resource_to_sub]
-;  ask forces [
-;    ifelse (member? time-to-mobilise X) and (member? resourceA-public-order-total M_3) [
-;      set resource_to_sub resourceA-public-order-total
-;      ;print("A!!!")
-;      ][
-;      if (member? time-to-mobilise X) and (member? resourceB-public-order-total M_3)[
-;        set resource_to_sub resourceB-public-order-total
-;        ;print ("B!!!")
-;      ]
-;    ]
-;  ]
   ask forces [
-    print(word "FORCES!")
     foreach X [ I ->
       foreach M_3 [ M ->
-        print(word "I: " I)
-        print(word "M: " M)
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
           print("A")
         ][
-          if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
+          if (I = time-to-mobilise)[
           set resource_to_sub resourceB-public-order-total
           print ("B!!!")
           ]
@@ -350,12 +335,23 @@ end
 to-report min-max [list1 list2 list_of_units_potentially_used min_resource_time_1]
   set min_resource_time_1 min list1
 
-  ask forces[
-    ifelse min_resource_time_1 = time-to-mobilise and member? resourceA-public-order-total list2 [
+;  ask forces[
+;    ifelse min_resource_time_1 = time-to-mobilise and member? resourceA-public-order-total list2 [
+;        set list_of_units_potentially_used fput resourceA-public-order-total list_of_units_potentially_used
+;      ][
+;      if min_resource_time_1 = time-to-mobilise[
+;        set list_of_units_potentially_used fput resourceB-public-order-total list_of_units_potentially_used
+;      ]
+;    ]
+;  ]
+  ask forces [
+    foreach list2 [ I ->
+      ifelse (min_resource_time_1 = time-to-mobilise) and (I = resourceA-public-order-total) [
         set list_of_units_potentially_used fput resourceA-public-order-total list_of_units_potentially_used
       ][
-      if min_resource_time_1 = time-to-mobilise[
-        set list_of_units_potentially_used fput resourceB-public-order-total list_of_units_potentially_used
+        if (min_resource_time_1 = time-to-mobilise) and (I = resourceB-public-order-total)[
+          set list_of_units_potentially_used fput resourceB-public-order-total list_of_units_potentially_used
+        ]
       ]
     ]
   ]
