@@ -327,6 +327,15 @@ end
 to-report min-max [list1 list2 list_of_units_potentially_used min_resource_time_1]
   set min_resource_time_1 min list1
 
+;  ask forces[
+;    ifelse min_resource_time_1 = time-to-mobilise and member? resourceA-public-order-total list2 [
+;        set list_of_units_potentially_used fput resourceA-public-order-total list_of_units_potentially_used
+;      ][
+;      if min_resource_time_1 = time-to-mobilise[
+;        set list_of_units_potentially_used fput resourceB-public-order-total list_of_units_potentially_used
+;      ]
+;    ]
+;  ]
   ask forces [
     foreach list2 [ I ->
       ifelse (min_resource_time_1 = time-to-mobilise) and (I = resourceA-public-order-total) [
