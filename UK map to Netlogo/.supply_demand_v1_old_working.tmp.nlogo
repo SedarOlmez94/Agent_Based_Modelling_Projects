@@ -192,10 +192,11 @@ to crime-resource-planner
 ;      set M_3 fput time-to-mobilise M_3
 ;    ]
 ;  ]
+
   ask forces [
-    foreach M_Resources [ res ->
+    foreach M_Resources [ resource ->
       foreach M [ time ->
-        if res = resourceA-public-order-total or res = resourceB-public-order-total [
+        if resource = resourceA-public-order-total or resource = resourceB-public-order-total [
           if time = time-to-mobilise [
             set M_3 fput time-to-mobilise M_3
           ]
