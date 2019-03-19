@@ -161,7 +161,7 @@ to crime-resource-planner
   let M_resources []                                                         ; list contains the number of resources which are not 0
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
   let X []                                                                   ; contains the resources we can use each time tick (main list)
-  let M_not_minimise_impact []                                               ; list contains only the resources which we dont have to minimise impact on
+  let M_not_minimise_impact 0                                               ; list contains only the resources which we dont have to minimise impact on
   let crime_units_required (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
   let list_of_units_potentially_used []
@@ -187,16 +187,10 @@ to crime-resource-planner
   ;; all the resources which are not 0 and are not the ones to minimise_impact on
   ;; we now need to create a list of all the forces which satisfy both M  and M_resources
   ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
-;  ask forces with [(member? resourceA-public-order-total M_Resources) or (member? resourceB-public-order-total M_Resources)][
-;    if member? time-to-mobilise M [
-;      set M_3 fput time-to-mobilise M_3
-;    ]
-;  ]
-
   ask forces [
-    foreach M_Resources [ resource ->
+    foreach M_Resources [ res ->
       foreach M [ time ->
-        if resource = resourceA-public-order-total or resource = resourceB-public-order-total [
+        if res = resourceA-public-order-total or res = resourceB-public-order-total [
           if time = time-to-mobilise [
             set M_3 fput time-to-mobilise M_3
           ]
@@ -208,8 +202,8 @@ to crime-resource-planner
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
-  time_to_mobilise_for_all_forces M_3 M_Resources M
-
+  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M
+  ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
 
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
   while [(crime_units_required != 0) or (resource_cycles != 0)]
@@ -218,7 +212,7 @@ to crime-resource-planner
     ; Added the time-to-mobilise which we want to X.
 
     ;(new list object) X = [1A] (add "1A to X")
-    set X fput min-max M_3 M_resources list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
+    set X fput min-max M_3  list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
     let first_x item 0 X
 
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
@@ -331,11 +325,11 @@ to-report set_target_resource [target_resource]
   report target_resource
 end
 
-to time_to_mobilise_for_all_forces [list1 list2 list3]
+to-report time_to_mobilise_for_all_forces [M_3 M_Resources M]
   let M_not_minimise_impact []
   ask forces [
-    if member? time-to-mobilise list1[
-      ifelse member? resourceA-public-order-total list2[
+    if member? time-to-mobilise M_3[
+      ifelse member? resourceA-public-order-total M_Resources[
         set M_not_minimise_impact fput resourceA-public-order-total M_not_minimise_impact
       ][
         set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
@@ -344,7 +338,8 @@ to time_to_mobilise_for_all_forces [list1 list2 list3]
   ]
 
   print (word "All the resources we can use " M_not_minimise_impact
-  word " and all their times to mobilise " list3)
+  word " and all their times to mobilise " M)
+  report M_not_minimise_impact
 end
 
 
