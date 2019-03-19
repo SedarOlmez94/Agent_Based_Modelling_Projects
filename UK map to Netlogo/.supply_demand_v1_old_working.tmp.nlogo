@@ -208,6 +208,7 @@ to crime-resource-planner
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
   while [(crime_units_required != 0) or (resource_cycles != 0)]
   [
+    print (word "CRIME_UNITS_REQUIRED: "crime_units_required)
     ; in the algorithm finds the resource with the min-to-mobilise.
     ; Added the time-to-mobilise which we want to X.
 
@@ -218,8 +219,8 @@ to crime-resource-planner
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required
 
+      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required
     ]
   	
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
@@ -1018,6 +1019,13 @@ NIL
 NIL
 NIL
 1
+
+OUTPUT
+763
+570
+1003
+624
+13
 
 @#$#@#$#@
 ## WHAT IS IT?
