@@ -215,10 +215,10 @@ to crime-resource-planner
     set X fput min-max M_3 M_not_minimise_impact list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
     let first_x item 0 X
 
-    if  X [ ;LINES 7 and 8 from algorithm.txt
+    if first_x = 0 [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      time-to-mobilise-in-X X M_Resources crime_units_required
+      time-to-mobilise-in-X X M_not_minimise_impact crime_units_required
     ]
   	
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
@@ -285,7 +285,7 @@ to check-crime-prevented [X M_Resources crime_units_required forces_resources_pu
   ]
 end
 
-to time-to-mobilise-in-X [X M_Resources crime_units_required]
+to time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   let resource_to_sub 0
 ;  ask forces [
 ;    ifelse (member? time-to-mobilise X) and (member? resourceA-public-order-total M_3) [
@@ -300,7 +300,7 @@ to time-to-mobilise-in-X [X M_Resources crime_units_required]
 ;  ]
   ask forces [
     foreach X [ I ->
-      foreach M_Resources [ M ->
+      foreach M_not_minimise_impact [ M ->
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
         ][
@@ -311,7 +311,7 @@ to time-to-mobilise-in-X [X M_Resources crime_units_required]
       ]
     ]
   ]
-  set crime_units_required (crime_units_required - resource_to_sub)
+  set crime_units_required crime_units_required - resource_to_sub)
 end
 
 to-report set_target_resource [target_resource]
