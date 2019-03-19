@@ -206,7 +206,7 @@ to crime-resource-planner
   ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
 
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
-  while [(crime_units_required != 0) or (resource_cycles != 0)]
+  while [resource_cycles != 0]
   [
     print (word "CRIME_UNITS_REQUIRED: "crime_units_required)
     ; in the algorithm finds the resource with the min-to-mobilise.
@@ -225,6 +225,10 @@ to crime-resource-planner
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
     check-crime-prevented X M_not_minimise_impact crime_units_required forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required) is 0 or smaller than 0
+    if crime_units_required <= 0[
+      print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
+      stop
+    ]
 
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
     ; exists in X. LINE 11 from algorithm.txt
@@ -236,10 +240,9 @@ to crime-resource-planner
     ; we subtract one from the units required and resource cycles each iteration to see if the computation is finished and plus a time tick has passed.
     ; remember the crime_units_required list contains the time-to-mobilise of all the resources we wish to use so naturally as ticks occur the resource time
     ; also reduces.
-    set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
     print(word "CRIME_UNITS: " crime_units_required)
-    if crime_units_required = 0 or resource_cycles = 0 [
+    if resource_cycles = 0 [
       ; we print out the number of units we were able to aquire
       set crime_units_required_view crime_units_required
       print (word "units provided: " crime_units_required)
@@ -281,13 +284,14 @@ to check-crime-prevented [X M_not_minimise_impact crime_units_required forces_re
       ]
     ]
   ]
-  if crime_units_required <= 0[
-    print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
-    stop
-  ]
+;  if crime_units_required <= 0[
+;    print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
+;    stop
+;  ]
 end
 
 to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
+
   let resource_to_sub 0
   ask forces [
     foreach X [ I ->
@@ -302,6 +306,7 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
       ]
     ]
   ]
+  print(word "RESOURCE TO SUBTRACT" resource_to_sub)
   set crime_units_required crime_units_required - resource_to_sub
   report crime_units_required
 end
@@ -1018,13 +1023,6 @@ NIL
 NIL
 NIL
 1
-
-OUTPUT
-763
-570
-1003
-624
-13
 
 @#$#@#$#@
 ## WHAT IS IT?
