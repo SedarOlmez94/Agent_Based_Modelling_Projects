@@ -212,10 +212,10 @@ to crime-resource-planner
     ; Added the time-to-mobilise which we want to X.
 
     ;(new list object) X = [1A] (add "1A to X")
-    set X fput min-max M_3  list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
+    set X fput min-max M_3 M_not_minimise_impact list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
     let first_x item 0 X
 
-    if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
+    if  X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
       time-to-mobilise-in-X X M_Resources crime_units_required
@@ -343,7 +343,7 @@ to-report time_to_mobilise_for_all_forces [M_3 M_Resources M]
 end
 
 
-to-report min-max [M_3 M_Resources list_of_units_potentially_used]
+to-report min-max [M_3 M_not_minimise_impact list_of_units_potentially_used]
   let min_resource_time_1 min M_3
   ask forces [
     if min_resource_time_1 = time-to-mobilise[
