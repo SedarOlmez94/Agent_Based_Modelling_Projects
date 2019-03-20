@@ -271,6 +271,21 @@ to-report subtract-from-X [X]
 end
 
 to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
+;  ask forces [
+;    foreach X [ I ->
+;      foreach M_not_minimise_impact [ M ->
+;        ifelse I = time-to-mobilise and M = resourceA-public-order-total [
+;          set forces_resources_pulled fput police-force-id forces_resources_pulled
+;          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
+;        ][
+;          if I = time-to-mobilise and M = resourceB-public-order-total [
+;            set forces_resources_pulled fput police-force-id forces_resources_pulled
+;            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
+;          ]
+;        ]
+;      ]
+;    ]
+;  ]
   ask forces [
     ifelse member? time-to-mobilise X and member? resourceA-public-order-total M_not_minimise_impact [
       set forces_resources_pulled fput police-force-id forces_resources_pulled
@@ -283,6 +298,10 @@ to-report check-crime-prevented [X M_not_minimise_impact crime_units_required fo
     ]
   ]
   report forces_resources_pulled
+;  if crime_units_required <= 0[
+;    print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
+;    stop
+;  ]
 end
 
 to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required resource-to-subtract-total]
