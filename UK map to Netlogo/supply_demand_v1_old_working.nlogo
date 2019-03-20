@@ -16,6 +16,7 @@ globals [
   center-y             ;; center of the map
   number-of-resources
   crime_units_required_view
+  resource-to-subtract-total-view
  ]
 
 patches-own[
@@ -166,6 +167,7 @@ to crime-resource-planner
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
   let list_of_units_potentially_used []
   let forces_resources_pulled []
+  let resource-to-subtract-total []
 
   set target_resource set_target_resource target_resource ; returns the resource type we wish to target, the negation of the resource we wish to minimise (opposite)
   print target_resource ; print the letter of the resource type we wish to target.
@@ -204,11 +206,12 @@ to crime-resource-planner
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
   set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M
   ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
-
+  set crime_units_required_view crime_units_required
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
-  while [(crime_units_required != 0) or (resource_cycles != 0)]
+  while [resource_cycles != 0]
   [
     print (word "CRIME_UNITS_REQUIRED: "crime_units_required)
+
     ; in the algorithm finds the resource with the min-to-mobilise.
     ; Added the time-to-mobilise which we want to X.
 
@@ -219,12 +222,17 @@ to crime-resource-planner
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required
+      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required ;resource-to-subtract-total
     ]
   	
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
-    check-crime-prevented X M_not_minimise_impact crime_units_required forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required) is 0 or smaller than 0
+    set forces_resources_pulled check-crime-prevented X M_not_minimise_impact crime_units_required forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required) is 0 or smaller than 0
+    if crime_units_required <= 0[
+      print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
+      ;set resource-to-subtract-total-view sum resource-to-subtract-total
+      stop
+    ]
 
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
     ; exists in X. LINE 11 from algorithm.txt
@@ -236,16 +244,15 @@ to crime-resource-planner
     ; we subtract one from the units required and resource cycles each iteration to see if the computation is finished and plus a time tick has passed.
     ; remember the crime_units_required list contains the time-to-mobilise of all the resources we wish to use so naturally as ticks occur the resource time
     ; also reduces.
-    set crime_units_required (crime_units_required - 1)
     set resource_cycles (resource_cycles - 1)
     print(word "CRIME_UNITS: " crime_units_required)
-    if crime_units_required = 0 or resource_cycles = 0 [
+    if resource_cycles = 0 [
       ; we print out the number of units we were able to aquire
-      set crime_units_required_view crime_units_required
       print (word "units provided: " crime_units_required)
       ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
       ; are the number of resources we were able to get to the force which has the crime.
       print (word "resources requirement cycles: " resource_cycles)
+      ;set resource-to-subtract-total-view sum resource-to-subtract-total
       stop
     ]
   ]
@@ -265,26 +272,38 @@ to-report subtract-from-X [X]
   report X
 end
 
-to check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
+to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
+;  ask forces [
+;    foreach X [ I ->
+;      foreach M_not_minimise_impact [ M ->
+;        ifelse I = time-to-mobilise and M = resourceA-public-order-total [
+;          set forces_resources_pulled fput police-force-id forces_resources_pulled
+;          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
+;        ][
+;          if I = time-to-mobilise and M = resourceB-public-order-total [
+;            set forces_resources_pulled fput police-force-id forces_resources_pulled
+;            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
+;          ]
+;        ]
+;      ]
+;    ]
+;  ]
   ask forces [
-    foreach X [ I ->
-      foreach M_not_minimise_impact [ M ->
-        ifelse I = time-to-mobilise and M = resourceA-public-order-total [
-          set forces_resources_pulled fput police-force-id forces_resources_pulled
-          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
-        ][
-          if I = time-to-mobilise and M = resourceB-public-order-total [
-            set forces_resources_pulled fput police-force-id forces_resources_pulled
-            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
-          ]
-        ]
+    ifelse member? time-to-mobilise X and member? resourceA-public-order-total M_not_minimise_impact [
+      set forces_resources_pulled fput police-force-id forces_resources_pulled
+      set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
+    ][
+      if member? time-to-mobilise X and member? resourceB-public-order-total M_not_minimise_impact [
+        set forces_resources_pulled fput police-force-id forces_resources_pulled
+        set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
       ]
     ]
   ]
-  if crime_units_required <= 0[
-    print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
-    stop
-  ]
+  report forces_resources_pulled
+;  if crime_units_required <= 0[
+;    print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
+;    stop
+;  ]
 end
 
 to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
@@ -302,6 +321,8 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
       ]
     ]
   ]
+  print(word "RESOURCE TO SUBTRACT" resource_to_sub)
+  ;print (word "RESOURCE PROVIDED ARRAY" resource-to-subtract-total)
   set crime_units_required crime_units_required - resource_to_sub
   report crime_units_required
 end
@@ -977,9 +998,9 @@ NIL
 MONITOR
 658
 626
-816
+833
 671
-units of resource provided
+units of resource required
 crime_units_required_view
 17
 1
@@ -1019,12 +1040,16 @@ NIL
 NIL
 1
 
-OUTPUT
-763
-570
-1003
-624
-13
+MONITOR
+658
+674
+832
+719
+total resources provided
+resource-to-subtract-total-view
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
