@@ -222,7 +222,8 @@ to crime-resource-planner
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required resource-to-subtract-total
+      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required 0
+      set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required 1
     ]
   	
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
@@ -271,21 +272,6 @@ to-report subtract-from-X [X]
 end
 
 to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
-;  ask forces [
-;    foreach X [ I ->
-;      foreach M_not_minimise_impact [ M ->
-;        ifelse I = time-to-mobilise and M = resourceA-public-order-total [
-;          set forces_resources_pulled fput police-force-id forces_resources_pulled
-;          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
-;        ][
-;          if I = time-to-mobilise and M = resourceB-public-order-total [
-;            set forces_resources_pulled fput police-force-id forces_resources_pulled
-;            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
-;          ]
-;        ]
-;      ]
-;    ]
-;  ]
   ask forces [
     ifelse member? time-to-mobilise X and member? resourceA-public-order-total M_not_minimise_impact [
       set forces_resources_pulled fput police-force-id forces_resources_pulled
@@ -298,14 +284,12 @@ to-report check-crime-prevented [X M_not_minimise_impact crime_units_required fo
     ]
   ]
   report forces_resources_pulled
-;  if crime_units_required <= 0[
-;    print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
-;    stop
-;  ]
 end
 
-to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required resource-to-subtract-total]
+to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required CHOICE]
   let resource_to_sub 0
+  let reporter_choice CHOICE
+
   ask forces [
     foreach X [ I ->
       foreach M_not_minimise_impact [ M ->
@@ -319,11 +303,17 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required re
       ]
     ]
   ]
-  print(word "RESOURCE TO SUBTRACT " resource_to_sub)
-  set resource-to-subtract-total resource-to-subtract-total + resource_to_sub
+
+
   set crime_units_required crime_units_required - resource_to_sub
-  report crime_units_required
+  ifelse reporter_choice = 0[
+    report crime_units_required
+  ][
+    report resource_to_sub
+  ]
+
 end
+
 
 to-report set_target_resource [target_resource]
   ;; here we set the target_resource to the resource type we want to target not the one to minimise.
