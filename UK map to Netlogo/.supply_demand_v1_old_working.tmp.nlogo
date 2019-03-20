@@ -309,7 +309,6 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required CH
   ifelse reporter_choice = 0[
     report crime_units_required
   ][
-    print(word "RESOURCE TO SUBTRACT: " resource_to_sub)
     report resource_to_sub
   ]
 
