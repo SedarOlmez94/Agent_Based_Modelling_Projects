@@ -305,9 +305,11 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   ]
 
 
-  print(word "RESOURCE TO SUBTRACT: " resource_to_sub)
   set crime_units_required crime_units_required - resource_to_sub
   report crime_units_required
+
+  ;report resource_to_sub
+
 
 end
 
