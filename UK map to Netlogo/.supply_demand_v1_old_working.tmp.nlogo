@@ -222,7 +222,7 @@ to crime-resource-planner
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required
+      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required resource-to-subtract-total-view
       ;set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required
     ]
   	
@@ -286,7 +286,7 @@ to-report check-crime-prevented [X M_not_minimise_impact crime_units_required fo
   report forces_resources_pulled
 end
 
-to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
+to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required resource-to-subtract-total-view]
   let resource_to_sub 0
   ;let reporter_choice CHOICE
 
@@ -304,7 +304,7 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
     ]
   ]
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub)
-  set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+  set resource-t
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
   ;print(word "TOTAL RESOURCES TO SUBTRACT: "sum resource-to-subtract-total)
   set crime_units_required crime_units_required - resource_to_sub
