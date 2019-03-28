@@ -82,12 +82,13 @@ to setup
   setup-map
   move-down
   draw
-  crime-resource-planner
+  ;crime-resource-planner
   reset-ticks
 end
 
 to go
   ;move-resources
+  crime-resource-planner
   tick
 end
 
@@ -202,6 +203,7 @@ to crime-resource-planner
   ]
   print (word "Length of each street (link): "get_length_of_streets)
   print (word "Total length: " total_time)
+  print (word "Resource_cycles: "resource_cycles)
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
@@ -692,7 +694,7 @@ BUTTON
 648
 go
 go
-T
+NIL
 1
 T
 OBSERVER
