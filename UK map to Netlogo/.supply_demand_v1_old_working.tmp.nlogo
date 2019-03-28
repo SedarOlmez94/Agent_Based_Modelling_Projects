@@ -37,6 +37,11 @@ patches-own[
   forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
 ]
 
+links-own[
+  out_link
+  in_link
+]
+
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
 ; the forces
 forces-own[
@@ -201,8 +206,7 @@ to crime-resource-planner
       ]
     ]
   ]
-  ;print (word "Length of each street (link): "get_length_of_streets)
-  ;print (word "Total time: " total_time resource_cycles)
+
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
@@ -260,12 +264,10 @@ to crime-resource-planner
   ]
 end
 
-to-report get_length_of_streets [list_of_forces]
-;  let length_of_link []
-  ask link item 0 list_of_forces [
-    set length_of_link fput link-length length_of_link
+to get_force_links [force_used]
+  ask forces with [police-force-ID = force_used][
+    show my-links
   ]
-  report length_of_link
 end
 
 ;to-report total_time [resource_cycles]
@@ -287,21 +289,6 @@ to-report subtract-from-X [X]
   report X
 end
 
-;to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
-;  ask forces [
-;        ifelse (M = resourceA-public-order-total)[
-;          set forces_resources_pulled fput police-force-id forces_resources_pulled
-;          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
-;        ][
-;          if (M = resourceB-public-order-total)[
-;            set forces_resources_pulled fput police-force-id forces_resources_pulled
-;            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
-;          ]
-;        ]
-;  ]
-;  print (word "RESOURCES PULLED FROM FORCE AND STATION: " forces_resources_pulled)
-;  report forces_resources_pulled
-;end
 
 to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   let resource_to_sub 0
@@ -330,8 +317,10 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
   " FROM POLICE FORCE: " police_force)
 
+   get_force_links police_force
+
   set police_force_list fput police_force police_force_list
-  print (word "Length of each street (link): " get_length_of_streets police_force_list)
+
 
   set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
