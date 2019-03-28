@@ -273,33 +273,18 @@ to-report subtract-from-X [X]
 end
 
 to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
-;  ask forces [
-;    ifelse member? time-to-mobilise X and member? resourceA-public-order-total M_not_minimise_impact [
-;      ;set forces_resources_pulled fput police-force-id forces_resources_pulled
-;      set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
-;    ][
-;      if member? time-to-mobilise X and member? resourceB-public-order-total M_not_minimise_impact [
-;        ;set forces_resources_pulled fput police-force-id forces_resources_pulled
-;        set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
-;      ]
-;    ]
-;  ]
-
   ask forces [
-    foreach X [ I ->
-      foreach M_not_minimise_impact [ M ->
-        ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
-          set forces_resources_pulled fput police-force-id forces_resources_pulled
-          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
-        ][
-          if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
-            set forces_resources_pulled fput police-force-id forces_resources_pulled
-            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
-          ]
-        ]
+    ifelse (member? resourceA-public-order-total M_not_minimise_impact)[
+      ;set forces_resources_pulled fput police-force-id forces_resources_pulled
+      set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
+    ][
+      if (member? resourceB-public-order-total M_not_minimise_impact)[
+        ;set forces_resources_pulled fput police-force-id forces_resources_pulled
+        set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
       ]
     ]
   ]
+  print (word "RESOURCES PULLED FROM FORCE AND STATION: " forces_resources_pulled)
   report forces_resources_pulled
 end
 
