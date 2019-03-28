@@ -1,13 +1,12 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
-extensions [ gis view2.5d array]
+extensions [ gis view2.5d]
 
 
 breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
 breed [forces force]      ;one agent per police force, stores resourcing information for that police service.
 breed [crimes crime]
-breed [streets street]
 
 globals [
   map-view             ;; GIS dataset/map
@@ -36,11 +35,6 @@ patches-own[
   resource?                 ;; does this patch have a resource on it? yes if it has a centroid or no.
   crime?                    ;; does this patch have a crime on it? yes if it has a centroid or no.
   forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
-]
-
-streets-own[
-  length_of_link
-  link_ID
 ]
 
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
@@ -206,7 +200,7 @@ to crime-resource-planner
       ]
     ]
   ]
-
+  print (word "Length of each street (link): "get_length_of_streets)
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
@@ -264,8 +258,17 @@ to crime-resource-planner
   ]
 end
 
-to-report get_length_of_streets [length_of_link]
-  e
+to-report get_length_of_streets
+  let length_of_link []
+  ask links [
+    set length_of_link fput link-length length_of_link
+  ]
+  report length_of_link
+end
+
+to add-ID-to-each-link
+
+end
 
 
 to-report subtract-from-X [X]
