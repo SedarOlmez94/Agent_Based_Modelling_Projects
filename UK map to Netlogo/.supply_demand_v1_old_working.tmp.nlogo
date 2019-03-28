@@ -201,9 +201,8 @@ to crime-resource-planner
       ]
     ]
   ]
-  print (word "Length of each street (link): "get_length_of_streets)
-  print (word "Total length: " total_time)
-
+  ;print (word "Length of each street (link): "get_length_of_streets)
+  ;print (word "Total time: " total_time resource_cycles)
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
@@ -261,19 +260,19 @@ to crime-resource-planner
   ]
 end
 
-to-report get_length_of_streets
-  let length_of_link []
-  ask links [
+to-report get_length_of_streets [list_of_forces]
+;  let length_of_link []
+  ask link item 0 list_of_forces [
     set length_of_link fput link-length length_of_link
   ]
   report length_of_link
 end
 
-to-report total_time []
-  let total_length 0
-  set total_length sum get_length_of_streets
-  report total_length
-end
+;to-report total_time [resource_cycles]
+;  let total_length 0
+;  set total_length sum get_length_of_streets
+;  report (total_length + resource_cycles)
+;end
 
 to-report subtract-from-X [X]
   ask forces [
@@ -307,6 +306,7 @@ end
 to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   let resource_to_sub 0
   let police_force 0
+  let police_force_list []
   ;let reporter_choice CHOICE
 
   ask forces [
@@ -315,17 +315,23 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
           set police_force police-force-ID
+
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
             set police_force police-force-ID
+
           ]
         ]
       ]
     ]
   ]
+
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
   " FROM POLICE FORCE: " police_force)
+
+  set police_force_list fput police_force police_force_list
+  print (word "Length of each street (link): " get_length_of_streets police_force_list)
 
   set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
