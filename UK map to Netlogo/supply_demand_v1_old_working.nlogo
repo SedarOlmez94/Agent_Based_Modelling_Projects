@@ -261,18 +261,11 @@ to crime-resource-planner
 end
 
 to get_force_links [force_used]
-  let police_who 0
-  let other_police_who 0
 
   ask forces with [police-force-ID = force_used][
-    set police_who who
-    set other_police_who my-out-links
-    print other_police_who
-
-    ;ask link police_who [
-      ;show link-length
-    ;]
-
+    ask links [
+      print link-length
+    ]
   ]
 end
 

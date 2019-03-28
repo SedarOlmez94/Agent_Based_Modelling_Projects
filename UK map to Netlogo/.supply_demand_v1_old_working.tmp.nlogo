@@ -265,12 +265,14 @@ to get_force_links [force_used]
   let other_police_who 0
 
   ask forces with [police-force-ID = force_used][
-    set police_who who
-    s
-    print police_who
-    ask link police_who [
-      show link-length
+
+    ask links [
+      set other_police_who other-end
     ]
+
+    ;ask link police_who [
+      ;show link-length
+    ;]
 
   ]
 end
