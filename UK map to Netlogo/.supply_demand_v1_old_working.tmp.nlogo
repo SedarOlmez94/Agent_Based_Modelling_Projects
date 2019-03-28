@@ -37,10 +37,6 @@ patches-own[
   forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
 ]
 
-links-own[
-  out_link
-  in_link
-]
 
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
 ; the forces
@@ -265,8 +261,13 @@ to crime-resource-planner
 end
 
 to get_force_links [force_used]
+  let police_who 0
+
   ask forces with [police-force-ID = force_used][
-    show my-links
+    set police_who who
+    ask link police_who  [
+      show link-length
+    ]
   ]
 end
 
@@ -317,7 +318,7 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
   " FROM POLICE FORCE: " police_force)
 
-   get_force_links police_force
+  get_force_links police_force
 
   set police_force_list fput police_force police_force_list
 

@@ -37,10 +37,6 @@ patches-own[
   forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
 ]
 
-links-own[
-  out_link
-  in_link
-]
 
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
 ; the forces
@@ -265,8 +261,14 @@ to crime-resource-planner
 end
 
 to get_force_links [force_used]
+  let police_who 0
+
   ask forces with [police-force-ID = force_used][
-    show my-links
+    set police_who who
+    let other_end other-end
+    ask link police_who other_end[
+      show link-length
+    ]
   ]
 end
 
