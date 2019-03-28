@@ -201,6 +201,7 @@ to crime-resource-planner
     ]
   ]
   print (word "Length of each street (link): "get_length_of_streets)
+  print (word "Total length: " total_time)
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
@@ -266,6 +267,11 @@ to-report get_length_of_streets
   report length_of_link
 end
 
+to-report total_time []
+  let total_length 0
+  set total_length sum get_length_of_streets
+  report total_length
+end
 
 to-report subtract-from-X [X]
   ask forces [
