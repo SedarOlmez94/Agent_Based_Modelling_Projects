@@ -37,6 +37,7 @@ patches-own[
   forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
 ]
 
+
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
 ; the forces
 forces-own[
@@ -82,12 +83,13 @@ to setup
   setup-map
   move-down
   draw
-  crime-resource-planner
+  ;crime-resource-planner
   reset-ticks
 end
 
 to go
   ;move-resources
+  crime-resource-planner
   tick
 end
 
@@ -200,7 +202,7 @@ to crime-resource-planner
       ]
     ]
   ]
-  print (word "Length of each street (link): "get_length_of_streets)
+
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
@@ -258,18 +260,28 @@ to crime-resource-planner
   ]
 end
 
-to-report get_length_of_streets
-  let length_of_link []
-  ask links [
-    set length_of_link fput link-length length_of_link
+to get_force_links [force_used]
+  let police_who 0
+  let other_police_who 0
+
+  ask forces with [police-force-ID = force_used][
+
+    ask links [
+      set other_police_who other-end
+    ]
+
+    ;ask link police_who [
+      ;show link-length
+    ;]
+
   ]
-  report length_of_link
 end
 
-to add-ID-to-each-link
-
-end
-
+;to-report total_time [resource_cycles]
+;  let total_length 0
+;  set total_length sum get_length_of_streets
+;  report (total_length + resource_cycles)
+;end
 
 to-report subtract-from-X [X]
   ask forces [
@@ -284,25 +296,11 @@ to-report subtract-from-X [X]
   report X
 end
 
-;to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
-;  ask forces [
-;        ifelse (M = resourceA-public-order-total)[
-;          set forces_resources_pulled fput police-force-id forces_resources_pulled
-;          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
-;        ][
-;          if (M = resourceB-public-order-total)[
-;            set forces_resources_pulled fput police-force-id forces_resources_pulled
-;            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
-;          ]
-;        ]
-;  ]
-;  print (word "RESOURCES PULLED FROM FORCE AND STATION: " forces_resources_pulled)
-;  report forces_resources_pulled
-;end
 
 to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   let resource_to_sub 0
   let police_force 0
+  let police_force_list []
   ;let reporter_choice CHOICE
 
   ask forces [
@@ -311,17 +309,25 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
           set police_force police-force-ID
+
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
             set police_force police-force-ID
+
           ]
         ]
       ]
     ]
   ]
+
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
   " FROM POLICE FORCE: " police_force)
+
+  get_force_links police_force
+
+  set police_force_list fput police_force police_force_list
+
 
   set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
@@ -690,7 +696,7 @@ BUTTON
 648
 go
 go
-T
+NIL
 1
 T
 OBSERVER
