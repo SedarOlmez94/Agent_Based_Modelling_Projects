@@ -1,6 +1,6 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
-extensions [ gis view2.5d]
+extensions [ gis view2.5d array]
 
 
 breed[searchers searcher] ; to represent the agents that will make the search.
@@ -36,6 +36,11 @@ patches-own[
   resource?                 ;; does this patch have a resource on it? yes if it has a centroid or no.
   crime?                    ;; does this patch have a crime on it? yes if it has a centroid or no.
   forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
+]
+
+streets-own[
+  length_of_link
+  link_ID
 ]
 
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
@@ -259,6 +264,9 @@ to crime-resource-planner
   ]
 end
 
+to-report get_length_of_streets [length_of_link]
+  e
+
 
 to-report subtract-from-X [X]
   ask forces [
@@ -310,7 +318,7 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
     ]
   ]
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
-  "FROM POLICE FORCE: " police_force)
+  " FROM POLICE FORCE: " police_force)
 
   set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total

@@ -1,6 +1,6 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
-extensions [ gis view2.5d]
+extensions [ gis view2.5d array]
 
 
 breed[searchers searcher] ; to represent the agents that will make the search.
@@ -36,6 +36,11 @@ patches-own[
   resource?                 ;; does this patch have a resource on it? yes if it has a centroid or no.
   crime?                    ;; does this patch have a crime on it? yes if it has a centroid or no.
   forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
+]
+
+streets-own[
+  length_of_link
+  link_ID
 ]
 
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
@@ -257,6 +262,10 @@ to crime-resource-planner
       stop
     ]
   ]
+end
+
+to-report get_length_of_streets []
+  show count links
 end
 
 
