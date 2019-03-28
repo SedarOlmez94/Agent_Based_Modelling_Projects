@@ -230,8 +230,9 @@ to crime-resource-planner
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
     ;set forces_resources_pulled check-crime-prevented X M_not_minimise_impact crime_units_required forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required) is 0 or smaller than 0
+
     if crime_units_required <= 0[
-      print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
+      print (word "CRIMES PREVENTED, all resources pulled")
       stop
     ]
 
@@ -272,24 +273,25 @@ to-report subtract-from-X [X]
   report X
 end
 
-to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
-  ask forces [
-        ifelse (M = resourceA-public-order-total)[
-          set forces_resources_pulled fput police-force-id forces_resources_pulled
-          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
-        ][
-          if (M = resourceB-public-order-total)[
-            set forces_resources_pulled fput police-force-id forces_resources_pulled
-            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
-          ]
-        ]
-  ]
-  print (word "RESOURCES PULLED FROM FORCE AND STATION: " forces_resources_pulled)
-  report forces_resources_pulled
-end
+;to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
+;  ask forces [
+;        ifelse (M = resourceA-public-order-total)[
+;          set forces_resources_pulled fput police-force-id forces_resources_pulled
+;          set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
+;        ][
+;          if (M = resourceB-public-order-total)[
+;            set forces_resources_pulled fput police-force-id forces_resources_pulled
+;            set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
+;          ]
+;        ]
+;  ]
+;  print (word "RESOURCES PULLED FROM FORCE AND STATION: " forces_resources_pulled)
+;  report forces_resources_pulled
+;end
 
-to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required forces_resources_pulled]
+to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   let resource_to_sub 0
+  let police_force 0
   ;let reporter_choice CHOICE
 
   ask forces [
@@ -297,16 +299,19 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required fo
       foreach M_not_minimise_impact [ M ->
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
+          set police_force police-force-ID
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
+            set police_force police-force-ID
           ]
         ]
       ]
     ]
   ]
-  print(word "RESOURCE TO SUBTRACT: " resource_to_sub)
-  set forces_resources_pulled fput resource_to_sub forces_resources_pulled
+  print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
+  "FROM POLICE FORCE: " police_force)
+
   set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
   ;print(word "TOTAL RESOURCES TO SUBTRACT: "sum resource-to-subtract-total)
