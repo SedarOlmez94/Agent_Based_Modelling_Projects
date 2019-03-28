@@ -7,6 +7,7 @@ breed[searchers searcher] ; to represent the agents that will make the search.
 breed[resources resource] ; to represent the resources sent over the links.
 breed [forces force]      ;one agent per police force, stores resourcing information for that police service.
 breed [crimes crime]
+breed [streets street]
 
 globals [
   map-view             ;; GIS dataset/map
