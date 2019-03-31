@@ -224,7 +224,7 @@ to crime-resource-planner
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required
+      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required resource_cycles
       ;set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required
     ]
   	
@@ -260,20 +260,18 @@ to crime-resource-planner
   ]
 end
 
-to get_force_links [force_used]
-
-  ask forces with [police-force-ID = force_used][
-    ask links [
-      print link-length
+to-report get_force_links [force_used resource_cycles]
+  let police_force_to_target []
+  let total_length 0
+  let length_of_link 0
+  ask forces with [police-force-ID = force_used] [
+    ask my-links[
+      set police_force_to_target fput link-length police_force_to_target
     ]
   ]
+  set total_length sum police_force_to_target
+  report (total_length + resource_cycles)
 end
-
-;to-report total_time [resource_cycles]
-;  let total_length 0
-;  set total_length sum get_length_of_streets
-;  report (total_length + resource_cycles)
-;end
 
 to-report subtract-from-X [X]
   ask forces [
@@ -289,7 +287,7 @@ to-report subtract-from-X [X]
 end
 
 
-to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
+to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required resource_cycles]
   let resource_to_sub 0
   let police_force 0
   let police_force_list []
@@ -314,9 +312,7 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required]
   ]
 
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
-  " FROM POLICE FORCE: " police_force)
-
-  get_force_links police_force
+  " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
 
   set police_force_list fput police_force police_force_list
 
@@ -512,7 +508,7 @@ end
 to spawn-crime
   ask one-of turtles[
     ; one crime spawns for now, once our algorithm works we can try multiple crimes.
-    hatch-crimes 1[
+    hatch-crimes number_of_crimes[
       set shape "circle"
       set size .10
       set color 15
@@ -966,10 +962,10 @@ TEXTBOX
 1
 
 SLIDER
-656
-529
-828
-562
+687
+495
+779
+528
 radius
 radius
 0.0
@@ -1052,6 +1048,16 @@ resource-to-subtract-total-view
 17
 1
 11
+
+CHOOSER
+678
+533
+787
+578
+number_of_crimes
+number_of_crimes
+1 2
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
