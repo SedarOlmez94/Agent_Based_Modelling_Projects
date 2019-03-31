@@ -508,7 +508,7 @@ end
 to spawn-crime
   ask one-of turtles[
     ; one crime spawns for now, once our algorithm works we can try multiple crimes.
-    hatch-crimes 1[
+    hatch-crimes number_of_crimes[
       set shape "circle"
       set size .10
       set color 15
@@ -962,10 +962,10 @@ TEXTBOX
 1
 
 SLIDER
-656
-529
-828
-562
+687
+495
+779
+528
 radius
 radius
 0.0
@@ -1048,6 +1048,16 @@ resource-to-subtract-total-view
 17
 1
 11
+
+CHOOSER
+678
+533
+787
+578
+number_of_crimes
+number_of_crimes
+1 2
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
