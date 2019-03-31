@@ -312,9 +312,7 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required re
   ]
 
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
-  " FROM POLICE FORCE: " police_force)
-
-  show get_force_links police_force resource_cycles
+  " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
 
   set police_force_list fput police_force police_force_list
 

@@ -266,11 +266,8 @@ to-report get_force_links [force_used resource_cycles]
   let length_of_link 0
   ask forces with [police-force-ID = force_used] [
     ask my-links[
-      print link-length
-      set police_force_to_target fput  police_force_to_target
-      ]
-
-
+      set police_force_to_target fput link-length police_force_to_target
+    ]
   ]
   set total_length sum police_force_to_target
   report (total_length + resource_cycles)
@@ -315,9 +312,7 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required re
   ]
 
   print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
-  " FROM POLICE FORCE: " police_force)
-
-  show get_force_links police_force resource_cycles
+  " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
 
   set police_force_list fput police_force police_force_list
 
