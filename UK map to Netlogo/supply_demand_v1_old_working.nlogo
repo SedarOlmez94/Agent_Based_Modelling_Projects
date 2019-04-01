@@ -507,13 +507,15 @@ to create_forces
 end
 
 to spawn-crime
-  ask one-of turtles[
-    ; one crime spawns for now, once our algorithm works we can try multiple crimes.
-    hatch-crimes number_of_crimes[
-      set shape "circle"
-      set size .10
-      set color 15
-      setup-crime
+  repeat number_of_crimes [
+    ask one-of turtles[
+      ; one crime spawns for now, once our algorithm works we can try multiple crimes.
+      hatch-crimes 1[
+        set shape "circle"
+        set size .10
+        set color 15
+        setup-crime
+      ]
     ]
   ]
 end
