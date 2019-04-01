@@ -166,7 +166,7 @@ to crime-resource-planner
   let X []                                                                   ; contains the resources we can use each time tick (main list)
   let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
   let crime_units_required_1 (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
-  ;let crime_units_required_2 (item 1 ([units_required] of crimes))
+  let crime_units_required_2 (item 1 ([units_required] of crimes))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
   let list_of_units_potentially_used []
   let forces_resources_pulled []
@@ -1058,7 +1058,7 @@ CHOOSER
 number_of_crimes
 number_of_crimes
 1 2
-0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
