@@ -17,6 +17,7 @@ globals [
   number-of-resources
   crime_units_required_view
   resource-to-subtract-total-view
+  crime_value_ID
  ]
 
 patches-own[
@@ -60,6 +61,7 @@ crimes-own [
   units_required                ;; the number of units requied to stop the crime.
   minimise_impact               ;; minimising the impact on a specific resource i.e. A or B
   resources_requirement_cycles  ;; the number of cycles in which the resources must be received.
+  crime_number                  ;; the crime identifier, each crime has a unique number.
 ]
 
 searchers-own [
@@ -154,39 +156,43 @@ to setup-crime
   set units_required (random 20 + 1) * 10
   set minimise_impact one-of ["A" "B"]
   set resources_requirement_cycles random 11
+  set crime_number crime_value_ID
 end
 
 to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
   ;let time_to_mobilise_list [time-to-mobilise] of forces
-  let target_resource 0                                                      ; the placeholder for the resource we wish to target
-  let M []                                                                   ; the M list which contains all resources with time-to-mobilise <= the number of cycles to tackle the crime.
+  let target_resource_1 0                                                    ; the placeholder for the resource we wish to target
+  let target_resource_2 0
+  let M_1 []                                                                 ; the M_1 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 2.
+  let M_2 []                                                                 ; the M_2 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 1.
   let M_resources []                                                         ; list contains the number of resources which are not 0
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
   let X []                                                                   ; contains the resources we can use each time tick (main list)
   let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
   let crime_units_required_1 (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
-  ;let crime_units_required_2 (item 1 ([units_required] of crimes))
+  let crime_units_required_2 (item 1 ([units_required] of crimes))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
   let list_of_units_potentially_used []
   let forces_resources_pulled []
   let resource-to-subtract-total []
 
-  set target_resource set_target_resource target_resource ; returns the resource type we wish to target, the negation of the resource we wish to minimise (opposite)
-  print target_resource ; print the letter of the resource type we wish to target.
+  set target_resource_1 set_target_resource target_resource_1 3 ; returns the resource type we wish to target for crime 1, the negation of the resource we wish to minimise (opposite)
+  set target_resource_2 set_target_resource target_resource_1 4 ; returns the resource type we wish to target for crime 2, the negation of the resource we wish to minimise (opposite)
+  print (word "Minimise impact on: "target_resource_1 word" for incident 1 and for incident 2: "target_resource_2) ; print the letter of the resource type we wish to target.
 
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
   ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
-  set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes]) ; LINE 1 from algorithm.txt
-
+  set M_1 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of ocrimes with [crime_number = 3]]) ; LINE 1 from algorithm.txt
+  set M_2 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of crimes with [crime_number = 4]]) ; LINE 1 from algorithm.txt
 
 ;delete from M all forces where not(minimise_impact) = 0 (no quantity of resource to be used i.e. A or B in this case) LINE 2 from algorithm.txt
   ask forces [
-    ifelse target_resource = "A"[
-      set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
-    ][
-      set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
-    ]
+      ifelse target_resource_1 = "A"[
+        set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+      ][
+        set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+      ]
   ]
 
   ;; all the resources which are not 0 and are not the ones to minimise_impact on
@@ -194,7 +200,7 @@ to crime-resource-planner
   ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
   ask forces [
     foreach M_Resources [ res ->
-      foreach M [ time ->
+      foreach M_1 [ time ->
         if res = resourceA-public-order-total or res = resourceB-public-order-total [
           if time = time-to-mobilise [
             set M_3 fput time-to-mobilise M_3
@@ -207,7 +213,7 @@ to crime-resource-planner
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
-  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M
+  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M_1
   ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
   set crime_units_required_view crime_units_required_1
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
@@ -326,18 +332,20 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
 end
 
 
-to-report set_target_resource [target_resource]
+to-report set_target_resource [target_resource crime_number_argument]
   ;; here we set the target_resource to the resource type we want to target not the one to minimise.
-  ask crimes [ifelse minimise_impact = "A"[
-      set target_resource "B"
-    ][
-      set target_resource "A"
-    ]
+  ask crimes with [crime_number = crime_number_argument]
+      [ifelse minimise_impact = "A"[
+        set target_resource "B"
+
+      ][
+        set target_resource "A"
+        ]
   ]
   report target_resource
 end
 
-to-report time_to_mobilise_for_all_forces [M_3 M_Resources M]
+to-report time_to_mobilise_for_all_forces [M_3 M_Resources M_1]
   let M_not_minimise_impact []
   ask forces [
     if member? time-to-mobilise M_3[
@@ -350,7 +358,7 @@ to-report time_to_mobilise_for_all_forces [M_3 M_Resources M]
   ]
 
   print (word "All the resources we can use " M_not_minimise_impact
-  word " and all their times to mobilise " M)
+  word " and all their times to mobilise " M_1)
   report M_not_minimise_impact
 end
 
@@ -507,13 +515,16 @@ to create_forces
 end
 
 to spawn-crime
-  ask one-of turtles[
-    ; one crime spawns for now, once our algorithm works we can try multiple crimes.
-    hatch-crimes number_of_crimes[
-      set shape "circle"
-      set size .10
-      set color 15
-      setup-crime
+  repeat number_of_crimes [
+    ask one-of turtles[
+      ; one crime spawns for now, once our algorithm works we can try multiple crimes.
+      hatch-crimes 1[
+        set shape "circle"
+        set size .10
+        set color 15
+        set crime_value_ID crime_value_ID + 1
+        setup-crime
+      ]
     ]
   ]
 end
@@ -1011,7 +1022,7 @@ BUTTON
 347
 648
 watch crime
-watch one-of crimes
+watch one-of crimes\n\n
 NIL
 1
 T
@@ -1058,7 +1069,7 @@ CHOOSER
 number_of_crimes
 number_of_crimes
 1 2
-0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
