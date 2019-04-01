@@ -162,9 +162,10 @@ end
 to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
   ;let time_to_mobilise_list [time-to-mobilise] of forces
-  let target_resource_1 0                                                      ; the placeholder for the resource we wish to target
+  let target_resource_1 0                                                    ; the placeholder for the resource we wish to target
   let target_resource_2 0
-  let M []                                                                   ; the M list which contains all resources with time-to-mobilise <= the number of cycles to tackle the crime.
+  let M_1 []                                                                 ; the M_1 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 2.
+  let M_2 []                                                                 ; the M_2 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 1.
   let M_resources []                                                         ; list contains the number of resources which are not 0
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
   let X []                                                                   ; contains the resources we can use each time tick (main list)
@@ -182,8 +183,8 @@ to crime-resource-planner
 
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
   ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
-  set M_ [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes]) ; LINE 1 from algorithm.txt
-
+  set M_1 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of ocrimes with [crime_number = 3]]) ; LINE 1 from algorithm.txt
+  set M_2 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of crimes with [crime_number = 4]]) ; LINE 1 from algorithm.txt
 
 ;delete from M all forces where not(minimise_impact) = 0 (no quantity of resource to be used i.e. A or B in this case) LINE 2 from algorithm.txt
   ask forces [
@@ -199,7 +200,7 @@ to crime-resource-planner
   ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
   ask forces [
     foreach M_Resources [ res ->
-      foreach M [ time ->
+      foreach M_1 [ time ->
         if res = resourceA-public-order-total or res = resourceB-public-order-total [
           if time = time-to-mobilise [
             set M_3 fput time-to-mobilise M_3
@@ -212,7 +213,7 @@ to crime-resource-planner
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
-  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M
+  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M_1
   ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
   set crime_units_required_view crime_units_required_1
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
@@ -344,7 +345,7 @@ to-report set_target_resource [target_resource crime_number_argument]
   report target_resource
 end
 
-to-report time_to_mobilise_for_all_forces [M_3 M_Resources M]
+to-report time_to_mobilise_for_all_forces [M_3 M_Resources M_1]
   let M_not_minimise_impact []
   ask forces [
     if member? time-to-mobilise M_3[
@@ -357,7 +358,7 @@ to-report time_to_mobilise_for_all_forces [M_3 M_Resources M]
   ]
 
   print (word "All the resources we can use " M_not_minimise_impact
-  word " and all their times to mobilise " M)
+  word " and all their times to mobilise " M_1)
   report M_not_minimise_impact
 end
 
