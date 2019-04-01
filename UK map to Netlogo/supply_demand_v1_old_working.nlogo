@@ -156,7 +156,7 @@ to setup-crime
   set units_required (random 20 + 1) * 10
   set minimise_impact one-of ["A" "B"]
   set resources_requirement_cycles random 11
-  set crime_number crime_value_ID + 1
+  set crime_number crime_value_ID
 end
 
 to crime-resource-planner
@@ -517,6 +517,7 @@ to spawn-crime
         set shape "circle"
         set size .10
         set color 15
+        set crime_value_ID crime_value_ID + 1
         setup-crime
       ]
     ]
