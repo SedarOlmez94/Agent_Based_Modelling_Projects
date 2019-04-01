@@ -17,6 +17,7 @@ globals [
   number-of-resources
   crime_units_required_view
   resource-to-subtract-total-view
+  crime_value_ID
  ]
 
 patches-own[
@@ -60,6 +61,7 @@ crimes-own [
   units_required                ;; the number of units requied to stop the crime.
   minimise_impact               ;; minimising the impact on a specific resource i.e. A or B
   resources_requirement_cycles  ;; the number of cycles in which the resources must be received.
+  crime_number                  ;; the crime identifier, each crime has a unique number.
 ]
 
 searchers-own [
@@ -154,6 +156,7 @@ to setup-crime
   set units_required (random 20 + 1) * 10
   set minimise_impact one-of ["A" "B"]
   set resources_requirement_cycles random 11
+  set crime_number crime_value_ID + 1
 end
 
 to crime-resource-planner
@@ -1013,7 +1016,7 @@ BUTTON
 347
 648
 watch crime
-watch one-of crimes
+watch one-of crimes\n\n
 NIL
 1
 T
