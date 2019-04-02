@@ -172,6 +172,7 @@ to crime-resource-planner
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
   let M_3_1 []
   let X []                                                                   ; contains the resources we can use each time tick (main list)
+  let X_1 []
   let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
   let M_not_minimise_impact_2 0                                              ; list contains only the resources which we dont have to minimise impact on for incident 2
   let crime_units_required_1 (item 0 ([units_required] of crimes with [crime_number = 3]))             ; the number of units required for the first crime instance.
@@ -179,6 +180,7 @@ to crime-resource-planner
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 3]))    ; the number of time cycles the first crime has.
   let resource_cycles_2 (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 4]))
   let list_of_units_potentially_used []
+
   let forces_resources_pulled []
   let resource-to-subtract-total []
 
@@ -244,12 +246,13 @@ to crime-resource-planner
   while [resource_cycles != 0 or resource_cycles_2 != 0]
   [
     print (word "crime_units_required_1: "crime_units_required_1)
-
+    print (word "crime_units_required_2: "crime_units_required_2)
     ; in the algorithm finds the resource with the min-to-mobilise.
     ; Added the time-to-mobilise which we want to X.
 
     ;(new list object) X = [1A] (add "1A to X")
     set X fput min-max M_3 M_not_minimise_impact list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
+    set X_1 fput min-max M_3_1 M_not_minimise_impact_2
     let first_x item 0 X
 
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
