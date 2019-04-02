@@ -238,8 +238,8 @@ to crime-resource-planner
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
-  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_resources M_1
-  set M_not_minimise_impact_2 time_to_mobilise_for_all_forces M_3_1 M_resources_2 M_2
+  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_resources M_1 3
+  set M_not_minimise_impact_2 time_to_mobilise_for_all_forces M_3_1 M_resources_2 M_2 4
   ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
   set crime_units_required_view crime_units_required_1
   set crime-units-required-view-2 crime_units_required_2
@@ -365,15 +365,18 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
     ]
   ]
 
-  print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
-  " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
+
 
   set police_force_list fput police_force police_force_list
 
   ifelse incident = 3 [
+    print(word "FOR INCIDENT 1 RESOURCE TO SUBTRACT: " resource_to_sub word
+      " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
     set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
   ][
     if incident = 4 [
+      print(word "FOR INCIDENT 2 RESOURCE TO SUBTRACT: " resource_to_sub word
+        " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
       set resource-to-subtract-total-view-1 resource-to-subtract-total-view-1 + resource_to_sub
     ]
   ]
@@ -397,7 +400,7 @@ to-report set_target_resource [target_resource crime_number_argument]
   report target_resource
 end
 
-to-report time_to_mobilise_for_all_forces [M_3 M_resources M_1]
+to-report time_to_mobilise_for_all_forces [M_3 M_resources M_1 incident]
   let M_not_minimise_impact []
 
   ask forces [
@@ -411,8 +414,15 @@ to-report time_to_mobilise_for_all_forces [M_3 M_resources M_1]
       ]
     ]
   ]
-  print (word "All the resources we can use for incident: " M_not_minimise_impact
-  word " and all their times to mobilise " M_1)
+  ifelse incident = 3 [
+    print (word "All the resources we can use for incident 1: " M_not_minimise_impact
+      word " and all their times to mobilise " M_1)
+  ][
+    if incident = 4 [
+      print (word "All the resources we can use for incident 2: " M_not_minimise_impact
+        word " and all their times to mobilise " M_1)
+    ]
+  ]
 
   report M_not_minimise_impact
 end
