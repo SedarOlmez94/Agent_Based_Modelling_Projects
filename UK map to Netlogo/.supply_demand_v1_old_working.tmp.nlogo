@@ -170,6 +170,7 @@ to crime-resource-planner
   let M_resources_2 []
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
   let M_3_1 []
+  let M_3_final []
   let X []                                                                   ; contains the resources we can use each time tick (main list)
   let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
   let crime_units_required_1 (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
@@ -230,8 +231,10 @@ to crime-resource-planner
 
   ;set M_3 remove-duplicates M_3
   set M_3 remove-duplicates M_3
+  show M_3
   set M_3_1 remove-duplicates M_3_1
-  merge_lists
+  show M_3_1
+  set M_3_final merge_lists M_3 M_3_1
 
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.

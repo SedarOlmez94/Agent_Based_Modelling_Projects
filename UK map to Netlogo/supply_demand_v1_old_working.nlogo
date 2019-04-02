@@ -229,7 +229,6 @@ to crime-resource-planner
     ]
   ]
 
-  ;set M_3 remove-duplicates M_3
   set M_3 remove-duplicates M_3
   set M_3_1 remove-duplicates M_3_1
   set M_3_final merge_lists M_3 M_3_1
