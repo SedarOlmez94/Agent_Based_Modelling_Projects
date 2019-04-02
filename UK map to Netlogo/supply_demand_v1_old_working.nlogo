@@ -16,6 +16,7 @@ globals [
   center-y             ;; center of the map
   number-of-resources
   crime_units_required_view
+  crime-units-required-view-2
   resource-to-subtract-total-view
   crime_value_ID
  ]
@@ -173,9 +174,10 @@ to crime-resource-planner
   let X []                                                                   ; contains the resources we can use each time tick (main list)
   let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
   let M_not_minimise_impact_2 0                                              ; list contains only the resources which we dont have to minimise impact on for incident 2
-  let crime_units_required_1 (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
-  let crime_units_required_2 (item 1 ([units_required] of crimes))
-  let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
+  let crime_units_required_1 (item 0 ([units_required] of crimes with [crime_number = 3]))             ; the number of units required for the first crime instance.
+  let crime_units_required_2 (item 0 ([units_required] of crimes with [crime_number = 4]))
+  let resource_cycles (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 3]))    ; the number of time cycles the first crime has.
+  let resource_cycles_2 (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 4]))
   let list_of_units_potentially_used []
   let forces_resources_pulled []
   let resource-to-subtract-total []
@@ -237,8 +239,9 @@ to crime-resource-planner
   set M_not_minimise_impact_2 time_to_mobilise_for_all_forces M_3_1 M_resources_2 M_2
   ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
   set crime_units_required_view crime_units_required_1
+  set crime-units-required-view-2 crime_units_required_2
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
-  while [resource_cycles != 0]
+  while [resource_cycles != 0 or resource_cycles_2 != 0]
   [
     print (word "crime_units_required_1: "crime_units_required_1)
 
@@ -1103,6 +1106,17 @@ number_of_crimes
 number_of_crimes
 1 2
 1
+
+MONITOR
+404
+723
+651
+768
+units of resource required for incident 2
+crime-units-required-view-2
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
