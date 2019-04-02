@@ -167,9 +167,12 @@ to crime-resource-planner
   let M_1 []                                                                 ; the M_1 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 2.
   let M_2 []                                                                 ; the M_2 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 1.
   let M_resources []                                                         ; list contains the number of resources which are not 0
+  let M_resources_2 []
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
+  let M_3_1 []
   let X []                                                                   ; contains the resources we can use each time tick (main list)
   let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
+  let M_not_minimise_impact_2 0                                              ; list contains only the resources which we dont have to minimise impact on for incident 2
   let crime_units_required_1 (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
   let crime_units_required_2 (item 1 ([units_required] of crimes))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
@@ -186,6 +189,7 @@ to crime-resource-planner
   set M_1 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes with [crime_number = 3]]) ; LINE 1 from algorithm.txt
   set M_2 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes with [crime_number = 4]]) ; LINE 1 from algorithm.txt
 
+
 ;delete from M all forces where not(minimise_impact) = 0 (no quantity of resource to be used i.e. A or B in this case) LINE 2 from algorithm.txt
   ask forces [
     ifelse target_resource_1 = "A"[
@@ -193,10 +197,12 @@ to crime-resource-planner
     ][
       set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
     ]
+  ]
+  ask forces [
     ifelse target_resource_2 = "A"[
-      set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+      set M_resources_2 [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
     ][
-      set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+      set M_resources_2 [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
     ]
   ]
 
@@ -204,7 +210,7 @@ to crime-resource-planner
   ;; we now need to create a list of all the forces which satisfy both M  and M_resources
   ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
   ask forces [
-    foreach M_Resources [ res ->
+    foreach M_resources [ res ->
       foreach M_1 [ time ->
         if res = resourceA-public-order-total or res = resourceB-public-order-total [
           if time = time-to-mobilise [
@@ -213,25 +219,22 @@ to crime-resource-planner
         ]
       ]
     ]
-  ]
-  ask forces [
-    foreach M_Resources [ res ->
+    foreach M_resources_2 [ res ->
       foreach M_2 [ time ->
         if res = resourceA-public-order-total or res = resourceB-public-order-total [
           if time = time-to-mobilise [
-            set M_3 fput time-to-mobilise M_3
+            set M_3_1 fput time-to-mobilise M_3_1
           ]
         ]
       ]
     ]
   ]
 
-  set M_3 remove-duplicates M_3
-
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
-  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M_1
+  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_resources M_1
+  set M_not_minimise_impact_2 time_to_mobilise_for_all_forces M_3_1 M_resources_2 M_2
   ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
   set crime_units_required_view crime_units_required_1
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
@@ -296,6 +299,13 @@ to-report get_force_links [force_used resource_cycles]
   ]
   set total_length sum police_force_to_target
   report (total_length + resource_cycles)
+end
+
+to-report merge_lists [list1 list2]
+  foreach list1 [ I ->
+    set list2 lput I list2
+  ]
+  report list2
 end
 
 to-report subtract-from-X [X]
@@ -363,20 +373,25 @@ to-report set_target_resource [target_resource crime_number_argument]
   report target_resource
 end
 
-to-report time_to_mobilise_for_all_forces [M_3 M_Resources M_1]
+to-report time_to_mobilise_for_all_forces [M_3 M_resources M_1]
   let M_not_minimise_impact []
+
   ask forces [
     if member? time-to-mobilise M_3[
-      ifelse member? resourceA-public-order-total M_Resources[
+      ifelse member? resourceA-public-order-total M_resources[
         set M_not_minimise_impact fput resourceA-public-order-total M_not_minimise_impact
       ][
-        set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
+        if member? resourceB-public-order-total M_resources[
+          set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
+        ]
       ]
     ]
   ]
-
-  print (word "All the resources we can use " M_not_minimise_impact
+  show length M_not_minimise_impact
+  show length M_1
+  print (word "All the resources we can use for incident: " M_not_minimise_impact
   word " and all their times to mobilise " M_1)
+
   report M_not_minimise_impact
 end
 
