@@ -18,6 +18,7 @@ globals [
   crime_units_required_view
   crime-units-required-view-2
   resource-to-subtract-total-view
+  resource-to-subtract-total-view-1
   crime_value_ID
  ]
 
@@ -180,7 +181,7 @@ to crime-resource-planner
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 3]))    ; the number of time cycles the first crime has.
   let resource_cycles_2 (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 4]))
   let list_of_units_potentially_used []
-
+  let list_of_units_potentially_used_2 []
   let forces_resources_pulled []
   let resource-to-subtract-total []
 
@@ -252,31 +253,42 @@ to crime-resource-planner
 
     ;(new list object) X = [1A] (add "1A to X")
     set X fput min-max M_3 M_not_minimise_impact list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
-    set X_1 fput min-max M_3_1 M_not_minimise_impact_2
+    set X_1 fput min-max M_3_1 M_not_minimise_impact_2 list_of_units_potentially_used_2 X_1
+
     let first_x item 0 X
+    let first_x_2 item 0 X_1
 
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      set crime_units_required_1 time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1 resource_cycles
+      set crime_units_required_1 time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1 resource_cycles 3
       ;set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1
     ]
-  	
+  	if member? 0 X_1 [
+      set crime_units_required_2 time-to-mobilise-in-X X_1 M_not_minimise_impact_2 crime_units_required_2 resource_cycles_2 4
+    ]
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
     ;set forces_resources_pulled check-crime-prevented X M_not_minimise_impact crime_units_required_1 forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required_1) is 0 or smaller than 0
 
-    if crime_units_required_1 <= 0[
-      print (word "CRIMES PREVENTED, all resources pulled")
+    if crime_units_required_1 <= 0 [
+      print (word "INCIDENT 1 PREVENTED, all resources pulled")
       stop
     ]
+    if crime_units_required_2 <= 0 [
+      print (word "INCIDENT 2 PREVENTED, all resources pulled")
+      stop
+    ]
+
 
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
     ; exists in X. LINE 11 from algorithm.txt
     show subtract-from-X X
+    show subtract-from-X X_1
 
   	;M_3 = M_3 - 1A remove the force added to X from the list M == M_3. LINE 12 from algorithm.txt
     set M_3 remove first_x M_3
+    set M_3_1 remove first_x M_3_1
 
     ; we subtract one from the units required and resource cycles each iteration to see if the computation is finished and plus a time tick has passed.
     ; remember the crime_units_required_1 list contains the time-to-mobilise of all the resources we wish to use so naturally as ticks occur the resource time
@@ -286,12 +298,10 @@ to crime-resource-planner
     print(word "CRIME_UNITS: " crime_units_required_1)
     if resource_cycles = 0 or resource_cycles_2 = 0[
       ; we print out the number of units we were able to aquire
-      print (word "units provided for incident 1: " crime_units_required_1)
-      print (word "units provided for incident 2: " crime_units_required_2)
+      print (word "units provided for incident 1: " crime_units_required_1 word " units provided for incident 2: " crime_units_required_2)
       ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
       ; are the number of resources we were able to get to the force which has the crime.
-      print (word "resources requirement cycles for incident 1: " resource_cycles)
-      print (word "resources requirement cycles for incident 2: " resource_cycles_2)
+      print (word "resources requirement cycles for incident 1: " resource_cycles word " resources requirement cycles for incident 2: " resource_cycles_2)
       stop
     ]
   ]
@@ -331,7 +341,7 @@ to-report subtract-from-X [X]
 end
 
 
-to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 resource_cycles]
+to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 resource_cycles incident]
   let resource_to_sub 0
   let police_force 0
   let police_force_list []
@@ -360,8 +370,13 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
 
   set police_force_list fput police_force police_force_list
 
-
-  set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+  ifelse incident = 3 [
+    set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+  ][
+    if incident =  [
+      set resource-to-subtract-total-view-1 resource-to-subtract-total-view-1 + resource_to_sub
+    ]
+  ]
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
   ;print(word "TOTAL RESOURCES TO SUBTRACT: "sum resource-to-subtract-total)
   set crime_units_required_1 crime_units_required_1 - resource_to_sub
@@ -396,8 +411,6 @@ to-report time_to_mobilise_for_all_forces [M_3 M_resources M_1]
       ]
     ]
   ]
-  show length M_not_minimise_impact
-  show length M_1
   print (word "All the resources we can use for incident: " M_not_minimise_impact
   word " and all their times to mobilise " M_1)
 
@@ -1120,6 +1133,17 @@ MONITOR
 768
 units of resource required for incident 2
 crime-units-required-view-2
+17
+1
+11
+
+MONITOR
+659
+724
+831
+769
+total resources provided
+resource-to-subtract-total-view-1
 17
 1
 11
