@@ -167,7 +167,10 @@ to crime-resource-planner
   let M_1 []                                                                 ; the M_1 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 2.
   let M_2 []                                                                 ; the M_2 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 1.
   let M_resources []                                                         ; list contains the number of resources which are not 0
+  let M_resources_2 []
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
+  let M_3_1 []
+  let M_3_final []
   let X []                                                                   ; contains the resources we can use each time tick (main list)
   let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
   let crime_units_required_1 (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
@@ -194,9 +197,9 @@ to crime-resource-planner
       set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
     ]
     ifelse target_resource_2 = "A"[
-      set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+      set M_resources_2 [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
     ][
-      set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+      set M_resources_2 [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
     ]
   ]
 
@@ -215,18 +218,21 @@ to crime-resource-planner
     ]
   ]
   ask forces [
-    foreach M_Resources [ res ->
+    foreach M_Resources_2 [ res ->
       foreach M_2 [ time ->
         if res = resourceA-public-order-total or res = resourceB-public-order-total [
           if time = time-to-mobilise [
-            set M_3 fput time-to-mobilise M_3
+            set M_3_1 fput time-to-mobilise M_3
           ]
         ]
       ]
     ]
   ]
 
+  ;set M_3 remove-duplicates M_3
   set M_3 remove-duplicates M_3
+  set M_3_1 remove-duplicates M_3_1
+  set M_3_final merge_lists M_3 M_3_1
 
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
@@ -296,6 +302,13 @@ to-report get_force_links [force_used resource_cycles]
   ]
   set total_length sum police_force_to_target
   report (total_length + resource_cycles)
+end
+
+to-report merge_lists [list1 list2]
+  foreach list1 [ I ->
+    set list2 lput I list2
+  ]
+  report list2
 end
 
 to-report subtract-from-X [X]
