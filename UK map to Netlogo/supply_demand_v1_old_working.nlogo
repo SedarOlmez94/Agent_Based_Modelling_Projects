@@ -188,11 +188,16 @@ to crime-resource-planner
 
 ;delete from M all forces where not(minimise_impact) = 0 (no quantity of resource to be used i.e. A or B in this case) LINE 2 from algorithm.txt
   ask forces [
-      ifelse target_resource_1 = "A"[
-        set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
-      ][
-        set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
-      ]
+    ifelse target_resource_1 = "A"[
+      set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+    ][
+      set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+    ]
+    ifelse target_resource_2 = "A"[
+      set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+    ][
+      set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+    ]
   ]
 
   ;; all the resources which are not 0 and are not the ones to minimise_impact on
@@ -209,6 +214,19 @@ to crime-resource-planner
       ]
     ]
   ]
+  ask forces [
+    foreach M_Resources [ res ->
+      foreach M_2 [ time ->
+        if res = resourceA-public-order-total or res = resourceB-public-order-total [
+          if time = time-to-mobilise [
+            set M_3 fput time-to-mobilise M_3
+          ]
+        ]
+      ]
+    ]
+  ]
+
+  set M_3 remove-duplicates M_3
 
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.

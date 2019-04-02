@@ -183,16 +183,21 @@ to crime-resource-planner
 
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
   ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
-  set M_1 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of ocrimes with [crime_number = 3]]) ; LINE 1 from algorithm.txt
-  set M_2 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of crimes with [crime_number = 4]]) ; LINE 1 from algorithm.txt
+  set M_1 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes with [crime_number = 3]]) ; LINE 1 from algorithm.txt
+  set M_2 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes with [crime_number = 4]]) ; LINE 1 from algorithm.txt
 
 ;delete from M all forces where not(minimise_impact) = 0 (no quantity of resource to be used i.e. A or B in this case) LINE 2 from algorithm.txt
   ask forces [
-      ifelse target_resource_1 = "A"[
-        set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
-      ][
-        set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
-      ]
+    ifelse target_resource_1 = "A"[
+      set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+    ][
+      set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+    ]
+    ifelse target_resource_2 = "A"[
+      set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+    ][
+      set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+    ]
   ]
 
   ;; all the resources which are not 0 and are not the ones to minimise_impact on
@@ -209,6 +214,19 @@ to crime-resource-planner
       ]
     ]
   ]
+  ask forces [
+    foreach M_Resources [ res ->
+      foreach M_2 [ time ->
+        if res = resourceA-public-order-total or res = resourceB-public-order-total [
+          if time = time-to-mobilise [
+            set M_3 fput time-to-mobilise M_3
+          ]
+        ]
+      ]
+    ]
+  ]
+  show M_3
+  set M_3 remove-duplicates M_3
 
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
