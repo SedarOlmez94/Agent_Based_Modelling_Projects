@@ -244,7 +244,7 @@ to crime-resource-planner
   while [resource_cycles != 0 or resource_cycles_2 != 0]
   [
     print (word "crime_units_required_1: "crime_units_required_1)
-
+    print (word "crime_units_required_2: "crime_units_required_2)
     ; in the algorithm finds the resource with the min-to-mobilise.
     ; Added the time-to-mobilise which we want to X.
 
@@ -279,13 +279,16 @@ to crime-resource-planner
     ; remember the crime_units_required_1 list contains the time-to-mobilise of all the resources we wish to use so naturally as ticks occur the resource time
     ; also reduces.
     set resource_cycles (resource_cycles - 1)
+    set resource_cycles_2 (resource_cycles_2 - 1)
     print(word "CRIME_UNITS: " crime_units_required_1)
-    if resource_cycles = 0 [
+    if resource_cycles = 0 or resource_cycles_2 = 0[
       ; we print out the number of units we were able to aquire
-      print (word "units provided: " crime_units_required_1)
+      print (word "units provided for incident 1: " crime_units_required_1)
+      print (word "units provided for incident 2: " crime_units_required_2)
       ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
       ; are the number of resources we were able to get to the force which has the crime.
-      print (word "resources requirement cycles: " resource_cycles)
+      print (word "resources requirement cycles for incident 1: " resource_cycles)
+      print (word "resources requirement cycles for incident 2: " resource_cycles_2)
       stop
     ]
   ]
