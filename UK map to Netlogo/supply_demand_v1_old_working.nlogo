@@ -253,20 +253,22 @@ to crime-resource-planner
 
     ;(new list object) X = [1A] (add "1A to X")
     set X fput min-max M_3 M_not_minimise_impact list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
-    set X_1 fput min-max M_3_1 M_not_minimise_impact_2 list_of_units_potentially_used_2 X_1
-
+    ;set X_1 fput min-max M_3_1 M_not_minimise_impact_2 list_of_units_potentially_used_2 X_1
+    set X fput min-max M_3_1 M_not_minimise_impact_2 list_of_units_potentially_used_2 X
     let first_x item 0 X
-    let first_x_2 item 0 X_1
+
+    ;let first_x_2 item 0 X_1
 
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
       set crime_units_required_1 time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1 resource_cycles 3
+      set crime_units_required_2 time-to-mobilise-in-X X M_not_minimise_impact_2 crime_units_required_2 resource_cycles_2 4
       ;set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1
     ]
-  	if member? 0 X_1 [
-      set crime_units_required_2 time-to-mobilise-in-X X_1 M_not_minimise_impact_2 crime_units_required_2 resource_cycles_2 4
-    ]
+;  	if member? 0 X_1 [
+;      set crime_units_required_2 time-to-mobilise-in-X X_1 M_not_minimise_impact_2 crime_units_required_2 resource_cycles_2 4
+;    ]
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
     ;set forces_resources_pulled check-crime-prevented X M_not_minimise_impact crime_units_required_1 forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required_1) is 0 or smaller than 0
@@ -284,7 +286,7 @@ to crime-resource-planner
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
     ; exists in X. LINE 11 from algorithm.txt
     show subtract-from-X X
-    show subtract-from-X X_1
+    ;show subtract-from-X X_1
 
   	;M_3 = M_3 - 1A remove the force added to X from the list M == M_3. LINE 12 from algorithm.txt
     set M_3 remove first_x M_3
