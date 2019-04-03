@@ -174,11 +174,11 @@ to create-table
 ;  print item 0 table:get dict "turtle"
 end
 
-to-report assign-resources-to-table
+to-report assign-resources-to-table [force-name-variable]
   let dict table:make
   let temp-list []
 
-  ask forces[
+  ask forces with [force-name = force-name-variable][
     if force-name = "St Albans"[
       set temp-list lput 1953 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
@@ -629,7 +629,7 @@ to-report assign-resources-to-table
       table:put dict "Monmouthshire" temp-list
     ]
   ]
-
+  print table:length dict
 
   report dict
 end
