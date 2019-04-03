@@ -174,12 +174,12 @@ to create-table
 ;  print item 0 table:get dict "turtle"
 end
 
-to-report assign-resources [force-name-argument]
+to-report assign-resources-to-table
   let dict table:make
   let temp-list []
 
-  ask forces with [force-name = force-name-argument][
-    if force-name-argument = "St Albans"[
+  ask forces[
+    if force-name = "St Albans"[
       set temp-list lput 1953 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -188,160 +188,448 @@ to-report assign-resources [force-name-argument]
       set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
       table:put dict "St Albans" temp-list
     ]
-    if force-name-argument = "Rushcliffe"[
-      set resource-total 2095
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    if force-name = "Rushcliffe"[
+      set temp-list []
+      set temp-list lput 2095 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Rushcliffe" temp-list
     ]
-    if force-name-argument = "Oldham"[
-      set resource-total 6979
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    if force-name = "Oldham"[
+      set temp-list []
+      set temp-list lput 6979 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Oldham" temp-list
     ]
-    if force-name-argument = "Wiltshire"[
-      set resource-total 966
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    if force-name = "Wiltshire"[
+      set temp-list []
+      set temp-list lput 966 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Wiltshire" temp-list
     ]
-    if force-name-argument = "Braintree"[
-      set resource-total 2909
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    if force-name = "Braintree"[
+      set temp-list []
+      set temp-list lput 2902 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Braintree" temp-list
     ]
-    if force-name-argument = "South Hams"[
+    if force-name = "South Hams"[
       ;Devon and Cornwall Police
-      set resource-total 3082
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+      set temp-list []
+      set temp-list lput 3082 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "South Hams" temp-list
     ]
-    if force-name-argument = "Solihull"[
+    if force-name = "Solihull"[
       ;Westmidlands
-      set resource-total 6656
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+      set temp-list []
+      set temp-list lput 6656 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Solihull" temp-list
     ]
-    if force-name-argument = "Maidstone"[
+    if force-name = "Maidstone"[
       ;Kent
-      set resource-total 3333
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+      set temp-list []
+      set temp-list lput 3333 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Maidstone" temp-list
     ]
-    if force-name-argument = "Ceredigion"[
-      set resource-total 1159
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    if force-name = "Ceredigion"[
+      set temp-list []
+      set temp-list lput 1159 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Ceredigion" temp-list
     ]
-    if force-name-argument = "Stockton-on-Tees"[
-      set resource-total 1274
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    if force-name = "Stockton-on-Tees"[
+      set temp-list []
+      set temp-list lput 1274 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Stockton-on-Tees" temp-list
     ]
-    if force-name-argument = "Malvern Hills"[
+    if force-name = "Malvern Hills"[
       ;West Mercia
-      set resource-total 2367
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+      set temp-list []
+      set temp-list lput 2367 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Malvern Hills" temp-list
     ]
-    if force-name-argument = "Preston"[
+    if force-name = "Preston"[
       ;Lancashire
-      set resource-total 2910
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+      set temp-list []
+      set temp-list lput 2910 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Preston" temp-list
     ]
-    if force-name-argument = "Hambleton"[
+    if force-name = "Hambleton"[
+      ;North yorkshire police
+      set temp-list []
+      set temp-list lput 1370 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Hambleton" temp-list
     ]
-    if force-name-argument = "Surrey Heath"[
+    if force-name = "Surrey Heath"[
+      ; Surrey
+      set temp-list []
+      set temp-list lput 2009 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Surrey Heath" temp-list
     ]
-    if force-name-argument = "Eastleigh"[
+    if force-name = "Eastleigh"[
+      ;Hampshire
+      set temp-list []
+      set temp-list lput 2861 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Eastleigh" temp-list
     ]
-    if force-name-argument = "Leeds"[
+    if force-name = "Leeds"[
+      ; West yorkshire
+      set temp-list []
+      set temp-list lput 4826 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Leeds" temp-list
     ]
-    if force-name-argument = "Wirral"[
+    if force-name = "Wirral"[
+      ; Merseyside
+      set temp-list []
+      set temp-list lput 3484 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Wirral" temp-list
     ]
-    if force-name-argument = "Eden"[
+    if force-name = "Eden"[
+      ; Cumbria
+      set temp-list []
+      set temp-list lput 1108 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Eden" temp-list
     ]
-    if force-name-argument = "Croydon"[
+    if force-name = "Croydon"[
+      ; Metropolitan police
+      set temp-list []
+      set temp-list lput 30871 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Croydon" temp-list
     ]
-    if force-name-argument = "Oadby and Wigston"[
+    if force-name = "Oadby and Wigston"[
+      ; Leicestershire
+      set temp-list []
+      set temp-list lput 1772 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Oadby and Wigston" temp-list
     ]
-    if force-name-argument = "Northumberland"[
+    if force-name = "Northumberland"[
+      set temp-list []
+      set temp-list lput 3245 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Northumberland" temp-list
     ]
-    if force-name-argument = "Amber Valley"[
+    if force-name = "Amber Valley"[
+      ; Derbyshire
+      set temp-list []
+      set temp-list lput 1740 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Amber Valley" temp-list
     ]
-    if force-name-argument = "Neath Port Talbot"[
+    if force-name = "Neath Port Talbot"[
+      set temp-list []
+      set temp-list lput 2890 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Neath Port Talbot" temp-list
     ]
-    if force-name-argument = "Denbighshire"[
+    if force-name = "Denbighshire"[
+      ; North wales
+      set temp-list []
+      set temp-list lput 1487 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Denbighshire" temp-list
     ]
-    if force-name-argument = "Sheffield"[
+    if force-name = "Sheffield"[
+      ; south yorkshire
+      set temp-list []
+      set temp-list lput 2472 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Sheffield" temp-list
     ]
-    if force-name-argument = "East Dorset"[
+    if force-name = "East Dorset"[
+      ; Dorset
+      set temp-list []
+      set temp-list lput 1276 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "East Dorset" temp-list
     ]
-    if force-name-argument = "Bath and North East Somerset"[
+    if force-name = "Bath and North East Somerset"[
+      ; Avon and Somerset Constabulary
+      set temp-list []
+      set temp-list lput 2630 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Bath and North East Somerset" temp-list
     ]
-    if force-name-argument = "Lichfield"[
+    if force-name = "Lichfield"[
+      ; Staffordshire
+      set temp-list []
+      set temp-list lput 1595 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Lichfield" temp-list
     ]
-    if force-name-argument = "Oxford"[
+    if force-name = "Oxford"[
+      ; Thames Valley Police
+      set temp-list []
+      set temp-list lput 4077 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Oxford" temp-list
     ]
-    if force-name-argument = "Forest of Dean"[
+    if force-name = "Forest of Dean"[
+      ;Gloucestershire Constabulary
+      set temp-list []
+      set temp-list lput 1055 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Forest of Dean" temp-list
     ]
-    if force-name-argument = "East Cambridgeshire"[
+    if force-name = "East Cambridgeshire"[
+      ; Cambridgeshire Constabulary
+      set temp-list []
+      set temp-list lput 1332 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "East Cambridgeshire" temp-list
     ]
-    if force-name-argument = "Birmingham"[
+    if force-name = "Birmingham"[
+      ; West Midlands
+      set temp-list []
+      set temp-list lput 6535 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Birmingham" temp-list
     ]
-    if force-name-argument = "Milton Keynes"[
+    if force-name = "Milton Keynes"[
+      ;Thames Valley
+      set temp-list []
+      set temp-list lput 4077 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Milton Keynes" temp-list
     ]
-    if force-name-argument = "Northampton"[
+    if force-name = "Northampton"[
+      ;Northamptonshire Police
+      set temp-list []
+      set temp-list lput 1178 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Northampton" temp-list
     ]
-    if force-name-argument = "Brighton and Hove"[
+    if force-name = "Brighton and Hove"[
+      ; Sussex police
+      set temp-list []
+      set temp-list lput 2550 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Brighton and Hove" temp-list
     ]
-    if force-name-argument = "Cheshire East"[
+    if force-name = "Cheshire East"[
+      ; Cheshire Constabulary
+      set temp-list []
+      set temp-list lput 2010 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Cheshire East" temp-list
     ]
-    if force-name-argument = "St Edmundsbury"[
+    if force-name = "St Edmundsbury"[
+      ; Suffolk
+      set temp-list []
+      set temp-list lput 1096 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "St Edmundsbury" temp-list
     ]
-    if force-name-argument = "North Kesteven"[
+    if force-name = "North Kesteven"[
+      ; Lincolnshire
+      set temp-list []
+      set temp-list lput 1665 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "North Kesteven" temp-list
     ]
-    if force-name-argument = "County Durham"[
+    if force-name = "County Durham"[
+      set temp-list []
+      set temp-list lput 1138 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "County Durham" temp-list
     ]
-    if force-name-argument = "Kingston upon Hull, City of"[
+    if force-name = "Kingston upon Hull, City of"[
+      set temp-list []
+      set temp-list lput 1665 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Kingston upon Hull, City of" temp-list
     ]
-    if force-name-argument = "Broadland"[
+    if force-name = "Broadland"[
+      ; Norfolk
+      set temp-list []
+      set temp-list lput 1519 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Broadland" temp-list
     ]
-    if force-name-argument = "Monmouthshire"[
+    if force-name = "Monmouthshire"[
+      set temp-list []
+      set temp-list lput 1154 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "Monmouthshire" temp-list
     ]
   ]
+  print table:length dict
 
   report dict
 end
