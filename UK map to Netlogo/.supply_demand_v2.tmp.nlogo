@@ -16,7 +16,10 @@ globals [
   center-y             ;; center of the map
   number-of-resources
   crime_units_required_view
+  crime-units-required-view-2
   resource-to-subtract-total-view
+  resource-to-subtract-total-view-1
+  crime_value_ID
  ]
 
 patches-own[
@@ -37,6 +40,7 @@ patches-own[
   forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
 ]
 
+
 ; the forces are like buildings with a number of resources that they can dispatch, and as they leave
 ; the forces
 forces-own[
@@ -52,6 +56,7 @@ forces-own[
   resourceB-public-order-total       ;total number of type B resource public order trained.
   public-order-total                 ;total amount of public order across all types.
   time-to-mobilise                   ;the delay before a resource can be mobilised for force.
+  force-name
 
 ]
 
@@ -59,6 +64,7 @@ crimes-own [
   units_required                ;; the number of units requied to stop the crime.
   minimise_impact               ;; minimising the impact on a specific resource i.e. A or B
   resources_requirement_cycles  ;; the number of cycles in which the resources must be received.
+  crime_number                  ;; the crime identifier, each crime has a unique number.
 ]
 
 searchers-own [
@@ -81,13 +87,15 @@ to setup
   ]
   setup-map
   move-down
+  gis-to-map
   draw
-  crime-resource-planner
+  ;crime-resource-planner
   reset-ticks
 end
 
 to go
   ;move-resources
+  crime-resource-planner
   tick
 end
 
@@ -131,8 +139,13 @@ to path-draw
   ;output
 end
 
+to copy-forces
+
+end
+
 to setup-forces
   ask forces[
+    set force-name [destination-name] of patch-here
     set resource-total (random 20 + 1) * 100
     set resourceA-percentage random-float 1
     set resourceB-percentage 1 - resourceA-percentage
@@ -148,41 +161,149 @@ to setup-forces
   ]
 end
 
+to assign-resources [force-name-argument]
+  ask forces with [force-name = force-name-argument][
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "Rushcliffe"[
+    ]
+    if force-name-argument = "Oldham"[
+    ]
+    if force-name-argument = "Wiltshire"[
+    ]
+    if force-name-argument = "Braintree"[
+    ]
+    if force-name-argument = "South Hams"[
+    ]
+    if force-name-argument = "Solihull"[
+    ]
+    if force-name-argument = "Maidstone"[
+    ]
+    if force-name-argument = "Ceredigion"[
+    ]
+    if force-name-argument = "Stockton-on-Tees"[
+    ]
+    if force-name-argument = "Malvern Hills"[
+    ]
+    if force-name-argument = "Preston"[
+    ]
+    if force-name-argument = "Hambleton"[
+    ]
+    if force-name-argument = "Surrey Heath"[
+    ]
+    if force-name-argument = "Eastleigh"[
+    ]
+    if force-name-argument = "Leeds"[
+    ]
+    if force-name-argument = "Wirral"[
+    ]
+    if force-name-argument = "Eden"[
+    ]
+    if force-name-argument = "Croydon"[
+    ]
+    if force-name-argument = "Oadby and Wigston"[
+    ]
+    if force-name-argument = "Northumberland"[
+    ]
+    if force-name-argument = "Amber Valley"[
+    ]
+    if force-name-argument = "Neath Port Talbot"[
+    ]
+    if force-name-argument = "Denbighshire"[
+    ]
+    if force-name-argument = "Sheffield"[
+    ]
+    if force-name-argument = "East Dorset"[
+    ]
+    if force-name-argument = "Bath and North East Somerset"[
+    ]
+    if force-name-argument = "Lichfield"[
+    ]
+    if force-name-argument = "Oxford"[
+    ]
+    if force-name-argument = ""[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+    if force-name-argument = "St Albans"[
+    ]
+  ]
+end
+
 to setup-crime
   set units_required (random 20 + 1) * 10
   set minimise_impact one-of ["A" "B"]
   set resources_requirement_cycles random 11
+  set crime_number crime_value_ID
 end
 
 to crime-resource-planner
 ;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
   ;let time_to_mobilise_list [time-to-mobilise] of forces
-  let target_resource 0                                                      ; the placeholder for the resource we wish to target
-  let M []                                                                   ; the M list which contains all resources with time-to-mobilise <= the number of cycles to tackle the crime.
+  let target_resource_1 0                                                    ; the placeholder for the resource we wish to target
+  let target_resource_2 0
+  let M_1 []                                                                 ; the M_1 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 2.
+  let M_2 []                                                                 ; the M_2 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 1.
   let M_resources []                                                         ; list contains the number of resources which are not 0
+  let M_resources_2 []
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
+  let M_3_1 []
   let X []                                                                   ; contains the resources we can use each time tick (main list)
-  let M_not_minimise_impact 0                                               ; list contains only the resources which we dont have to minimise impact on
-  let crime_units_required (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
-  let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
+  let X_1 []
+  let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
+  let M_not_minimise_impact_2 0                                              ; list contains only the resources which we dont have to minimise impact on for incident 2
+  let crime_units_required_1 (item 0 ([units_required] of crimes with [crime_number = 3]))             ; the number of units required for the first crime instance.
+  let crime_units_required_2 (item 0 ([units_required] of crimes with [crime_number = 4]))
+  let resource_cycles (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 3]))    ; the number of time cycles the first crime has.
+  let resource_cycles_2 (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 4]))
   let list_of_units_potentially_used []
+  let list_of_units_potentially_used_2 []
   let forces_resources_pulled []
-  let resource-to-subtract-total 0
+  let resource-to-subtract-total []
 
-  set target_resource set_target_resource target_resource ; returns the resource type we wish to target, the negation of the resource we wish to minimise (opposite)
-  print target_resource ; print the letter of the resource type we wish to target.
+  set target_resource_1 set_target_resource target_resource_1 3 ; returns the resource type we wish to target for crime 1, the negation of the resource we wish to minimise (opposite)
+  set target_resource_2 set_target_resource target_resource_1 4 ; returns the resource type we wish to target for crime 2, the negation of the resource we wish to minimise (opposite)
+  print (word "Minimise impact on: "target_resource_1 word" for incident 1 and for incident 2: "target_resource_2) ; print the letter of the resource type we wish to target.
 
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
   ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
-  set M [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes]) ; LINE 1 from algorithm.txt
+  set M_1 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes with [crime_number = 3]]) ; LINE 1 from algorithm.txt
+  set M_2 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes with [crime_number = 4]]) ; LINE 1 from algorithm.txt
 
 
 ;delete from M all forces where not(minimise_impact) = 0 (no quantity of resource to be used i.e. A or B in this case) LINE 2 from algorithm.txt
   ask forces [
-    ifelse target_resource = "A"[
+    ifelse target_resource_1 = "A"[
       set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
     ][
       set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+    ]
+  ]
+  ask forces [
+    ifelse target_resource_2 = "A"[
+      set M_resources_2 [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+    ][
+      set M_resources_2 [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
     ]
   ]
 
@@ -190,11 +311,20 @@ to crime-resource-planner
   ;; we now need to create a list of all the forces which satisfy both M  and M_resources
   ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
   ask forces [
-    foreach M_Resources [ res ->
-      foreach M [ time ->
+    foreach M_resources [ res ->
+      foreach M_1 [ time ->
         if res = resourceA-public-order-total or res = resourceB-public-order-total [
           if time = time-to-mobilise [
             set M_3 fput time-to-mobilise M_3
+          ]
+        ]
+      ]
+    ]
+    foreach M_resources_2 [ res ->
+      foreach M_2 [ time ->
+        if res = resourceA-public-order-total or res = resourceB-public-order-total [
+          if time = time-to-mobilise [
+            set M_3_1 fput time-to-mobilise M_3_1
           ]
         ]
       ]
@@ -204,59 +334,96 @@ to crime-resource-planner
   ;; this list contains the time to mobilise for all forces <= cycles required and where we target
   ;; resource which are not to be minimised the impact on.
   ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
-  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M
+  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_resources M_1 3
+  set M_not_minimise_impact_2 time_to_mobilise_for_all_forces M_3_1 M_resources_2 M_2 4
   ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
-  set crime_units_required_view crime_units_required
+  set crime_units_required_view crime_units_required_1
+  set crime-units-required-view-2 crime_units_required_2
   ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
-  while [resource_cycles != 0]
+  while [resource_cycles != 0 or resource_cycles_2 != 0]
   [
-    print (word "CRIME_UNITS_REQUIRED: "crime_units_required)
-
+    print (word "crime_units_required_1: "crime_units_required_1)
+    print (word "crime_units_required_2: "crime_units_required_2)
     ; in the algorithm finds the resource with the min-to-mobilise.
     ; Added the time-to-mobilise which we want to X.
 
     ;(new list object) X = [1A] (add "1A to X")
     set X fput min-max M_3 M_not_minimise_impact list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
+    ;set X_1 fput min-max M_3_1 M_not_minimise_impact_2 list_of_units_potentially_used_2 X_1
+    set X fput min-max M_3_1 M_not_minimise_impact_2 list_of_units_potentially_used_2 X
     let first_x item 0 X
+
+    ;let first_x_2 item 0 X_1
 
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      set crime_units_required time-to-mobilise-in-X X M_not_minimise_impact crime_units_required 0
-      set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required 1
+      set crime_units_required_1 time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1 resource_cycles 3
+      set crime_units_required_2 time-to-mobilise-in-X X M_not_minimise_impact_2 crime_units_required_2 resource_cycles_2 4
+      ;set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1
     ]
-  	
+;  	if member? 0 X_1 [
+;      set crime_units_required_2 time-to-mobilise-in-X X_1 M_not_minimise_impact_2 crime_units_required_2 resource_cycles_2 4
+;    ]
   	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
-    set forces_resources_pulled check-crime-prevented X M_not_minimise_impact crime_units_required forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required) is 0 or smaller than 0
-    if crime_units_required <= 0[
-      print (word "CRIMES PREVENTED, all resources pulled" forces_resources_pulled)
+    ;set forces_resources_pulled check-crime-prevented X M_not_minimise_impact crime_units_required_1 forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required_1) is 0 or smaller than 0
+
+    if crime_units_required_1 <= 0 [
+      print (word "INCIDENT 1 PREVENTED, all resources pulled")
       stop
     ]
+    if crime_units_required_2 <= 0 [
+      print (word "INCIDENT 2 PREVENTED, all resources pulled")
+      stop
+    ]
+
 
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
     ; exists in X. LINE 11 from algorithm.txt
     show subtract-from-X X
+    ;show subtract-from-X X_1
 
   	;M_3 = M_3 - 1A remove the force added to X from the list M == M_3. LINE 12 from algorithm.txt
     set M_3 remove first_x M_3
+    set M_3_1 remove first_x M_3_1
 
     ; we subtract one from the units required and resource cycles each iteration to see if the computation is finished and plus a time tick has passed.
-    ; remember the crime_units_required list contains the time-to-mobilise of all the resources we wish to use so naturally as ticks occur the resource time
+    ; remember the crime_units_required_1 list contains the time-to-mobilise of all the resources we wish to use so naturally as ticks occur the resource time
     ; also reduces.
     set resource_cycles (resource_cycles - 1)
-    print(word "CRIME_UNITS: " crime_units_required)
-    if resource_cycles = 0 [
+    set resource_cycles_2 (resource_cycles_2 - 1)
+    print(word "CRIME_UNITS: " crime_units_required_1)
+    if resource_cycles = 0 or resource_cycles_2 = 0[
       ; we print out the number of units we were able to aquire
-      print (word "units provided: " crime_units_required)
+      print (word "units provided for incident 1: " crime_units_required_1 word " units provided for incident 2: " crime_units_required_2)
       ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
       ; are the number of resources we were able to get to the force which has the crime.
-      print (word "resources requirement cycles: " resource_cycles)
+      print (word "resources requirement cycles for incident 1: " resource_cycles word " resources requirement cycles for incident 2: " resource_cycles_2)
       stop
     ]
   ]
 end
 
+to-report get_force_links [force_used resource_cycles]
+  let police_force_to_target []
+  let total_length 0
+  let length_of_link 0
+  ask forces with [police-force-ID = force_used] [
+    ask my-links[
+      set police_force_to_target fput link-length police_force_to_target
+    ]
+  ]
+  set total_length sum police_force_to_target
+  report (total_length + resource_cycles)
+end
+
+to-report merge_lists [list1 list2]
+  foreach list1 [ I ->
+    set list2 lput I list2
+  ]
+  report list2
+end
 
 to-report subtract-from-X [X]
   ask forces [
@@ -271,33 +438,25 @@ to-report subtract-from-X [X]
   report X
 end
 
-to-report check-crime-prevented [X M_not_minimise_impact crime_units_required forces_resources_pulled]
-  ask forces [
-    ifelse member? time-to-mobilise X and member? resourceA-public-order-total M_not_minimise_impact [
-      set forces_resources_pulled fput police-force-id forces_resources_pulled
-      set forces_resources_pulled fput resourceA-public-order-total forces_resources_pulled
-    ][
-      if member? time-to-mobilise X and member? resourceB-public-order-total M_not_minimise_impact [
-        set forces_resources_pulled fput police-force-id forces_resources_pulled
-        set forces_resources_pulled fput resourceB-public-order-total forces_resources_pulled
-      ]
-    ]
-  ]
-  report forces_resources_pulled
-end
 
-to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required CHOICE]
+to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 resource_cycles incident]
   let resource_to_sub 0
-  let reporter_choice CHOICE
+  let police_force 0
+  let police_force_list []
+  ;let reporter_choice CHOICE
 
   ask forces [
     foreach X [ I ->
       foreach M_not_minimise_impact [ M ->
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
+          set police_force police-force-ID
+
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
+            set police_force police-force-ID
+
           ]
         ]
       ]
@@ -305,42 +464,64 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required CH
   ]
 
 
-  set crime_units_required crime_units_required - resource_to_sub
-  ifelse reporter_choice = 0[
-    report crime_units_required
-  ][
-    print(word "RESOURCE TO SUBTRACT: " resource_to_sub)
-    report resource_to_sub
-  ]
 
+  set police_force_list fput police_force police_force_list
+
+  ifelse incident = 3 [
+    print(word "FOR INCIDENT 1 RESOURCE TO SUBTRACT: " resource_to_sub word
+      " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
+    set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+  ][
+    if incident = 4 [
+      print(word "FOR INCIDENT 2 RESOURCE TO SUBTRACT: " resource_to_sub word
+        " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
+      set resource-to-subtract-total-view-1 resource-to-subtract-total-view-1 + resource_to_sub
+    ]
+  ]
+  ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
+  ;print(word "TOTAL RESOURCES TO SUBTRACT: "sum resource-to-subtract-total)
+  set crime_units_required_1 crime_units_required_1 - resource_to_sub
+  report crime_units_required_1
 end
 
 
-to-report set_target_resource [target_resource]
+to-report set_target_resource [target_resource crime_number_argument]
   ;; here we set the target_resource to the resource type we want to target not the one to minimise.
-  ask crimes [ifelse minimise_impact = "A"[
-      set target_resource "B"
-    ][
-      set target_resource "A"
-    ]
+  ask crimes with [crime_number = crime_number_argument]
+      [ifelse minimise_impact = "A"[
+        set target_resource "B"
+
+      ][
+        set target_resource "A"
+        ]
   ]
   report target_resource
 end
 
-to-report time_to_mobilise_for_all_forces [M_3 M_Resources M]
+to-report time_to_mobilise_for_all_forces [M_3 M_resources M_1 incident]
   let M_not_minimise_impact []
+
   ask forces [
     if member? time-to-mobilise M_3[
-      ifelse member? resourceA-public-order-total M_Resources[
+      ifelse member? resourceA-public-order-total M_resources[
         set M_not_minimise_impact fput resourceA-public-order-total M_not_minimise_impact
       ][
-        set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
+        if member? resourceB-public-order-total M_resources[
+          set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
+        ]
       ]
     ]
   ]
+  ifelse incident = 3 [
+    print (word "All the resources we can use for incident 1: " M_not_minimise_impact
+      word " and all their times to mobilise " M_1)
+  ][
+    if incident = 4 [
+      print (word "All the resources we can use for incident 2: " M_not_minimise_impact
+        word " and all their times to mobilise " M_1)
+    ]
+  ]
 
-  print (word "All the resources we can use " M_not_minimise_impact
-  word " and all their times to mobilise " M)
   report M_not_minimise_impact
 end
 
@@ -433,7 +614,6 @@ to gis-to-map
       set force-latitude gis:property-value vector-feature "LATITUDE"
     ]
   ]
-
 end
 
 to draw-centroids
@@ -497,13 +677,16 @@ to create_forces
 end
 
 to spawn-crime
-  ask one-of turtles[
-    ; one crime spawns for now, once our algorithm works we can try multiple crimes.
-    hatch-crimes 1[
-      set shape "circle"
-      set size .10
-      set color 15
-      setup-crime
+  repeat number_of_crimes [
+    ask one-of turtles[
+      ; one crime spawns for now, once our algorithm works we can try multiple crimes.
+      hatch-crimes 1[
+        set shape "circle"
+        set size .10
+        set color 15
+        set crime_value_ID crime_value_ID + 1
+        setup-crime
+      ]
     ]
   ]
 end
@@ -675,7 +858,7 @@ BUTTON
 648
 go
 go
-T
+NIL
 1
 T
 OBSERVER
@@ -752,9 +935,9 @@ NIL
 1
 
 BUTTON
-753
+688
 393
-840
+775
 426
 NIL
 draw
@@ -852,23 +1035,6 @@ NIL
 1
 
 BUTTON
-652
-393
-748
-426
-load patch data
-gis-to-map
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
 650
 320
 731
@@ -953,10 +1119,10 @@ TEXTBOX
 1
 
 SLIDER
-656
-529
-828
-562
+687
+495
+779
+528
 radius
 radius
 0.0
@@ -985,11 +1151,11 @@ NIL
 1
 
 MONITOR
-658
-626
-833
-671
-units of resource required
+404
+674
+651
+719
+units of resource required for crime 1
 crime_units_required_view
 17
 1
@@ -1001,7 +1167,7 @@ BUTTON
 347
 648
 watch crime
-watch one-of crimes
+watch one-of crimes\n\n
 NIL
 1
 T
@@ -1036,6 +1202,38 @@ MONITOR
 719
 total resources provided
 resource-to-subtract-total-view
+17
+1
+11
+
+CHOOSER
+678
+533
+787
+578
+number_of_crimes
+number_of_crimes
+1 2
+1
+
+MONITOR
+404
+723
+651
+768
+units of resource required for incident 2
+crime-units-required-view-2
+17
+1
+11
+
+MONITOR
+659
+724
+831
+769
+total resources provided
+resource-to-subtract-total-view-1
 17
 1
 11
