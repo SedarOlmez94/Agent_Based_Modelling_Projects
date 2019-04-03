@@ -1,6 +1,6 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
-extensions [ gis view2.5d]
+extensions [ gis view2.5d table]
 
 
 breed[searchers searcher] ; to represent the agents that will make the search.
@@ -161,15 +161,32 @@ to setup-forces
   ]
 end
 
-to assign-resources [force-name-argument]
+; Testing a method of combining dictionary with table
+to create-table
+;  let testlist []
+;  set testlist fput "1" testlist
+;  set testlist fput "3" testlist
+;  set testlist fput "7" testlist
+;  let dict table:make
+;  table:put dict "turtle" testlist
+;  print dict
+;  print table:get dict "turtle"
+;  print item 0 table:get dict "turtle"
+end
+
+to-report assign-resources [force-name-argument]
+  let dict table:make
+  let temp-list []
+
   ask forces with [force-name = force-name-argument][
     if force-name-argument = "St Albans"[
-      set resource-total 1953
-      set resourceA-total (resource-total * resourceA-percentage)
-      set resourceB-total (resource-total * resourceB-percentage)
-      set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
-      set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
-      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+      set temp-list lput 1953 temp-list
+      set temp-list lput (resource-total * resourceA-percentage) temp-list
+      set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
+      set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
+      set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
+      table:put dict "St Albans" temp-list
     ]
     if force-name-argument = "Rushcliffe"[
       set resource-total 2095
@@ -325,6 +342,8 @@ to assign-resources [force-name-argument]
     if force-name-argument = "Monmouthshire"[
     ]
   ]
+
+  report dict
 end
 
 to setup-crime
