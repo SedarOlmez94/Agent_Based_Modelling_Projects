@@ -263,7 +263,6 @@ to crime-resource-planner
   let target_resource_1 0                                                    ; the placeholder for the resource we wish to target
   let target_resource_2 0
   let M_1 []                                                                 ; the M_1 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 2.
-  let M_2 []                                                                 ; the M_2 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 1.
   let M_resources []                                                         ; list contains the number of resources which are not 0
   let M_resources_2 []
   let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
@@ -276,14 +275,15 @@ to crime-resource-planner
   let crime_units_required_2 (item 0 ([units_required] of crimes with [crime_number = 4]))
   let resource_cycles (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 3]))    ; the number of time cycles the first crime has.
   let resource_cycles_2 (item 0 ([resources_requirement_cycles] of crimes with [crime_number = 4]))
+
   let list_of_units_potentially_used []
   let list_of_units_potentially_used_2 []
   let forces_resources_pulled []
   let resource-to-subtract-total []
 
   set target_resource_1 set_target_resource target_resource_1 3 ; returns the resource type we wish to target for crime 1, the negation of the resource we wish to minimise (opposite)
-  set target_resource_2 set_target_resource target_resource_1 4 ; returns the resource type we wish to target for crime 2, the negation of the resource we wish to minimise (opposite)
-  print (word "Minimise impact on: "target_resource_1 word" for incident 1 and for incident 2: "target_resource_2) ; print the letter of the resource type we wish to target.
+
+  print (word "Minimise impact on: "target_resource_1) ; print the letter of the resource type we wish to target.
 
   ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
   ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
@@ -512,6 +512,12 @@ to-report time_to_mobilise_for_all_forces [M_3 M_resources M_1 incident]
       ]
     ]
   ]
+
+  show length M_not_minimise_impact
+  show length M_1
+  print (word "All the resources we can use " M_not_minimise_impact
+  word " and all their times to mobilise " M_1)
+
   ifelse incident = 3 [
     print (word "All the resources we can use for incident 1: " M_not_minimise_impact
       word " and all their times to mobilise " M_1)
@@ -521,7 +527,6 @@ to-report time_to_mobilise_for_all_forces [M_3 M_resources M_1 incident]
         word " and all their times to mobilise " M_1)
     ]
   ]
-
   report M_not_minimise_impact
 end
 
