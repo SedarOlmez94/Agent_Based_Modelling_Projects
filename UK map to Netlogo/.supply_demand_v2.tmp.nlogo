@@ -221,19 +221,19 @@ to assign-resources [force-name-argument]
     ]
     if force-name-argument = "Oxford"[
     ]
-    if force-name-argument = "Forest of Dean"[
+    if force-name-argument = ""[
     ]
-    if force-name-argument = "East Cambridgeshire"[
+    if force-name-argument = "St Albans"[
     ]
-    if force-name-argument = "Birmingham"[
+    if force-name-argument = "St Albans"[
     ]
-    if force-name-argument = "Milton Keynes"[
+    if force-name-argument = "St Albans"[
     ]
-    if force-name-argument = "Northampton"[
+    if force-name-argument = "St Albans"[
     ]
-    if force-name-argument = "Brighton and Hove"[
+    if force-name-argument = "St Albans"[
     ]
-    if force-name-argument = "Cheshire East"[
+    if force-name-argument = "St Albans"[
     ]
     if force-name-argument = "St Albans"[
     ]
