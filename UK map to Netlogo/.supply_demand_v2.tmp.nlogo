@@ -256,8 +256,8 @@ to assign-resources [force-name-argument]
       set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
     ]
     if force-name-argument = "Preston"[
-      ;Lancashire
-      set resource-total 2910
+
+      set resource-total 2367
       set resourceA-total (resource-total * resourceA-percentage)
       set resourceB-total (resource-total * resourceB-percentage)
       set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
