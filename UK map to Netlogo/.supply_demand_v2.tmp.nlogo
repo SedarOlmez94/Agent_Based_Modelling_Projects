@@ -122,7 +122,6 @@ to draw
   draw-turtles
   create_resources
   create_forces
-
   assign-resources-calibrated
   draw-links
   spawn-crime
@@ -139,10 +138,6 @@ to path-draw
   ; if any, we highlight it
   if path != false [highlight-path path]
   ;output
-end
-
-to copy-forces
-
 end
 
 to setup-forces
@@ -1011,7 +1006,7 @@ to assign-resources-calibrated
       table:put dict "Monmouthshire" temp-list
     ]
   ]
-  show dict
+  ;show dict
 end
 
 to setup-crime

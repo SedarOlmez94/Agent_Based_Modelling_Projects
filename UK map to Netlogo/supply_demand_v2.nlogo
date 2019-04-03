@@ -1006,7 +1006,7 @@ to assign-resources-calibrated
       table:put dict "Monmouthshire" temp-list
     ]
   ]
-  show dict
+  ;show dict
 end
 
 to setup-crime
