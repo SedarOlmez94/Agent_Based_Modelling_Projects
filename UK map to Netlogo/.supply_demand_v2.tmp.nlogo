@@ -122,6 +122,8 @@ to draw
   draw-turtles
   create_resources
   create_forces
+
+  assign-resources-calibrated
   draw-links
   spawn-crime
 end
@@ -162,24 +164,33 @@ to setup-forces
 end
 
 ; Testing a method of combining dictionary with table
-to create-table
-;  let testlist []
-;  set testlist fput "1" testlist
-;  set testlist fput "3" testlist
-;  set testlist fput "7" testlist
-;  let dict table:make
-;  table:put dict "turtle" testlist
-;  print dict
-;  print table:get dict "turtle"
-;  print item 0 table:get dict "turtle"
-end
+;to create-table
+;;  let testlist []
+;;  set testlist fput "1" testlist
+;;  set testlist fput "3" testlist
+;;  set testlist fput "7" testlist
+;;  let dict table:make
+;;  table:put dict "turtle" testlist
+;;  print dict
+;;  print table:get dict "turtle"
+;;  print item 0 table:get dict "turtle"
+;end
 
-to-report assign-resources-to-table [force-name-variable]
+to assign-resources-calibrated
   let dict table:make
   let temp-list []
 
-  ask forces with [force-name = force-name-variable][
+  ask forces[
     if force-name = "St Albans"[
+      set resource-total 1953
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1953 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -190,9 +201,20 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Rushcliffe"[
       set temp-list []
+      set resource-total 2095
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2095 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
       set temp-list lput floor (resourceA-total * resourceA-percentage-public-order) temp-list
       set temp-list lput floor (resourceB-total * resourceB-percentage-public-order) temp-list
       set temp-list lput (resourceA-public-order-total + resourceB-public-order-total) temp-list
@@ -200,6 +222,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Oldham"[
       set temp-list []
+      set resource-total 6979
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 6979 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -210,6 +241,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Wiltshire"[
       set temp-list []
+      set resource-total 966
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 966 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -220,6 +260,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Braintree"[
       set temp-list []
+      set resource-total 2902
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2902 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -231,6 +280,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "South Hams"[
       ;Devon and Cornwall Police
       set temp-list []
+      set resource-total 3082
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 3082 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -242,6 +300,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Solihull"[
       ;Westmidlands
       set temp-list []
+      set resource-total 6656
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 6656 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -253,6 +320,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Maidstone"[
       ;Kent
       set temp-list []
+      set resource-total 3333
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 3333 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -263,6 +339,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Ceredigion"[
       set temp-list []
+      set resource-total 1159
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1159 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -273,6 +358,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Stockton-on-Tees"[
       set temp-list []
+      set resource-total 1274
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1274 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -284,6 +378,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Malvern Hills"[
       ;West Mercia
       set temp-list []
+      set resource-total 2367
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2367 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -295,6 +398,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Preston"[
       ;Lancashire
       set temp-list []
+      set resource-total 2910
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2910 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -306,6 +418,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Hambleton"[
       ;North yorkshire police
       set temp-list []
+      set resource-total 1370
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1370 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -317,6 +438,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Surrey Heath"[
       ; Surrey
       set temp-list []
+      set resource-total 2009
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2009 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -328,6 +458,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Eastleigh"[
       ;Hampshire
       set temp-list []
+      set resource-total 2861
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2861 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -339,6 +478,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Leeds"[
       ; West yorkshire
       set temp-list []
+      set resource-total 4826
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 4826 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -350,6 +498,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Wirral"[
       ; Merseyside
       set temp-list []
+      set resource-total 3484
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 3484 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -361,6 +518,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Eden"[
       ; Cumbria
       set temp-list []
+      set resource-total 1108
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1108 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -372,6 +538,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Croydon"[
       ; Metropolitan police
       set temp-list []
+      set resource-total 30871
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 30871 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -383,6 +558,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Oadby and Wigston"[
       ; Leicestershire
       set temp-list []
+      set resource-total 1772
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1772 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -393,6 +577,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Northumberland"[
       set temp-list []
+      set resource-total 3245
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 3245 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -404,6 +597,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Amber Valley"[
       ; Derbyshire
       set temp-list []
+      set resource-total 1740
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1740 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -414,6 +616,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Neath Port Talbot"[
       set temp-list []
+      set resource-total 2890
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2890 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -425,6 +636,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Denbighshire"[
       ; North wales
       set temp-list []
+      set resource-total 1487
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1487 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -436,6 +656,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Sheffield"[
       ; south yorkshire
       set temp-list []
+      set resource-total 2472
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2472 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -447,6 +676,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "East Dorset"[
       ; Dorset
       set temp-list []
+      set resource-total 1276
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1276 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -458,6 +696,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Bath and North East Somerset"[
       ; Avon and Somerset Constabulary
       set temp-list []
+      set resource-total 2630
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2630 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -469,6 +716,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Lichfield"[
       ; Staffordshire
       set temp-list []
+      set resource-total 1595
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1595 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -480,6 +736,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Oxford"[
       ; Thames Valley Police
       set temp-list []
+      set resource-total 4077
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 4077 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -491,6 +756,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Forest of Dean"[
       ;Gloucestershire Constabulary
       set temp-list []
+      set resource-total 1055
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1055 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -502,6 +776,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "East Cambridgeshire"[
       ; Cambridgeshire Constabulary
       set temp-list []
+      set resource-total 1332
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1332 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -513,6 +796,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Birmingham"[
       ; West Midlands
       set temp-list []
+      set resource-total 6535
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 6535 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -524,6 +816,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Milton Keynes"[
       ;Thames Valley
       set temp-list []
+      set resource-total 4077
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 4077 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -535,6 +836,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Northampton"[
       ;Northamptonshire Police
       set temp-list []
+      set resource-total 1178
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1178 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -546,6 +856,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Brighton and Hove"[
       ; Sussex police
       set temp-list []
+      set resource-total 2550
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2550 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -557,6 +876,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Cheshire East"[
       ; Cheshire Constabulary
       set temp-list []
+      set resource-total 2010
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 2010 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -568,6 +896,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "St Edmundsbury"[
       ; Suffolk
       set temp-list []
+      set resource-total 1096
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1096 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -579,6 +916,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "North Kesteven"[
       ; Lincolnshire
       set temp-list []
+      set resource-total 1665
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1665 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -589,6 +935,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "County Durham"[
       set temp-list []
+      set resource-total 1138
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1138 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -599,6 +954,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Kingston upon Hull, City of"[
       set temp-list []
+      set resource-total 1665
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1665 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -610,6 +974,15 @@ to-report assign-resources-to-table [force-name-variable]
     if force-name = "Broadland"[
       ; Norfolk
       set temp-list []
+      set resource-total 1519
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1519 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -620,6 +993,15 @@ to-report assign-resources-to-table [force-name-variable]
     ]
     if force-name = "Monmouthshire"[
       set temp-list []
+      set resource-total 1154
+      set resourceA-total (resource-total * resourceA-percentage)
+      set resourceB-total (resource-total * resourceB-percentage)
+      set resourceA-percentage random-float 1
+      set resourceB-percentage 1 - resourceA-percentage
+      set resourceA-public-order-total (resourceA-total * resourceA-percentage-public-order)
+      set resourceB-public-order-total (resourceB-total * resourceB-percentage-public-order)
+      set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+
       set temp-list lput 1154 temp-list
       set temp-list lput (resource-total * resourceA-percentage) temp-list
       set temp-list lput (resource-total * resourceB-percentage) temp-list
@@ -629,9 +1011,7 @@ to-report assign-resources-to-table [force-name-variable]
       table:put dict "Monmouthshire" temp-list
     ]
   ]
-  print table:length dict
-
-  report dict
+  show dict
 end
 
 to setup-crime
