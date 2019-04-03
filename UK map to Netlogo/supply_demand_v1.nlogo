@@ -1,75 +1,379 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
-extensions [ gis ]
+extensions [ gis view2.5d]
+
+
+breed[searchers searcher] ; to represent the agents that will make the search.
+breed[resources resource] ; to represent the resources sent over the links.
+breed [forces force]      ;one agent per police force, stores resourcing information for that police service.
+breed [crimes crime]
+
 globals [
-  map-view          ;; GIS dataset
-  streets           ;; patches representing streets
-  center-x          ;;
-  center-y          ;; center of the map
-  mean-wait-time    ;; average time turtles stay at rest
-  mean-motion-time  ;; average time turtles stay in motion
-  mean-speed        ;; turtles'speed indicator
+  map-view             ;; GIS dataset/map
+  centroid-points      ;; the GIS dataset of geometric center points
+  police-force-view    ;; the dataset of the police force area for England and Wales.
+  center-x             ;;
+  center-y             ;; center of the map
+  number-of-resources
+  crime_units_required_view
+  resource-to-subtract-total-view
+  crime_value_ID
  ]
 
-; patches now have an elevation value drawn from the map (raster data)
 patches-own[
-  turtles-num   ;; number of turtles on the patch
-  elevation
+  destination-name          ;; name of each city/borough
+  geocode                   ;; the geocode (uniquevalue) for each city/borough
+  geolabelw                 ;; this is also a unique value, I don't know what though.
+  label?                    ;; a unique string  for each city/borough
+  longitude                 ;; the longitude of the UK map corresponding to patch.
+  latitude                  ;; the latitude of the UK map corresponding to patch.
+  force-longitude           ;; the longitude of the police force.
+  force-latitude            ;; the latitude of the police force.
+  police-force-name-patch   ;; the name of the police force
+  patchworkm                ;; I don't know but it is a floating point value.
+  centroid-value            ;; the longitude and latitudee of the centroid
+  centroid-patch-identity   ;; we set this temp variable to 1 for all patches that have a centroid, then we draw the centroid then set it back to 0.
+  resource?                 ;; does this patch have a resource on it? yes if it has a centroid or no.
+  crime?                    ;; does this patch have a crime on it? yes if it has a centroid or no.
+  forces?                   ;; does this patch have a force on it? yes if it has a centroid or no.
 ]
 
-turtles-own[ height_asl ]
+
+; the forces are like buildings with a number of resources that they can dispatch, and as they leave
+; the forces
+forces-own[
+  police-force-ID                    ; ID of the police force.
+  resource-total                     ;total number of resources in police force.
+  resourceA-percentage               ;percentage of resources with type A
+  resourceB-percentage               ;percentage of resources with type B
+  resourceA-total                    ;total number of type A resource
+  resourceB-total                    ;total number of type B resource
+  resourceA-percentage-public-order  ;percentage of type A resource public order trained
+  resourceB-percentage-public-order  ;percentage of type B resource public order trained
+  resourceA-public-order-total       ;total number of type A resource public order trained.
+  resourceB-public-order-total       ;total number of type B resource public order trained.
+  public-order-total                 ;total amount of public order across all types.
+  time-to-mobilise                   ;the delay before a resource can be mobilised for force.
+
+]
+
+crimes-own [
+  units_required                ;; the number of units requied to stop the crime.
+  minimise_impact               ;; minimising the impact on a specific resource i.e. A or B
+  resources_requirement_cycles  ;; the number of cycles in which the resources must be received.
+  crime_number                  ;; the crime identifier, each crime has a unique number.
+]
+
+searchers-own [
+  memory               ; Stores the path from the start node to here
+  cost                 ; Stores the real cost from the start
+  total-cost           ; Stores the total exepcted cost from Start to the Goal that is being computed
+  localisation         ; The node where the searcher is
+  active?              ; is the seacrher active? That is, we have reached the node, but
+                       ; we must consider it because its neighbors have not been explored
+]
+
+resources-own [
+  location
+]
 
 to setup
   ca
-  ask patches [set pcolor white]
+  ask patches [
+    set pcolor white
+  ]
   setup-map
+  move-down
   draw
+  ;crime-resource-planner
   reset-ticks
 end
 
 to go
-  crt 1[ fd 10 ]
-
-  get-map-view
+  ;move-resources
+  crime-resource-planner
+  tick
 end
 
 ; Adding a dataset from GIS must be a shape file.
 to setup-map
-  set map-view gis:load-dataset "/Users/solmez/Desktop/Internship project LESP/UK map to Netlogo/data/United_Kingdom/infuse_dist_lyr_2011.shp"
-  gis:set-world-envelope gis:envelope-of map-view
+  set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
+  set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_4.shp"
+  ;set police-force-view gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
+  ;set police-force-area gis:load-dataset "data/police_force_areas/Police_Force_Areas_December_2016_Full_Clipped_Boundaries_in_England_and_Wales.shp"
+
+  ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
+  gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
+                                                (gis:envelope-of centroid-points))
+                                                ;(gis:envelope-of police-force-view))
   gis:set-drawing-color black
-  ;gis:apply-raster  map-view elevation
   gis:draw map-view 1
 end
-
-;Add a turtle and give it a height_asl variable it can use to interact with the raster data.
-to get-map-view
-  ask turtles [
-    set height_asl gis:raster-sample map-view
-self
-  ]
-end
-
-
-;Re colour the patches using our newly created elevation patch variable.
-;to recolour-patches
-;  ask patches [
-;    ifelse elevation >= 0[
-;      set pcolor scale-color green elevation 0 2000
-;    ][
-;      set pcolor red
-;    ]
-;  ]
-;end
 
 to draw
   clear-drawing
   setup-world-envelope
   gis:set-drawing-color gray + 1  gis:draw map-view 1
+  draw-centroids
+  draw-turtles
+  create_resources
+  create_forces
+  draw-links
+  spawn-crime
+end
+
+to path-draw
+  ask links with [color = yellow][set color grey set thickness 0]
+  let start one-of resources
+  ;ask start [set color green set size 1]
+  let goal one-of crimes
+  ;ask goal [set color green set size 1]
+  ; We compute the path with A*
+  let path (A* start goal)
+  ; if any, we highlight it
+  if path != false [highlight-path path]
+  ;output
+end
+
+to setup-forces
+  ask forces[
+    set resource-total (random 20 + 1) * 100
+    set resourceA-percentage random-float 1
+    set resourceB-percentage 1 - resourceA-percentage
+    set resourceA-total (resource-total * resourceA-percentage)
+    set resourceB-total (resource-total * resourceB-percentage)
+    set resourceA-percentage-public-order random-float 0.1
+    set resourceB-percentage-public-order random-float 0.1
+    set resourceA-public-order-total floor (resourceA-total * resourceA-percentage-public-order)
+    set resourceB-public-order-total floor (resourceB-total * resourceB-percentage-public-order)
+    set public-order-total (resourceA-public-order-total + resourceB-public-order-total)
+    set time-to-mobilise random 11
+    set police-force-ID (police-force-ID + 1)
+  ]
+end
+
+to setup-crime
+  set units_required (random 20 + 1) * 10
+  set minimise_impact one-of ["A" "B"]
+  set resources_requirement_cycles random 11
+end
+
+to crime-resource-planner
+;create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
+  ;let time_to_mobilise_list [time-to-mobilise] of forces
+  let target_resource_1 0                                                    ; the placeholder for the resource we wish to target
+  let M_1 []                                                                 ; the M_1 list which contains all resources with time-to-mobilise <= the number of cycles to tackle crime 2.
+  let M_resources []                                                         ; list contains the number of resources which are not 0
+  let M_3 []                                                                 ; list contains the time-to-mobilise of the resources which are not the ones to minimise and which are not 0
+  let X []                                                                   ; contains the resources we can use each time tick (main list)
+  let M_not_minimise_impact 0                                                ; list contains only the resources which we dont have to minimise impact on
+  let crime_units_required_1 (item 0 ([units_required] of crimes))             ; the number of units required for the first crime instance.
+  let resource_cycles (item 0 ([resources_requirement_cycles] of crimes))    ; the number of time cycles the first crime has.
+  let list_of_units_potentially_used []
+  let forces_resources_pulled []
+  let resource-to-subtract-total []
+
+  set target_resource_1 set_target_resource target_resource_1 ; returns the resource type we wish to target for crime 1, the negation of the resource we wish to minimise (opposite)
+
+  print (word "Minimise impact on: "target_resource_1) ; print the letter of the resource type we wish to target.
+
+  ;; All the forces with time-to-mobilise smaller than or equal to the resources_requirement_cycles time.
+  ;print (word "all forces with time-to-mobilise <= resource_requirement_cycles time " M)
+  set M_1 [ time-to-mobilise ] of (forces with [ time-to-mobilise <= [resources_requirement_cycles] of one-of crimes]) ; LINE 1 from algorithm.txt
+
+;delete from M all forces where not(minimise_impact) = 0 (no quantity of resource to be used i.e. A or B in this case) LINE 2 from algorithm.txt
+  ask forces [
+      ifelse target_resource_1 = "A"[
+        set M_resources [ resourceA-public-order-total ] of (forces with [resourceA-public-order-total != 0])
+      ][
+        set M_resources [ resourceB-public-order-total ] of (forces with [resourceB-public-order-total != 0])
+      ]
+  ]
+
+  ;; all the resources which are not 0 and are not the ones to minimise_impact on
+  ;; we now need to create a list of all the forces which satisfy both M  and M_resources
+  ;print (word "all resources which are not 0 and are not the ones to minimise impact on (ones we can use) " M_resources)
+  ask forces [
+    foreach M_Resources [ res ->
+      foreach M_1 [ time ->
+        if res = resourceA-public-order-total or res = resourceB-public-order-total [
+          if time = time-to-mobilise [
+            set M_3 fput time-to-mobilise M_3
+          ]
+        ]
+      ]
+    ]
+  ]
+
+  ;; this list contains the time to mobilise for all forces <= cycles required and where we target
+  ;; resource which are not to be minimised the impact on.
+  ;print (word "All time-to-mobilise where TTM  <= resource_requirement_cycle and only forces where the opposite of minimise_impact is != 0 " M_3)
+  set M_not_minimise_impact time_to_mobilise_for_all_forces M_3 M_Resources M_1
+  ; For testing purposes, I set M_not_minimise_impact list to the resources we can target.
+  set crime_units_required_view crime_units_required_1
+  ;loop untill units_required = 0 or resources_requirement_cycles = 0: LINE 3 from algorithm.txt
+  while [resource_cycles != 0]
+  [
+    print (word "crime_units_required_1: "crime_units_required_1)
+
+    ; in the algorithm finds the resource with the min-to-mobilise.
+    ; Added the time-to-mobilise which we want to X.
+
+    ;(new list object) X = [1A] (add "1A to X")
+    set X fput min-max M_3 M_not_minimise_impact list_of_units_potentially_used X ;LINES 4, 5, 6 from algorithm.txt
+    let first_x item 0 X
+
+    if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
+      ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
+      ;resource with time-to-mobilise = 0 from units_required
+      set crime_units_required_1 time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1 resource_cycles
+      ;set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1
+    ]
+  	
+  	;if units_required <= 0 then [print "crime prevented" LINES 9 and 10 from algorithm.txt
+   	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
+    ;set forces_resources_pulled check-crime-prevented X M_not_minimise_impact crime_units_required_1 forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required_1) is 0 or smaller than 0
+
+    if crime_units_required_1 <= 0[
+      print (word "CRIMES PREVENTED, all resources pulled")
+      stop
+    ]
+
+  	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
+    ; exists in X. LINE 11 from algorithm.txt
+    show subtract-from-X X
+
+  	;M_3 = M_3 - 1A remove the force added to X from the list M == M_3. LINE 12 from algorithm.txt
+    set M_3 remove first_x M_3
+
+    ; we subtract one from the units required and resource cycles each iteration to see if the computation is finished and plus a time tick has passed.
+    ; remember the crime_units_required_1 list contains the time-to-mobilise of all the resources we wish to use so naturally as ticks occur the resource time
+    ; also reduces.
+    set resource_cycles (resource_cycles - 1)
+    print(word "CRIME_UNITS: " crime_units_required_1)
+    if resource_cycles = 0 [
+      ; we print out the number of units we were able to aquire
+      print (word "units provided: " crime_units_required_1)
+      ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
+      ; are the number of resources we were able to get to the force which has the crime.
+      print (word "resources requirement cycles: " resource_cycles)
+      stop
+    ]
+  ]
+end
+
+to-report get_force_links [force_used resource_cycles]
+  let police_force_to_target []
+  let total_length 0
+  let length_of_link 0
+  ask forces with [police-force-ID = force_used] [
+    ask my-links[
+      set police_force_to_target fput link-length police_force_to_target
+    ]
+  ]
+  set total_length sum police_force_to_target
+  report (total_length + resource_cycles)
+end
+
+to-report subtract-from-X [X]
+  ask forces [
+    foreach X [ I ->
+      if I = time-to-mobilise [
+        set time-to-mobilise time-to-mobilise - 1
+      ]
+    ]
+  ]
+  set X map [i -> i - 1] X
+  print (word "X: " X)
+  report X
+end
+
+
+to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 resource_cycles]
+  let resource_to_sub 0
+  let police_force 0
+  let police_force_list []
+  ;let reporter_choice CHOICE
+
+  ask forces [
+    foreach X [ I ->
+      foreach M_not_minimise_impact [ M ->
+        ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
+          set resource_to_sub resourceA-public-order-total
+          set police_force police-force-ID
+
+        ][
+          if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
+            set resource_to_sub resourceB-public-order-total
+            set police_force police-force-ID
+
+          ]
+        ]
+      ]
+    ]
+  ]
+
+  print(word "RESOURCE TO SUBTRACT: " resource_to_sub word
+  " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
+
+  set police_force_list fput police_force police_force_list
+
+
+  set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+  ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
+  ;print(word "TOTAL RESOURCES TO SUBTRACT: "sum resource-to-subtract-total)
+  set crime_units_required_1 crime_units_required_1 - resource_to_sub
+  report crime_units_required_1
+end
+
+
+to-report set_target_resource [target_resource]
+  ;; here we set the target_resource to the resource type we want to target not the one to minimise.
+  ask crimes[
+    ifelse minimise_impact = "A"[
+      set target_resource "B"
+    ][
+      set target_resource "A"
+    ]
+  ]
+  report target_resource
+end
+
+to-report time_to_mobilise_for_all_forces [M_3 M_Resources M_1]
+  let M_not_minimise_impact []
+
+  ask forces [
+    if member? time-to-mobilise M_3[
+      ifelse member? resourceA-public-order-total M_Resources[
+        set M_not_minimise_impact fput resourceA-public-order-total M_not_minimise_impact
+      ][
+        set M_not_minimise_impact fput resourceB-public-order-total M_not_minimise_impact
+      ]
+    ]
+  ]
+  print (word "All the resources we can use " M_not_minimise_impact
+  word " and all their times to mobilise " M_1)
+  report M_not_minimise_impact
+end
+
+
+to-report min-max [M_3 M_not_minimise_impact list_of_units_potentially_used]
+  let min_resource_time_1 min M_3
+  ask forces [
+    if min_resource_time_1 = time-to-mobilise[
+      set list_of_units_potentially_used fput time-to-mobilise list_of_units_potentially_used
+    ]
+  ]
+  report item 0 list_of_units_potentially_used
+end
+
+to-report heuristic [#Goal]
+  report [distance [localisation] of myself] of #Goal
 end
 
 to setup-world-envelope
-  gis:set-world-envelope gis:envelope-of map-view
+  gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
+                                         (gis:envelope-of centroid-points))
   let world gis:world-envelope
   let x0 (item 0 world + item 1 world) / 2  + center-x; center
   let y0 (item 2 world + item 3 world) / 2  + center-y
@@ -79,9 +383,8 @@ to setup-world-envelope
   gis:set-world-envelope world
 end
 
-
 to zoom-in  set zoom max list .01 precision (zoom - .1) 2
-  draw
+  setup
 end
 
 to zoom-out set zoom min list 1.2 precision (zoom + .1) 2
@@ -110,22 +413,239 @@ end
 
 to move-up
   set center-y center-y + shift * gis-patch-size
-  draw
+ draw
 end
 
 to move-down
   set center-y center-y - shift * gis-patch-size
   draw
 end
+
+; This method maps the GIS vector data to the patch attributes, we also use centroids to
+; focus only on the data within the outlines of the boundary map and not the sea.
+to gis-to-map
+  foreach gis:feature-list-of map-view [ vector-feature ->
+    let centroid gis:location-of gis:centroid-of vector-feature
+    ask patches gis:intersecting vector-feature [
+       set destination-name gis:property-value vector-feature "NAME"
+       set geocode gis:property-value vector-feature "GEO_CODE"
+       set geolabelw gis:property-value vector-feature "GEO_LABELW"
+       set label? gis:property-value vector-feature "LABEL"
+       set longitude gis:property-value vector-feature "LONGITUDE"
+       set latitude gis:property-value vector-feature "LATITUDE"
+       set centroid-value centroid
+    ]
+  ]
+  foreach gis:feature-list-of centroid-points [ vector-feature ->
+    let centroid gis:location-of gis:centroid-of vector-feature
+    ask patches gis:intersecting vector-feature [
+      set police-force-name-patch gis:property-value vector-feature "NAME"
+      set patchworkm gis:property-value vector-feature "PATCHWORKM"
+      set force-longitude gis:property-value vector-feature "LONGITUDE"
+      set force-latitude gis:property-value vector-feature "LATITUDE"
+    ]
+  ]
+
+end
+
+to draw-centroids
+  foreach gis:feature-list-of centroid-points [ vector-feature ->
+    gis:set-drawing-color red
+    gis:fill vector-feature 2.0
+
+    ask patches gis:intersecting vector-feature [
+      set centroid-patch-identity 1
+      set forces? "yes"
+      set resource? "yes"
+    ]
+  ]
+end
+
+to draw-turtles
+  clear-turtles
+  ask patches with [centroid-patch-identity > 0][
+    sprout 1
+  ]
+  ask patches [
+    set centroid-patch-identity 0
+  ]
+  ask turtles [
+    set size .4
+    set shape "person police"
+  ]
+end
+
+
+to create_resources
+  ask patches with [resource? = "yes"][
+    sprout-resources 1[
+      ;set time
+      set location patch-here
+      set shape "truck"
+      set size .8
+      set color 15
+    ]
+  ]
+  ask patches [
+    set resource? 0
+  ]
+  ask resources [
+    ;set amount random 50
+  ]
+end
+
+to create_forces
+  ask patches with [forces? = "yes"][
+    sprout-forces 1 [ ; we wrote piece of code on a train
+      setup-forces ; we wrote piece of code on a train
+      set size .5
+      set color black
+      set shape "house"
+    ]
+  ]
+  ask patches [
+    set forces? 0
+  ]
+end
+
+to spawn-crime
+  repeat number_of_crimes [
+    ask one-of turtles[
+      ; one crime spawns for now, once our algorithm works we can try multiple crimes.
+      hatch-crimes 1[
+        set shape "circle"
+        set size .10
+        set color 15
+        setup-crime
+      ]
+    ]
+  ]
+end
+
+to move-resources
+  ask links [set thickness 0]
+  ask resources [
+    let new-location one-of [link-neighbors] of location
+    ask [link-with new-location] of location [set thickness 0.5]
+    face new-location
+    set location new-location
+  ]
+end
+
+to draw-links
+    ask forces [
+    create-links-with other forces in-radius 4.0
+  ]
+  ask forces with [xcor = -4 and ycor = -15] [
+    create-links-with forces with [xcor = 1 and ycor = -11]
+    create-links-with forces with [xcor = 3 and ycor = -14]
+  ]
+end
+
+to print-dataset
+  print (word "MAP: " gis:feature-list-of map-view)
+  print (word "CENTROID: " gis:feature-list-of centroid-points)
+end
+
+to print-labels
+  print (word "MAP: " gis:property-names map-view)
+  print (word "CENTROID: " gis:property-names centroid-points)
+end
+
+to-report number_of_resources_produced
+  set number-of-resources (10 + random 1000)
+  report number-of-resources
+end
+
+to-report A* [#Start #Goal]
+  ; Create a searcher for the Start node
+  ask #Start
+  [
+    hatch-searchers 1
+    [
+      node-description
+      set memory (list localisation) ; the partial path will have only this node at the beginning
+      set cost 0
+      set total-cost cost + heuristic #Goal ; Compute the expected cost
+     ]
+  ]
+
+  while [not any? searchers with [localisation = #Goal] and any? searchers with [active?]]
+  [
+    ask min-one-of (searchers with [active?]) [total-cost]
+    [
+      set active? false
+      let this-searcher self
+      let Lorig localisation
+      ask ([link-neighbors] of Lorig)
+      [
+        let connection link-with Lorig
+        ; The cost to reach the neighbor in this path is the previous cost plus the lenght of the link
+        let c ([cost] of this-searcher) + [link-length] of connection
+        ; Maybe in this node there are other searchers (comming from other nodes).
+        ; If this new path is better than the other, then we put a new searcher and remove the old ones
+        if not any? searchers-in-loc with [cost < c]
+        [
+          hatch-searchers 1
+          [
+            node-description
+            set total-cost cost + heuristic #Goal ; Compute the expected cost
+            set memory lput localisation ([memory] of this-searcher) ; the path is built from the
+                                                                     ; original searcher
+            set cost c   ; real cost to reach this node
+            ask other searchers-in-loc [die] ; Remove other seacrhers in this node
+          ]
+        ]
+      ]
+    ]
+  ]
+  ; When the loop has finished, we have two options: no path, or a searcher has reached the goal
+  ; By default the return will be false (no path)
+  let res false
+  ; But if it is the second option
+  if any? searchers with [localisation = #Goal]
+  [
+    ; we will return the path located in the memory of the searcher that reached the goal
+    let lucky-searcher one-of searchers with [localisation = #Goal]
+    set res [memory] of lucky-searcher
+  ]
+  ; Remove the searchers
+  ask searchers [die]
+  ; and report the result
+  report res
+end
+
+to-report searchers-in-loc
+  report searchers with [localisation = myself]
+end
+
+to node-description
+      set shape "circle"
+      set color red
+      set localisation myself
+      set active? true ; It is active, because we didn't calculate its neighbors yet
+end
+
+to highlight-path [path]
+  let a reduce highlight path
+end
+
+to-report highlight [x y]
+  ask x
+  [
+    ask link-with y [set color yellow set thickness .4]
+  ]
+  report y
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 32
 10
-624
-603
+629
+608
 -1
 -1
-17.7
+19.0
 1
 10
 1
@@ -135,10 +655,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+-15
+15
+-15
+15
 0
 0
 1
@@ -146,10 +666,10 @@ ticks
 30.0
 
 BUTTON
-271
-616
-334
-649
+113
+615
+176
+648
 setup
 setup
 NIL
@@ -163,10 +683,10 @@ NIL
 1
 
 BUTTON
-352
-616
-415
-649
+187
+615
+250
+648
 go
 go
 NIL
@@ -180,10 +700,10 @@ NIL
 1
 
 BUTTON
-641
-97
-726
-130
+647
+35
+732
+68
 zoom-in
 zoom-in
 NIL
@@ -197,10 +717,10 @@ NIL
 1
 
 BUTTON
-734
-97
-828
-130
+738
+35
+832
+68
 zoom-out
 zoom-out
 NIL
@@ -214,25 +734,25 @@ NIL
 1
 
 SLIDER
-641
-185
-813
-218
+740
+73
+832
+106
 zoom
 zoom
 .01
 1.2
-0.35
+0.5
 .01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-642
-137
-735
-170
+648
+73
+732
+106
 zoom-std
 zoom-std
 NIL
@@ -246,10 +766,10 @@ NIL
 1
 
 BUTTON
-741
-137
-828
-170
+753
+393
+840
+426
 NIL
 draw
 NIL
@@ -263,15 +783,15 @@ NIL
 1
 
 SLIDER
-641
-226
-813
-259
+686
+253
+792
+286
 shift
 shift
 0
 30
-11.0
+6.0
 1
 1
 NIL
@@ -279,9 +799,9 @@ HORIZONTAL
 
 BUTTON
 737
-300
+178
 839
-333
+211
 move-right
 move-right
 NIL
@@ -296,9 +816,9 @@ NIL
 
 BUTTON
 640
-300
+178
 732
-333
+211
 move-left
 move-left
 NIL
@@ -313,9 +833,9 @@ NIL
 
 BUTTON
 694
-263
+141
 782
-296
+174
 move-up
 move-up
 NIL
@@ -330,9 +850,9 @@ NIL
 
 BUTTON
 685
-337
+215
 790
-370
+248
 move-down
 move-down
 NIL
@@ -343,6 +863,205 @@ NIL
 NIL
 NIL
 NIL
+1
+
+BUTTON
+652
+393
+748
+426
+load patch data
+gis-to-map
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+650
+320
+731
+353
+print dataset
+print-dataset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+735
+320
+816
+353
+print labels
+print-labels
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+697
+17
+813
+35
+ZOOM CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+711
+119
+773
+137
+CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+680
+296
+819
+314
+DATASET INFORMATION
+11
+0.0
+1
+
+TEXTBOX
+695
+367
+793
+385
+MAP CONTROLS
+11
+0.0
+1
+
+TEXTBOX
+653
+435
+803
+487
+1) click <load patch data> to merge the dataset (polygon average) = centroid with the patch variables
+10
+0.0
+1
+
+SLIDER
+687
+495
+779
+528
+radius
+radius
+0.0
+10.0
+4.0
+0.1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+688
+583
+784
+616
+NIL
+path-draw
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+404
+674
+651
+719
+units of resource required for crime 1
+crime_units_required_view
+17
+1
+11
+
+BUTTON
+260
+615
+347
+648
+watch crime
+watch one-of crimes\n\n
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+354
+615
+457
+648
+reset perspective
+rp
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+658
+674
+832
+719
+total resources provided
+resource-to-subtract-total-view
+17
+1
+11
+
+CHOOSER
+678
+533
+787
+578
+number_of_crimes
+number_of_crimes
+1 2
 1
 
 @#$#@#$#@
@@ -562,6 +1281,29 @@ Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
 
+person police
+false
+0
+Polygon -1 true false 124 91 150 165 178 91
+Polygon -13345367 true false 134 91 149 106 134 181 149 196 164 181 149 106 164 91
+Polygon -13345367 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
+Polygon -13345367 true false 120 90 105 90 60 195 90 210 116 158 120 195 180 195 184 158 210 210 240 195 195 90 180 90 165 105 150 165 135 105 120 90
+Rectangle -7500403 true true 123 76 176 92
+Circle -7500403 true true 110 5 80
+Polygon -13345367 true false 150 26 110 41 97 29 137 -1 158 6 185 0 201 6 196 23 204 34 180 33
+Line -13345367 false 121 90 194 90
+Line -16777216 false 148 143 150 196
+Rectangle -16777216 true false 116 186 182 198
+Rectangle -16777216 true false 109 183 124 227
+Rectangle -16777216 true false 176 183 195 205
+Circle -1 true false 152 143 9
+Circle -1 true false 152 166 9
+Polygon -1184463 true false 172 112 191 112 185 133 179 133
+Polygon -1184463 true false 175 6 194 6 189 21 180 21
+Line -1184463 false 149 24 197 24
+Rectangle -16777216 true false 101 177 122 187
+Rectangle -16777216 true false 179 164 183 186
+
 plant
 false
 0
@@ -576,19 +1318,12 @@ Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
 sheep
 false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
+0
+Rectangle -7500403 true true 151 225 180 285
+Rectangle -7500403 true true 47 225 75 285
+Rectangle -7500403 true true 15 75 210 225
+Circle -7500403 true true 135 75 150
+Circle -16777216 true false 165 76 116
 
 square
 false
@@ -673,13 +1408,6 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
-
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
 
 x
 false
