@@ -141,6 +141,7 @@ to path-draw
 end
 
 to setup-forces
+  ;; Populate the table with random data, then we fill it with data from assign-resources-calibrated function.
   ask forces[
     set force-name [destination-name] of patch-here
     set resource-total (random 20 + 1) * 100
@@ -174,7 +175,7 @@ end
 to assign-resources-calibrated
   let dict table:make
   let temp-list []
-
+  ;; Information for https://en.wikipedia.org/wiki/List_of_police_forces_of_the_United_Kingdom
   ask forces[
     if force-name = "St Albans"[
       set resource-total 1953
