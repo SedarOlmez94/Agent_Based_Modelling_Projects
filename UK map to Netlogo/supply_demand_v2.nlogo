@@ -1,5 +1,6 @@
 ; GIS tutorial: https://simulatingcomplexity.wordpress.com/2014/08/20/turtles-in-space-integrating-gis-and-netlogo/
 ; GIS dataset: https://gadm.org/index.html
+; Data for calibration/validation: https://en.wikipedia.org/wiki/List_of_police_forces_of_the_United_Kingdom
 extensions [ gis view2.5d table]
 
 
