@@ -1,0 +1,23 @@
+calculate T for all forces
+crime occurs somewhere CRIME_LOCATION
+
+1- create list M (array) with all resources with time-to-mobilise <= resources_requirement_cycles
+
+2- delete from M all forces where not(minimise_impact) = 0 (no resources of resource to be used i.e. A in this case)
+
+3- loop untill units_required = 0 or resources_requirement_cycles = 0:
+
+4- 	find in M resource with min(time-to-mobilise) "smallest time to mobilise" AND max(M(not(minimise_impact))) = 1A "maximum 
+5-  value of the resource which is not the one to minimise_impact on stored in M" 
+
+6- 	(new list object) X = [1A] (add "1A to X")
+
+7- 	if for all resources in X there exists a time-to-mobilise = 0 then subtract 
+8- 		resource with time-to-mobilise = 0 from units_required
+	
+9- 	if units_required <= 0 then [print "crime prevented"
+10- 	print names of all forces resources pulled and amount of resources pulled. BREAK]
+
+11- 	subtract 1 from all resources time-to-mobilise in X
+
+12- 	M = M - 1A remove the force added to X from the list M.
