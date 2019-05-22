@@ -1115,8 +1115,8 @@ to crime-resource-planner
     if member? 0 X [ ;LINES 7 and 8 from algorithm.txt
       ;if for all resources in X there exists a time-to-mobilise = 0 then subtract
       ;resource with time-to-mobilise = 0 from units_required
-      set crime_units_required_1 time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1 resource_cycles 3
-      set crime_units_required_2 time-to-mobilise-in-X X M_not_minimise_impact_2 crime_units_required_2 resource_cycles_2 4
+      set crime_units_required_1 time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1 3
+      set crime_units_required_2 time-to-mobilise-in-X X M_not_minimise_impact_2 crime_units_required_2 4
       ;set resource-to-subtract-total-view resource-to-subtract-total-view + time-to-mobilise-in-X X M_not_minimise_impact crime_units_required_1
     ]
 ;  	if member? 0 X_1 [
@@ -1184,17 +1184,19 @@ to crime-resource-planner
   ]
 end
 
-to-report get_force_links [force_used resource_cycles]
+to-report get_force_links [force_used time-to-mobilise-of-resource]
   let police_force_to_target []
   let total_length 0
   let length_of_link 0
-  ask forces with [police-force-ID = force_used] [
+  ask forces with [force-name = force_used] [
     ask my-links[
       set police_force_to_target fput link-length police_force_to_target
     ]
   ]
+
   set total_length sum police_force_to_target
-  report (total_length + resource_cycles)
+  ; Length of journey (sum of consecutive links + the total time to mobilise of resource).
+  report (total_length + time-to-mobilise-of-resource)
 end
 
 to-report merge_lists [list1 list2]
@@ -1218,9 +1220,11 @@ to-report subtract-from-X [X]
 end
 
 
-to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 resource_cycles incident]
+to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 incident]
   let resource_to_sub 0
   let police_force 0
+  let resource_time_to_mobilise_1 0
+  let resource_time_to_mobilise_2 0
   ;let reporter_choice CHOICE
 
   ask forces [
@@ -1229,16 +1233,17 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
           set police_force force-name
+          set resource_time_to_mobilise_1 time-to-mobilise
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
             set police_force force-name
+            set resource_time_to_mobilise_2 time-to-mobilise
           ]
         ]
       ]
     ]
   ]
-
 
 
   ask forces with [force-name = police_force][
@@ -1247,14 +1252,14 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
 
   ifelse incident = 3 [
     print(word "FOR INCIDENT 1 RESOURCE TO SUBTRACT: " resource_to_sub word
-      " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
+      " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_time_to_mobilise_1)
     if crime_units_required_1 != 0 [
       set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
     ]
   ][
     if incident = 4 [
       print(word "FOR INCIDENT 2 RESOURCE TO SUBTRACT: " resource_to_sub word
-        " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
+        " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_time_to_mobilise_2)
       if crime_units_required_1 != 0 [
         set resource-to-subtract-total-view-1 resource-to-subtract-total-view-1 + resource_to_sub
       ]
