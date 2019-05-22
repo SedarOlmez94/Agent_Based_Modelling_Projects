@@ -1129,21 +1129,22 @@ to crime-resource-planner
 
     if crime_units_required_1 <= 0[
       print (word "INCIDENT 1 PREVENTED, all resources pulled")
-      ask crimes with [crime_number = 3][
-        die
-      ]
-      set number_dead number_dead + 1
+      ;ask crimes with [crime_number = 3][
+      ;  die
+      ;]
+      ;set number_dead number_dead + 1
       set crime_units_required_1 0
     ]
     if crime_units_required_2 <= 0 [
       print (word "INCIDENT 2 PREVENTED, all resources pulled")
-      ask crimes with [crime_number = 4][
-        die
-      ]
-      set number_dead number_dead + 1
+      ;ask crimes with [crime_number = 4][
+      ;  die
+      ;]
+      ;set number_dead number_dead + 1
       set crime_units_required_2 0
     ]
-    if number_dead = 2 [
+
+    if crime_units_required_1 = 0 and crime_units_required_2 = 0 [
       stop
     ]
 
@@ -1162,14 +1163,24 @@ to crime-resource-planner
     set resource_cycles (resource_cycles - 1)
     set resource_cycles_2 (resource_cycles_2 - 1)
     print(word "CRIME_UNITS: " crime_units_required_1)
-    if resource_cycles = 0 or resource_cycles_2 = 0[
+
+    if resource_cycles = 0[
       ; we print out the number of units we were able to aquire
       print (word "units provided for incident 1: " crime_units_required_1 word " units provided for incident 2: " crime_units_required_2)
+      ;stop
+    ]
+
+    if resource_cycles_2 = 0[
       ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
       ; are the number of resources we were able to get to the force which has the crime.
       print (word "resources requirement cycles for incident 1: " resource_cycles word " resources requirement cycles for incident 2: " resource_cycles_2)
+      ;stop
+    ]
+
+    if resource_cycles = 0 and resource_cycles_2 = 0 [
       stop
     ]
+
   ]
 end
 
@@ -1210,7 +1221,6 @@ end
 to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 resource_cycles incident]
   let resource_to_sub 0
   let police_force 0
-  let police_force_list []
   ;let reporter_choice CHOICE
 
   ask forces [
@@ -1219,12 +1229,10 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
           set police_force force-name
-
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
             set police_force force-name
-
           ]
         ]
       ]
@@ -1233,17 +1241,23 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
 
 
 
-  set police_force_list fput police_force police_force_list
+  ask forces with [force-name = police_force][
+    set color yellow
+  ]
 
   ifelse incident = 3 [
     print(word "FOR INCIDENT 1 RESOURCE TO SUBTRACT: " resource_to_sub word
       " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
-    set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+    if crime_units_required_1 != 0 [
+      set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+    ]
   ][
     if incident = 4 [
       print(word "FOR INCIDENT 2 RESOURCE TO SUBTRACT: " resource_to_sub word
         " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
-      set resource-to-subtract-total-view-1 resource-to-subtract-total-view-1 + resource_to_sub
+      if crime_units_required_1 != 0 [
+        set resource-to-subtract-total-view-1 resource-to-subtract-total-view-1 + resource_to_sub
+      ]
     ]
   ]
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
