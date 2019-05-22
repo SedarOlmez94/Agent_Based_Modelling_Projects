@@ -1131,17 +1131,16 @@ to crime-resource-planner
       print (word "INCIDENT 1 PREVENTED, all resources pulled")
       ask crimes with [crime_number = 3][
         die
+
       ]
-      set number_dead number_dead + 1
-      set crime_units_required_1 0
     ]
     if crime_units_required_2 <= 0 [
       print (word "INCIDENT 2 PREVENTED, all resources pulled")
       ask crimes with [crime_number = 4][
         die
+        set number_dead number_dead + 1
+        set crime_units_required_2 0
       ]
-      set number_dead number_dead + 1
-      set crime_units_required_2 0
     ]
     if number_dead = 2 [
       stop
