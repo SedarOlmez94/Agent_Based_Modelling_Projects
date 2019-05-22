@@ -1129,17 +1129,17 @@ to crime-resource-planner
 
     if crime_units_required_1 <= 0[
       print (word "INCIDENT 1 PREVENTED, all resources pulled")
-      ask crimes with [crime_number = 3][
-        die
-      ]
+      ;ask crimes with [crime_number = 3][
+      ;  die
+      ;]
       ;set number_dead number_dead + 1
       set crime_units_required_1 0
     ]
     if crime_units_required_2 <= 0 [
       print (word "INCIDENT 2 PREVENTED, all resources pulled")
-      ask crimes with [crime_number = 4][
-        die
-      ]
+      ;ask crimes with [crime_number = 4][
+      ;  die
+      ;]
       ;set number_dead number_dead + 1
       set crime_units_required_2 0
     ]
@@ -1163,14 +1163,24 @@ to crime-resource-planner
     set resource_cycles (resource_cycles - 1)
     set resource_cycles_2 (resource_cycles_2 - 1)
     print(word "CRIME_UNITS: " crime_units_required_1)
-    if resource_cycles = 0 or resource_cycles_2 = 0[
+
+    if resource_cycles = 0[
       ; we print out the number of units we were able to aquire
       print (word "units provided for incident 1: " crime_units_required_1 word " units provided for incident 2: " crime_units_required_2)
+      ;stop
+    ]
+
+    if resource_cycles_2 = 0[
       ; we print out the current state of the number of cycles left, that would obviously be 0 which would end the computation. the units provided
       ; are the number of resources we were able to get to the force which has the crime.
       print (word "resources requirement cycles for incident 1: " resource_cycles word " resources requirement cycles for incident 2: " resource_cycles_2)
+      ;stop
+    ]
+
+    if resource_cycles = 0 and resource_cycles_2 = 0 [
       stop
     ]
+
   ]
 end
 
