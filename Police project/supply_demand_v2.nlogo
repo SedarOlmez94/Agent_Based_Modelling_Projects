@@ -1211,12 +1211,12 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
       foreach M_not_minimise_impact [ M ->
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
-          set police_force police-force-ID
+          set police_force force-name
 
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
-            set police_force police-force-ID
+            set police_force force-name
 
           ]
         ]
@@ -1914,7 +1914,7 @@ NIL
 MONITOR
 404
 674
-666
+651
 719
 units of resource required for incident 1
 crime_units_required_view
@@ -1957,9 +1957,9 @@ NIL
 1
 
 MONITOR
-658
+659
 674
-832
+833
 719
 total resources provided
 resource-to-subtract-total-view
