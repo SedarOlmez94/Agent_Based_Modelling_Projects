@@ -1132,7 +1132,7 @@ to crime-resource-planner
       ask crimes with [crime_number = 3][
         die
       ]
-      set number_dead number_dead + 1
+      ;set number_dead number_dead + 1
       set crime_units_required_1 0
     ]
     if crime_units_required_2 <= 0 [
@@ -1140,10 +1140,11 @@ to crime-resource-planner
       ask crimes with [crime_number = 4][
         die
       ]
-      set number_dead number_dead + 1
+      ;set number_dead number_dead + 1
       set crime_units_required_2 0
     ]
-    if number_dead = 2 [
+
+    if crime_units_required_1 = 0 and crime_units_required_2 = 0 [
       stop
     ]
 
@@ -1238,12 +1239,16 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
   ifelse incident = 3 [
     print(word "FOR INCIDENT 1 RESOURCE TO SUBTRACT: " resource_to_sub word
       " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
-    set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+    if crime_units_required_1 != 0 [
+      set resource-to-subtract-total-view resource-to-subtract-total-view + resource_to_sub
+    ]
   ][
     if incident = 4 [
       print(word "FOR INCIDENT 2 RESOURCE TO SUBTRACT: " resource_to_sub word
         " FROM POLICE FORCE: " police_force " TIME IT TAKES FOR RESOURCES TO REACH DESTINATION: " get_force_links police_force resource_cycles)
-      set resource-to-subtract-total-view-1 resource-to-subtract-total-view-1 + resource_to_sub
+      if crime_units_required_1 != 0 [
+        set resource-to-subtract-total-view-1 resource-to-subtract-total-view-1 + resource_to_sub
+      ]
     ]
   ]
   ;set resource-to-subtract-total fput resource_to_sub resource-to-subtract-total
