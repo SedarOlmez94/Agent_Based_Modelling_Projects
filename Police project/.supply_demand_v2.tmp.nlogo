@@ -1914,9 +1914,9 @@ NIL
 MONITOR
 404
 674
-666
+651
 719
-units of resource required for incident 1
+units of resource required for crime 1
 crime_units_required_view
 17
 1
