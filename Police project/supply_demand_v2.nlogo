@@ -21,6 +21,7 @@ globals [
   resource-to-subtract-total-view
   resource-to-subtract-total-view-1
   crime_value_ID
+  number_dead
  ]
 
 patches-own[
@@ -104,13 +105,8 @@ end
 to setup-map
   set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"
   set centroid-points gis:load-dataset "data/United_Kingdom/Export_Output_4.shp"
-  ;set police-force-view gis:load-dataset "data/United_Kingdom/Export_Output_2.shp"
-  ;set police-force-area gis:load-dataset "data/police_force_areas/Police_Force_Areas_December_2016_Full_Clipped_Boundaries_in_England_and_Wales.shp"
-
-  ;gis:load-coordinate-system "data/United_Kingdom/infuse_dist_lyr_2011.prj"
   gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of map-view)
                                                 (gis:envelope-of centroid-points))
-                                                ;(gis:envelope-of police-force-view))
   gis:set-drawing-color black
   gis:draw map-view 1
 end
@@ -1130,15 +1126,26 @@ to crime-resource-planner
    	    ;print names of all forces resources pulled and amount of resources pulled. BREAK]
     ;set forces_resources_pulled check-crime-prevented X M_not_minimise_impact crime_units_required_1 forces_resources_pulled ; this function is only invoked if the units_required (crime_units_required_1) is 0 or smaller than 0
 
-    if crime_units_required_1 <= 0 [
+
+    if crime_units_required_1 <= 0[
       print (word "INCIDENT 1 PREVENTED, all resources pulled")
-      stop
+      ask crimes with [crime_number = 3][
+        die
+      ]
+      set number_dead number_dead + 1
+      set crime_units_required_1 0
     ]
     if crime_units_required_2 <= 0 [
       print (word "INCIDENT 2 PREVENTED, all resources pulled")
+      ask crimes with [crime_number = 4][
+        die
+      ]
+      set number_dead number_dead + 1
+      set crime_units_required_2 0
+    ]
+    if number_dead = 2 [
       stop
     ]
-
 
   	; subtract 1 from all resources time-to-mobilise in X i.e. subtract 1 from each resource time-to-mobilise that
     ; exists in X. LINE 11 from algorithm.txt
@@ -1211,12 +1218,12 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
       foreach M_not_minimise_impact [ M ->
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
-          set police_force police-force-ID
+          set police_force force-name
 
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
-            set police_force police-force-ID
+            set police_force force-name
 
           ]
         ]
@@ -1914,7 +1921,7 @@ NIL
 MONITOR
 404
 674
-666
+651
 719
 units of resource required for incident 1
 crime_units_required_view
@@ -1957,9 +1964,9 @@ NIL
 1
 
 MONITOR
-658
+659
 674
-832
+833
 719
 total resources provided
 resource-to-subtract-total-view
