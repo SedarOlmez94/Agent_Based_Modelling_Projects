@@ -1211,7 +1211,6 @@ end
 to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 resource_cycles incident]
   let resource_to_sub 0
   let police_force 0
-  let police_force_list []
   ;let reporter_choice CHOICE
 
   ask forces [
@@ -1220,12 +1219,10 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
         ifelse (I = time-to-mobilise) and (M = resourceA-public-order-total)[
           set resource_to_sub resourceA-public-order-total
           set police_force force-name
-
         ][
           if (I = time-to-mobilise) and (M = resourceB-public-order-total)[
             set resource_to_sub resourceB-public-order-total
             set police_force force-name
-
           ]
         ]
       ]
@@ -1234,7 +1231,9 @@ to-report time-to-mobilise-in-X [X M_not_minimise_impact crime_units_required_1 
 
 
 
-  set police_force_list fput police_force police_force_list
+  ask forces with [force-name = police_force][
+    set color yellow
+  ]
 
   ifelse incident = 3 [
     print(word "FOR INCIDENT 1 RESOURCE TO SUBTRACT: " resource_to_sub word
