@@ -4,7 +4,6 @@ The netlogo template is `UK map to Netlogo/supply_demand_v1.nlogo`
 
 The line of code to be replaced is the directory of the '.shp' file which is:
 
-
 `set map-view gis:load-dataset "data/United_Kingdom/infuse_dist_lyr_2011.shp"`
 
 Your `shape` file should be added in a file of your choosing in the root directory `data/<YOUR DIRECTORY>`
