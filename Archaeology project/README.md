@@ -5,9 +5,7 @@ Sucharyna Thomas1 L., Wickham-Jones2 C. R., Heppenstall3 A. J.
 
 
 1. School of History, Classics and Archaeology, University of Edinburgh, William Robertson Wing, Old Medical School, Teviot Place, Edinburgh, EH8 9AG.
-
 2. Department of Archaeology, University of Aberdeen, Kings College, Aberdeen, AB24 3FX.
-
 3. School of Geography, University of Leeds, Leeds, LS2 9JT; Alan Turing Institute, The British Library, London, NW1 2DB
 
 Abstract

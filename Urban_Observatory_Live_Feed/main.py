@@ -1,4 +1,3 @@
-from mesa_agent_skeleton import MyAgent
 from mesa_agent_skeleton import MyModel
 from mesa.batchrunner import BatchRunner
 from mesa.visualization.modules import CanvasGrid
@@ -39,6 +38,5 @@ batch_run.run_all()
 # Once the run is over, we can create a pandas dataframe
 batch_df = batch_run.get_model_vars_dataframe()
 
-batch_df
 
 server.launch()
