@@ -4,6 +4,7 @@
 from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
+from mesa.collection import DataCollector
 
 
 class MyAgent(Agent):
@@ -27,7 +28,13 @@ class MyModel(Model):
             coords = (self.random.randrange(0, 10), self.random.randrange(0, 10))
             # The coordinates which are randomly generated for each agent.
             self.grid.place_agent(a, coords)
+        self.dc = DataCollector(model_reporters = {"agent_count" :
+                                        lambda m: m.schedule.get_agent_count()},
+                                        agent_reporters = {"name": lambda a: a.name})
+        # Data collected is agent counts from the model and
+        # Name from the agents.
 
 
     def step(self):
         self.schedule.step()
+        self.dc.collect(self)
