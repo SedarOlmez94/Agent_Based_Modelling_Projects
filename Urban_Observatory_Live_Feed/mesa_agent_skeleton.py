@@ -31,7 +31,3 @@ class MyModel(Model):
 
     def step(self):
         self.schedule.step()
-
-
-model = MyModel(5)
-model.step()
