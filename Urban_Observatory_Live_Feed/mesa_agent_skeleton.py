@@ -4,7 +4,7 @@
 from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from mesa.collection import DataCollector
+from mesa.datacollection import DataCollector
 
 
 class MyAgent(Agent):
@@ -33,7 +33,6 @@ class MyModel(Model):
                                         agent_reporters = {"name": lambda a: a.name})
         # Data collected is agent counts from the model and
         # Name from the agents.
-
 
     def step(self):
         self.schedule.step()

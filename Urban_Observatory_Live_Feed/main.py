@@ -1,10 +1,11 @@
 from mesa_agent_skeleton import MyAgent
 from mesa_agent_skeleton import MyModel
+from mesa.batchrunner import BatchRunner
+
+parameters = {"n_agents": range(1, 20)}
+
+batch_run = BatchRunner(MyModel, parameters, max_steps = 10,
+                        model_reporters= {"n_agents": lambda m: m.schedule.get_agent_count()})
 
 
-model = MyModel(5)
-for t in range(10):
-    model.step()
-    #Here we create two variables which store dataframes of the collected data.
-model_df = model.dc.get_model_vars_dataframe()
-agent_df = model.dc.get_agent_vars_dataframe()
+batch_run.run_all()
