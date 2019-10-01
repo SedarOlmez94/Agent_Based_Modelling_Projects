@@ -3,6 +3,7 @@ from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 
 
+
 class MoneyAgent(Agent):
 
 
