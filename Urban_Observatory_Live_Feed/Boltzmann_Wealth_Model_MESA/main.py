@@ -12,10 +12,8 @@ for i in range(100):
 for agent in model.schedule.agents:
     all_wealth.append(agent.wealth)
 
-
 #Firstly we create an empty numpy array with the same size width and heigth
 #as the grid. Then we populate this array with zeroes.
-
 agent_counts = np.zeros((model.grid.width, model.grid.height))
 # For each cell content in the grid,
 for cell in model.grid.coord_iter():
