@@ -1,5 +1,6 @@
 from mesa import Agent, Model
 from mesa.time import RandomActivation
+from mesa.space import MultiGrid
 
 
 class MoneyAgent(Agent):
@@ -21,13 +22,20 @@ class MoneyAgent(Agent):
 
 class MoneyModel(Model):
     """ A model with some number of agents. """
-    def __init__(self, N):
+    def __init__(self, N, width, height):
         self.num_agents = N
+        self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
+
         #Agent creation
         for i in range(self.num_agents):
             a = MoneyAgent(i, self) # initialising the agents in the model.
             self.schedule.add(a) # Add the agents to the schedular
+
+            # Add the agent to a random grid cell
+            x = self.random.randrange(self.grid.width)
+            y = self.random.randrange(self.grid.height)
+            self.grid.place_agent(a, (x, y))
 
     def step(self):
         """ Advance the model by one step. """
