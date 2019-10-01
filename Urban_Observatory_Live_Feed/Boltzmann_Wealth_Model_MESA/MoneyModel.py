@@ -12,18 +12,6 @@ class MoneyAgent(Agent):
         self.wealth = 1
 
 
-    def step(self):
-        # The agent's step will go here. I.e. actions
-        if self.wealth == 0:
-            return "Agent, ",self.unique_id, " has no money."
-        # Pick another agent at random and assign it to other_agent variable
-        other_agent = self.random.choice(self.model.schedule.agents)
-        # Add one to the wealth of this chosen agent.
-        other_agent.wealth += 1
-        # Subtract 1 from the wealth of the current agent.
-        self.wealth -= 1
-
-
     def move(self):
         possible_steps = self.model.grid.get_neighborhood(
             self.pos, # The first argument is the position of the moving agent
@@ -47,6 +35,12 @@ class MoneyAgent(Agent):
             # Subtract 1 from the selected agents wealth.
             self.wealth -= 1
 
+
+    def step(self):
+        # The agent's step will go here. I.e. actions
+        self.move()
+        if self.wealth > 0:
+            self.give_money()
 
 class MoneyModel(Model):
 
