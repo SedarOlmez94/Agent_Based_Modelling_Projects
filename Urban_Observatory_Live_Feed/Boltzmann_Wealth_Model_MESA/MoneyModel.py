@@ -2,7 +2,7 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
-
+from mesa.batchrunner import BatchRunner
 
 def compute_gini(model):
     # The Gini Coefficient formula computed in python.
@@ -14,6 +14,28 @@ def compute_gini(model):
     # N is the number of agents.
     B = sum( xi * (N-i) for i, xi in enumerate(x) ) / (N * sum(x))
     return (1 + (1/N) - 2 * B)
+
+
+def batch_run(width, height, iterations, max_steps, start, stop, range_):
+
+    fixed_params = {
+        "width": width,
+        "height": height
+    }
+
+    variable_params = {"N": range(start, stop, range_)}
+
+    # The variables parameters will be invoke along with the fixed parameters allowing for either or both to be honored.
+    batch_run = BatchRunner(
+        MoneyModel,
+        variable_params,
+        fixed_params,
+        iterations=iterations,
+        max_steps=max_steps,
+        model_reporters={"Gini": compute_gini}
+    )
+
+    batch_run.run_all()
 
 
 class MoneyAgent(Agent):
@@ -63,6 +85,7 @@ class MoneyModel(Model):
         self.num_agents = N
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
+        self.running = True # Indefinite execution of the model.
 
         #Agent creation
         for i in range(self.num_agents):
@@ -85,3 +108,5 @@ class MoneyModel(Model):
         """ Advance the model by one step. """
         self.datacollector.collect(self)
         self.schedule.step() # The schedular is what makes the model run a step.
+
+batch_run(10, 10, 5, 100, 10, 500, 10)

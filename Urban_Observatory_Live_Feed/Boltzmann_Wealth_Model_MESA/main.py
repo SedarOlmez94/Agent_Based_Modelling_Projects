@@ -2,13 +2,12 @@ from MoneyModel import MoneyModel
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 all_wealth = []
 #for j in range(100):
 model = MoneyModel(50, 10, 10)
 for i in range(100):
     model.step()
-# Store the results
+ Store the results
 for agent in model.schedule.agents:
     all_wealth.append(agent.wealth)
 
