@@ -12,10 +12,10 @@ for i in range(100):
 for agent in model.schedule.agents:
     all_wealth.append(agent.wealth)
 
-"""
-Firstly we create an empty numpy array with the same size width and heigth
-as the grid. Then we populate this array with zeroes.
-"""
+
+#Firstly we create an empty numpy array with the same size width and heigth
+#as the grid. Then we populate this array with zeroes.
+
 agent_counts = np.zeros((model.grid.width, model.grid.height))
 # For each cell content in the grid,
 for cell in model.grid.coord_iter():
@@ -27,10 +27,18 @@ for cell in model.grid.coord_iter():
     # Agent_counts variable is a 2D array which contains all the agents.
     agent_counts[x][y] = agent_count
 
-
+# A dataframe of the model data collection variables which were the compute_gini method.
 gini = model.datacollector.get_model_vars_dataframe()
+agent_wealth = model.datacollector.get_agent_vars_dataframe()
+# We can now create any form of graph/analysis method to analyse the agent_wealth.
+end_of_simulation_wealth = agent_wealth.xs(99, level = "Step")["Wealth"]
+print(agent_wealth) # Printing the agent_wealth data in a dataframe to the console.
+# I decided to create a histogram of the agents wealth at the end of the simulation.
+end_of_simulation_wealth.hist(bins = range(agent_wealth.Wealth.max() + 1))
+plt.show()
+
 # Create a heatmap of the agent counts on each grid cell
 plt.imshow(agent_counts, interpolation='nearest')
 plt.colorbar()
-gini.plot()
+gini.plot()# Creating a plot of the gini coefficient data.
 plt.show()
