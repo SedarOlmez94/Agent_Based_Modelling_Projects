@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 all_wealth = []
 for j in range(100):
-    model = MoneyModel(10)
-    for i in range(10):
+    model = MoneyModel(50, 10, 10)
+    for i in range(20):
         model.step()
 
     # Store the results
