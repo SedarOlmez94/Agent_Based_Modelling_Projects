@@ -7,8 +7,11 @@ from mesa.datacollection import DataCollector
 def compute_gini(model):
     # The Gini Coefficient formula computed in python.
     agent_wealths = [agent.wealth for agent in model.schedule.agents]
+    # All the wealth variable values for agents.
     x = sorted(agent_wealths)
+    # x is the sorted wealth i.e. lowest to highest
     N = model.num_agents
+    # N is the number of agents.
     B = sum( xi * (N-i) for i, xi in enumerate(x) ) / (N * sum(x))
     return (1 + (1/N) - 2 * B)
 
@@ -72,6 +75,13 @@ class MoneyModel(Model):
             self.grid.place_agent(a, (x, y))
 
 
+        self.datacollector = DataCollector(
+            model_reporters = {"Gini": compute_gini}, #compute_gini function
+            agent_reporters = {"Wealth": "wealth"} # wealth variable
+        )
+
+
     def step(self):
         """ Advance the model by one step. """
+        self.datacollector.collect(self)
         self.schedule.step() # The schedular is what makes the model run a step.

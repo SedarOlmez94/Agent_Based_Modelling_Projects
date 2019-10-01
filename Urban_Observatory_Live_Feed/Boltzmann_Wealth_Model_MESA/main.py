@@ -6,7 +6,7 @@ import numpy as np
 all_wealth = []
 #for j in range(100):
 model = MoneyModel(50, 10, 10)
-for i in range(20):
+for i in range(100):
     model.step()
 # Store the results
 for agent in model.schedule.agents:
@@ -27,7 +27,10 @@ for cell in model.grid.coord_iter():
     # Agent_counts variable is a 2D array which contains all the agents.
     agent_counts[x][y] = agent_count
 
+
+gini = model.datacollector.get_model_vars_dataframe()
 # Create a heatmap of the agent counts on each grid cell
 plt.imshow(agent_counts, interpolation='nearest')
 plt.colorbar()
+gini.plot()
 plt.show()
