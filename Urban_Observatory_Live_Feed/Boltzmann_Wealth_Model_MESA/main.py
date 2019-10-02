@@ -7,7 +7,7 @@ all_wealth = []
 model = MoneyModel(50, 10, 10)
 for i in range(100):
     model.step()
- Store the results
+ #Store the results
 for agent in model.schedule.agents:
     all_wealth.append(agent.wealth)
 

@@ -4,11 +4,13 @@ from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 from mesa.batchrunner import BatchRunner
 import matplotlib.pyplot as plt
+import random
 
 
 def compute_gini(model):
     # The Gini Coefficient formula computed in python.
-    agent_wealths = [agent.wealth for agent in model.schedule.agents]
+    richer_agents(model)
+    agent_wealths = christmas(model)
     # All the wealth variable values for agents.
     x = sorted(agent_wealths)
     # x is the sorted wealth i.e. lowest to highest
@@ -17,7 +19,13 @@ def compute_gini(model):
     B = sum( xi * (N-i) for i, xi in enumerate(x) ) / (N * sum(x))
     return (1 + (1/N) - 2 * B)
 
+def richer_agents(model):
+    agent_wealths = [agent.wealth for agent in model.schedule.agents]
 
+    for i in range(len(agent_wealths)):
+        agent_wealths[i] += agent_wealths[i] + random.randint(10, 50)
+
+    return agent_wealths
 def batch_runner(width, height, iterations, max_steps, start, stop, range_):
 
     fixed_params = {
@@ -116,4 +124,4 @@ class MoneyModel(Model):
         self.datacollector.collect(self)
         self.schedule.step() # The schedular is what makes the model run a step.
 
-batch_runner(10, 10, 5, 100, 10, 500, 10)
+#batch_runner(10, 10, 5, 100, 10, 500, 10)
