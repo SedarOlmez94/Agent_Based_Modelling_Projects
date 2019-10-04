@@ -4,6 +4,8 @@ from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 from mesa.batchrunner import BatchRunner
 import matplotlib.pyplot as plt
+import random
+import pandas as pd
 
 
 def compute_gini(model):
@@ -17,7 +19,12 @@ def compute_gini(model):
     B = sum( xi * (N-i) for i, xi in enumerate(x) ) / (N * sum(x))
     return (1 + (1/N) - 2 * B)
 
+def richer_agents(model):
+    agent_wealths = [agent.wealth for agent in model.schedule.agents]
+    for i in range(len(agent_wealths)):
+        agent_wealths[i] += agent_wealths[i] + random.randint(10, 50)
 
+    return agent_wealths
 def batch_runner(width, height, iterations, max_steps, start, stop, range_):
 
     fixed_params = {
@@ -42,9 +49,15 @@ def batch_runner(width, height, iterations, max_steps, start, stop, range_):
 
 def batch_run_graph(batch_run):
     run_data = batch_run.get_model_vars_dataframe()
-    print(run_data)
+    run_data.to_csv("results/monte_carlo_sim.csv")
     plt.scatter(run_data.N, run_data.Gini)
     plt.show()
+
+def get_data_import(directory):
+    dataframe = pd.read_csv(directory)
+    return dataframe
+
+
 
 class MoneyAgent(Agent):
 
@@ -116,4 +129,5 @@ class MoneyModel(Model):
         self.datacollector.collect(self)
         self.schedule.step() # The schedular is what makes the model run a step.
 
+#                   5 iterations of 100 simulations = 5000 simulations.
 batch_runner(10, 10, 5, 100, 10, 500, 10)

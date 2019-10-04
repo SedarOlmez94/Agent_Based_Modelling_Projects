@@ -1,13 +1,14 @@
 from MoneyModel import MoneyModel
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 all_wealth = []
 #for j in range(100):
 model = MoneyModel(50, 10, 10)
 for i in range(100):
     model.step()
- Store the results
+ #Store the results
 for agent in model.schedule.agents:
     all_wealth.append(agent.wealth)
 
@@ -29,7 +30,10 @@ gini = model.datacollector.get_model_vars_dataframe()
 agent_wealth = model.datacollector.get_agent_vars_dataframe()
 # We can now create any form of graph/analysis method to analyse the agent_wealth.
 end_of_simulation_wealth = agent_wealth.xs(99, level = "Step")["Wealth"]
-print(agent_wealth) # Printing the agent_wealth data in a dataframe to the console.
+#  Storing the agent_wealth data in a dataframe to a csv.
+agent_wealth.to_csv("results/wealth_of_agents.csv")
+# Store the gini coefficient of agents to csv.
+gini.to_csv("results/gini_of_agents.csv")
 # I decided to create a histogram of the agents wealth at the end of the simulation.
 end_of_simulation_wealth.hist(bins = range(agent_wealth.Wealth.max() + 1))
 plt.show()
