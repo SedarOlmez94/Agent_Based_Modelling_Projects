@@ -5,6 +5,7 @@ from mesa.datacollection import DataCollector
 from mesa.batchrunner import BatchRunner
 import matplotlib.pyplot as plt
 import random
+import pandas as pd
 
 
 def compute_gini(model):
@@ -51,6 +52,12 @@ def batch_run_graph(batch_run):
     run_data.to_csv("results/monte_carlo_sim.csv")
     plt.scatter(run_data.N, run_data.Gini)
     plt.show()
+
+def get_data_import(directory):
+    dataframe = pd.read_csv(directory)
+    return dataframe
+
+
 
 class MoneyAgent(Agent):
 
