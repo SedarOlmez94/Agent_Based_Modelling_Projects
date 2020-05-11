@@ -28,7 +28,7 @@ ml-agents-master-2
                 - badPoint.prefab
                 - goodPoint.prefab
             - Scenes/
-                - predator_prey_scene.unity **(Double click this file to launch the initial configuration of the model.)**
+                - predator_prey_scene.unity **(Double click this file to launch the initial configuration of the model).**
             - Scripts/
                 - AISnatcher.cs
                 - Collector.cs
