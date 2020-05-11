@@ -1,0 +1,32 @@
+default:
+    trainer: ppo
+    batch_size: 1024
+    beta: 5.0e-3
+    buffer_size: 10240
+    epsilon: 0.1
+    hidden_units: 32
+    lambd: 0.95
+    learning_rate: 1e-5
+    max_steps: 1.0e6
+    normalize: false
+    num_epoch: 3
+    sequence_length: 10
+    memory_size: 64
+    summary_freq: 10000
+    num_layers: 3
+    time_horizon: 34
+    summary_freq: 10000
+    use_recurrent: false
+    reward_signals:
+        extrinsic:
+            strength: 1.0
+            gamma: 0.99
+
+
+
+FoodCollector:
+    normalize: false
+    beta: 5.0e-3
+    batch_size: 1024
+    buffer_size: 10240
+    max_steps: 2.0e6
