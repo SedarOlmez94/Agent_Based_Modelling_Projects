@@ -44,5 +44,7 @@ ml-agents-master-2
 
 
 ## Data and experiment results
-        - Access synthetic data from model-runs 1 to 5 in the **Synthetic-data-from-ABM** folder
-        - Video of model-run-1 experiment can be found: [here](https://www.dropbox.com/s/c9571is9zz34hbe/Model-run-1.mov?dl=0) (due to a lack of dropbox space, model-runs 2 to 5 were not uploaded, email me for these: solmez@turing.ac.uk)
+
+
+- Access synthetic data from model-runs 1 to 5 in the **Synthetic-data-from-ABM** folder
+- Video of model-run-1 experiment can be found: [here](https://www.dropbox.com/s/c9571is9zz34hbe/Model-run-1.mov?dl=0) (due to a lack of dropbox space, model-runs 2 to 5 were not uploaded, email me for these: solmez@turing.ac.uk)
