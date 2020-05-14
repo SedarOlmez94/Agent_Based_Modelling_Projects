@@ -41,3 +41,8 @@ ml-agents-master-2
 1. Once the **UnitySDK** folder is launched in Unity, you can navigate to **predator-prey/../Scenes** to launch the initial state of the model.
 2. The Unity Prefabs are GameObjects as reusable Assets. We can access the AgentCube object which is the Collector agent. By opening this component you can swap out the Brain which initially is set to **neural_network_1.nn**.
 3. By clicking the **play** button in the Unity window you can run the model which includes five **Collectors** and a single **Snatcher**.
+
+
+## Data and experiment results
+- Access synthetic data from model-runs 1 to 5 in the **Synthetic-data-from-ABM** folder
+- Video of model-run-1 experiment can be found here: https://www.dropbox.com/s/c9571is9zz34hbe/Model-run-1.mov?dl=0 (due to a lack of dropbox space, model-runs 2 to 5 were not uploaded, email me for these: solmez@turing.ac.uk)
