@@ -1,6 +1,6 @@
 ﻿/*Author: Sedar Olmez
- * The AISnatcher Class is attached to the snatcher agent, this class allows the snatcher to
- have a field of view which it can use to see within a given radius 0 to 360. The snatcher
+ * The AIPredator Class is attached to the predator agent, this class allows the predator to
+ have a field of view which it can use to see within a given radius 0 to 360. The predator
  is considered an autonomous agent which moves randomly around the environment and if it
  sees a collector, it will chase the collector. This method was inspired
  by: https://github.com/SebLague/Field-of-View and the book Unity AI programming Fourth Edition
@@ -11,7 +11,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class AISnatcher : MonoBehaviour {
+public class AIPredator: MonoBehaviour {
 
     // The agents array is of type GameObject.
     public GameObject[] agents;
@@ -22,9 +22,9 @@ public class AISnatcher : MonoBehaviour {
 	[Range(0,360)]
 	public float viewAngle;
 	[HideInInspector]
-	// In range to check if Collector is in range of snatcher.
+	// In range to check if Collector is in range of predator.
 	public bool inRange = false;
-    // Rigidbody for the snatcher agent.
+    // Rigidbody for the predator agent.
     Rigidbody rb;
     // Velocity is declared as a 3D vector.
     Vector3 velocity;
@@ -95,9 +95,9 @@ public class AISnatcher : MonoBehaviour {
          * the following frame. A Coroutine method is called with a name FindTargetsWithDelay
          and a timer of 2 seconds.*/
         StartCoroutine("FindTargetsWithDelay", .2f);
-        // Initialise the rigid body of the snatcher.
+        // Initialise the rigid body of the predator.
 		rb = GetComponent<Rigidbody>();
-        // Get the next position for an invisible target for the snatcher to move towards.
+        // Get the next position for an invisible target for the predator to move towards.
 		GetNextPosition();
 		//---------------
 
@@ -105,7 +105,7 @@ public class AISnatcher : MonoBehaviour {
     }
 
 
-    // A method which adds a delay each time targets can be seen by the snatcher.
+    // A method which adds a delay each time targets can be seen by the predator.
     IEnumerator FindTargetsWithDelay(float delay) {
 		while (true) {
             // Wait for a few seconds everytime before calling the FindVisibleTargets.
@@ -114,11 +114,11 @@ public class AISnatcher : MonoBehaviour {
 		}
 	}
 
-    // Uncomment if you wish to download synthetic data produced by the Snathcer.
+    // Uncomment if you wish to download synthetic data produced by the Predator.
 	//void Update()
 	//{
  //   if (currentTime >= timeToWrite){
- //     updateRecord(this.rb.velocity.magnitude, this.transform.position.x, this.transform.position.z, dstToTarget, viewCastAngle, wallTouch, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/snatcher_data.csv");
+ //     updateRecord(this.rb.velocity.magnitude, this.transform.position.x, this.transform.position.z, dstToTarget, viewCastAngle, wallTouch, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/predator_data.csv");
  //     currentTime = 0f;
  //   }
  //   currentTime += Time.deltaTime;
@@ -167,14 +167,14 @@ public class AISnatcher : MonoBehaviour {
 		{
             if(column_titles != true)
             {
-                file.WriteLine("snatcherVelocity" + "," + "xAxisPos" + "," + "zAxisPos" + "," + "distanceToTarget" + "," + "viewAngle" + "," + "touchedWall" + "," + "date-time");
+                file.WriteLine("predatorVelocity" + "," + "xAxisPos" + "," + "zAxisPos" + "," + "distanceToTarget" + "," + "viewAngle" + "," + "touchedWall" + "," + "date-time");
             }
 			file.WriteLine(velocity + "," + x_axis + "," + z_axis + "," + distance_tt +","+ viewCastAng +","+ wallTouch +","+ System.DateTime.UtcNow);
             column_titles = true;
 		}
 	}
 
-	// The OnCollisionEnter method takes a collision parameter, if the snatcher collides
+	// The OnCollisionEnter method takes a collision parameter, if the predator collides
 	 //with an object, then something happens.
 	void OnCollisionEnter(Collision collision)
 	{
@@ -185,7 +185,7 @@ public class AISnatcher : MonoBehaviour {
 	}
 
 
-	/*This method identifies each target that enters the view radius of the snatcher,
+	/*This method identifies each target that enters the view radius of the predator,
      it then adds these target objects into an array called visibleTargets.*/
 	void FindVisibleTargets() {
         // Whenever this method is called, the array is cleared so duplicates don't occur
@@ -196,7 +196,7 @@ public class AISnatcher : MonoBehaviour {
         //agents = GameObject.FindGameObjectsWithTag("agent");
         /* For all the targets within the view radius, get their transform variables (position in world)
          * get the direction to the targets, if the current angle contains the target, then get the distance to target
-         * if there is no obstacle blocking the snatchers view to the target, then add the target to the visibleTargets array.
+         * if there is no obstacle blocking the predators view to the target, then add the target to the visibleTargets array.
         */
         for (int i = 0; i < targetsInViewRadius.Length; i++) {
 			Transform target = targetsInViewRadius [i].transform;
@@ -218,8 +218,8 @@ public class AISnatcher : MonoBehaviour {
 
 
 
-    /* The D_FieldOfView method draws the field of view around the snatcher agent.
-     while updating the field of view relative to the position of the snatcher agent.*/
+    /* The D_FieldOfView method draws the field of view around the predator agent.
+     while updating the field of view relative to the position of the predator agent.*/
 	void D_FieldOfView() {
         // A stepCount integer variable is equal to viewAngle multiplied by meshResolution rounded to integer.
 		int stepCount = Mathf.RoundToInt(viewAngle * meshResolution);
@@ -235,7 +235,7 @@ public class AISnatcher : MonoBehaviour {
             /* Set the angle floating point variable to the Y angle minus viewAngle
              * divided by 2 plut stepAngleSize * the current step count. */
 			float angle = transform.eulerAngles.y - viewAngle / 2 + stepAngleSize * i;
-            /*newViewCast variable is equal the ViewCast of the current angle of the snatcher.
+            /*newViewCast variable is equal the ViewCast of the current angle of the predator.
              */
 			viewCastInformation newViewCast = ViewCast (angle);
             /* If we have greater than 0 stepCounts, we set the edge threshold exeeded
@@ -293,7 +293,7 @@ public class AISnatcher : MonoBehaviour {
 			}
 		}
 
-        // Clear the mesh on the snatcher agent.
+        // Clear the mesh on the predator agent.
 		viewMesh.Clear ();
         // set the mesh vertices to the vertices object.
 		viewMesh.vertices = vertices;

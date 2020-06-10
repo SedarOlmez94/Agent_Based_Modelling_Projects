@@ -1,4 +1,4 @@
-﻿/* The Collector agent is also compulsory and extends the Agent interface in
+﻿/* The Prey agent is also compulsory and extends the Agent interface in
  * the MLAgents toolkit https://github.com/Unity-Technologies/ml-agents. The 3D cube
  * objects have this class attached to them, it provides the agent with the logic to
  * move, collect point objects, be penalised and/or rewards during the training process
@@ -9,7 +9,7 @@ using System.IO;
 using UnityEngine;
 using MLAgents;
 
-public class Collector : Agent
+public class Prey : Agent
 {
 	// The academy object declared
 	PredatorPreyAcademy myAcademy;
@@ -36,14 +36,14 @@ public class Collector : Agent
     // Variable to track the number of good points and bad points consumed.
 	private int goodPointAmount;
 	private int badPointAmount;
-	// Seen by snatcher number of times the agent is seen by the snatcher.
-	private int seenBySnatcher;
+	// Seen by predator number of times the agent is seen by the predator.
+	private int seenByPredator;
 	// Touched wall
 	private int wallTouch = 0;
 	// column titles is set to false
 	static private bool column_titles;
-    // snatcher agent
-    // public GameObject snatcher;
+    // predator agent
+    // public GameObject predator;
 	//----------------
 	public float timeToWrite = 1f;
 	private float currentTime = 0f;
@@ -63,10 +63,10 @@ public class Collector : Agent
         myArea = area.GetComponent<PPEnvironment>();
         // The Academy object is initialised to the myAcademy variable.
         myAcademy = FindObjectOfType<PredatorPreyAcademy>();
-		// Snatcher hasn't seen any agents yet.
-		 		seenBySnatcher = 0;
-        // initilise the snatcher agent.
-        // snatcher = GameObject.FindGameObjectWithTag("Snatcher");
+		// Predator hasn't seen any agents yet.
+		 		seenByPredator = 0;
+        // initilise the predator agent.
+        // predator = GameObject.FindGameObjectWithTag("Predator");
         // SetResetParameters method called, this method just sets the size of the agent.
         SetResetParameters();
 		// column titles set to false so we can set the column titles for the exported csv.
@@ -75,7 +75,7 @@ public class Collector : Agent
 
     /* This method collects observations from the world, this currently is the movement
      * of the agents rigid body. (NOTE TO SELF: I must also collect observations for the
-     * snatcher agent character.)
+     * predator agent character.)
      */
     public override void CollectObservations()
     {
@@ -88,8 +88,8 @@ public class Collector : Agent
         {
             var localVelocity = transform.InverseTransformDirection(agentRigidBody.velocity);
 
-	    		// Snatcher position
-				// AddVectorObs(snatcher.transform.position);
+	    		// Predator position
+				// AddVectorObs(predator.transform.position);
 
 	            // Agent speed.
 				AddVectorObs(localVelocity.x);
@@ -111,7 +111,7 @@ public class Collector : Agent
  //  void Update()
 	//{
 	//	if (currentTime >= timeToWrite){
-	//			updateRecord(this.GetInstanceID(), goodPointAmount, badPointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenBySnatcher, this.wallTouch, myAcademy.totalScore, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/collector_data.csv");
+	//			updateRecord(this.GetInstanceID(), goodPointAmount, badPointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenByPredator, this.wallTouch, myAcademy.totalScore, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/prey_data.csv");
 	//			currentTime = 0f;
 	//		}
 
@@ -119,15 +119,15 @@ public class Collector : Agent
 	//}
 
 	// Export data to CSV
-	public static void updateRecord(int ID, int goodPoint, int badPoint, float velocity, float x_axis, float z_axis, int seenBySnatcher, int touchedWall, int academyScore,  string filepath)
+	public static void updateRecord(int ID, int goodPoint, int badPoint, float velocity, float x_axis, float z_axis, int seenByPredator, int touchedWall, int academyScore,  string filepath)
 	{
         using (System.IO.StreamWriter file = new System.IO.StreamWriter(@filepath, true))
 		{
             if(column_titles != true)
 			{
-				file.WriteLine("AgentID" + "," + "GoodPointAmount" + "," + "BadPointAmount" + "," + "Velocity" + "," + "xAxisPos" + "," + "zAxisPos" + "," + "seenBySnatcher" + "," + "touchedWall" + "," +"academyScore" +","+ "date-time");
+				file.WriteLine("AgentID" + "," + "GoodPointAmount" + "," + "BadPointAmount" + "," + "Velocity" + "," + "xAxisPos" + "," + "zAxisPos" + "," + "seenByPredator" + "," + "touchedWall" + "," +"academyScore" +","+ "date-time");
 			}
-			file.WriteLine(ID + "," + goodPoint + "," + badPoint + "," + velocity +","+ x_axis + "," + z_axis +","+ seenBySnatcher +"," + touchedWall +","+ academyScore +","+ System.DateTime.UtcNow);
+			file.WriteLine(ID + "," + goodPoint + "," + badPoint + "," + velocity +","+ x_axis + "," + z_axis +","+ seenByPredator +"," + touchedWall +","+ academyScore +","+ System.DateTime.UtcNow);
 			column_titles = true;
 		}
 	}
@@ -269,7 +269,7 @@ public class Collector : Agent
 
     // The OnCollisionEnter method takes a collision parameter, if the agent collides
     // with a point then the point is eaten using the OnEaten() method from the PointLogic.cs script.
-    // NOTE TO SELF: THIS IS WHERE THE LOGIC FOR PENALISING THE AGENT WHEN IT IS SEEN BY THE SNATCHER MUST OCCUR.
+    // NOTE TO SELF: THIS IS WHERE THE LOGIC FOR PENALISING THE AGENT WHEN IT IS SEEN BY THE PREDATOR MUST OCCUR.
     void OnCollisionEnter(Collision collision)
 	{
         if (collision.gameObject.CompareTag("goodPoint"))
@@ -305,12 +305,12 @@ public class Collector : Agent
 
 
 		}
-
+        //The Predator object is tagged as Snatcher.
         if (collision.gameObject.CompareTag("Snatcher"))
         {
 
-            //Debug.Log("SEEN BY SNATCHER!");
-            seenBySnatcher += 1;
+            //Debug.Log("SEEN BY PREDATOR!");
+            seenByPredator += 1;
 
             AddReward(-1.0f);
             if (contribute)

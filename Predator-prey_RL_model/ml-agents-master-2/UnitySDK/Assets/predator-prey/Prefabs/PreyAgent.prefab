@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 2192056265193842604}
   - component: {fileID: 3441921632669724906}
   m_Layer: 14
-  m_Name: AgentCube
+  m_Name: PreyAgent
   m_TagString: agent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 1

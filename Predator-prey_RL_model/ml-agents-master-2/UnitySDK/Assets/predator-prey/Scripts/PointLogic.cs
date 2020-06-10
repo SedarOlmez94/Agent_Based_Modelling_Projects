@@ -2,7 +2,7 @@
  * The PointLogic class contains a single method which distributes point objects that
  * have been consumed. The method could be in two states, it can either be at
  * a random location in the environment, or it is destroyed because it's come into
- * contact with a Collector.
+ * contact with a Prey.
  */
 
 using UnityEngine;

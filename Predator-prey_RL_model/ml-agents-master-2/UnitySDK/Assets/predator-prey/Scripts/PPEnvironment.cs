@@ -16,8 +16,8 @@ public class PPEnvironment : Area
 	public GameObject goodPoint;
     // A badPoint game object is declared.
 	public GameObject badPoint;
-    // A snatcher_agent game object is declared.
-    // public GameObject snatcher_agent;
+    // A predator game object is declared.
+    // public GameObject predator;
     // A public integer variable for the number of goodPoints is declared.
 	public int numPoint;
     // A public integer variable for the number of badPoints object is declared.
@@ -47,13 +47,11 @@ public class PPEnvironment : Area
 
     /*The ResetPointArea takes a list of agents and places them around the
      Environment randomly. And creates the number of required good points
-     and bad points. The method also moves the snatcher agent to a random location.
+     and bad points. The method also moves the predator agent to a random location.
      */
 	public void ResetPointArea(GameObject[] agents){
-        // The snatcher_agent variable is initialised to the Snatcher game object.
-        // snatcher_agent = GameObject.FindGameObjectWithTag("Snatcher");
 
-        // For all the Collectors, place them at random locations.
+        // For all the Prey, place them at random locations.
         foreach (GameObject agent in agents){
 			if(agent.transform.parent == gameObject.transform){
 				agent.transform.position = new Vector3(Random.Range(-range, range), 2f,
@@ -61,11 +59,6 @@ public class PPEnvironment : Area
 				agent.transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
 			}
 		}
-
-        // // The snatcher_agent is placed at a random location.
-        // snatcher_agent.transform.position = new Vector3(Random.Range(-range, range), 2f,
-        //         Random.Range(-range, range)) + transform.position;
-        // snatcher_agent.transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
 
         // An amount of goodpoints is created.
         CreatePoint(numPoint, goodPoint);

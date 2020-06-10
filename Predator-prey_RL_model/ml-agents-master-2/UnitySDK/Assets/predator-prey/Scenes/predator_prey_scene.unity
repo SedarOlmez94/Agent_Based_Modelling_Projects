@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.496413, b: 0.5748175, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -264,7 +264,7 @@ PrefabInstance:
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
       propertyPath: m_Name
-      value: AgentCube (3)
+      value: PreyAgent3
       objectReference: {fileID: 0}
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
@@ -484,7 +484,7 @@ PrefabInstance:
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
       propertyPath: m_Name
-      value: AgentCube (1)
+      value: PreyAgent1
       objectReference: {fileID: 0}
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
@@ -494,6 +494,12 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 8242638060132579465, guid: 1c85343dfc6fc43cfaae83717948d85b, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 1c85343dfc6fc43cfaae83717948d85b, type: 3}
+--- !u!33 &927014164 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 8154699566560556397, guid: e71dc98e89acf43f49b882d1ff75924c,
+    type: 3}
+  m_PrefabInstance: {fileID: 8154699565260942223}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1070512958
 GameObject:
   m_ObjectHideFlags: 0
@@ -794,7 +800,7 @@ PrefabInstance:
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
       propertyPath: m_Name
-      value: AgentCube (2)
+      value: PreyAgent2
       objectReference: {fileID: 0}
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
@@ -980,7 +986,7 @@ PrefabInstance:
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
       propertyPath: m_Name
-      value: AgentCube (4)
+      value: PreyAgent4
       objectReference: {fileID: 0}
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
@@ -1129,7 +1135,7 @@ RectTransform:
   m_Children:
   - {fileID: 1070512959}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1200,7 +1206,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1604299108151632486
 PrefabInstance:
@@ -1439,7 +1445,7 @@ PrefabInstance:
     - target: {fileID: 1604299107861132759, guid: cbf8c1824af9440ff922ac8384ff26e6,
         type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1604299107861132759, guid: cbf8c1824af9440ff922ac8384ff26e6,
         type: 3}
@@ -1689,7 +1695,7 @@ PrefabInstance:
     - target: {fileID: 8242638060132579477, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8242638060132579477, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
@@ -1709,7 +1715,7 @@ PrefabInstance:
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
       propertyPath: m_Name
-      value: AgentCube
+      value: PreyAgent
       objectReference: {fileID: 0}
     - target: {fileID: 8242638060132579478, guid: 1c85343dfc6fc43cfaae83717948d85b,
         type: 3}
@@ -1741,6 +1747,26 @@ PrefabInstance:
       propertyPath: viewRadius
       value: 10.33
       objectReference: {fileID: 0}
+    - target: {fileID: 8154699564969503762, guid: e71dc98e89acf43f49b882d1ff75924c,
+        type: 3}
+      propertyPath: viewMeshFilter
+      value: 
+      objectReference: {fileID: 927014164}
+    - target: {fileID: 8154699564969503762, guid: e71dc98e89acf43f49b882d1ff75924c,
+        type: 3}
+      propertyPath: meshResolution
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8154699564969503762, guid: e71dc98e89acf43f49b882d1ff75924c,
+        type: 3}
+      propertyPath: edgeResolveIterations
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8154699564969503762, guid: e71dc98e89acf43f49b882d1ff75924c,
+        type: 3}
+      propertyPath: edgeDstThreshold
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8154699564969503763, guid: e71dc98e89acf43f49b882d1ff75924c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1749,7 +1775,7 @@ PrefabInstance:
     - target: {fileID: 8154699564969503763, guid: e71dc98e89acf43f49b882d1ff75924c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -8.753705
+      value: -8.59
       objectReference: {fileID: 0}
     - target: {fileID: 8154699564969503763, guid: e71dc98e89acf43f49b882d1ff75924c,
         type: 3}
@@ -1809,7 +1835,7 @@ PrefabInstance:
     - target: {fileID: 8154699564969503767, guid: e71dc98e89acf43f49b882d1ff75924c,
         type: 3}
       propertyPath: m_Name
-      value: Snatcher
+      value: Predator
       objectReference: {fileID: 0}
     - target: {fileID: 8154699564969503767, guid: e71dc98e89acf43f49b882d1ff75924c,
         type: 3}
