@@ -22,16 +22,16 @@ ml-agents-master-2
             - Editor/
             - Materials/
             - Prefabs/
-                - AgentCube.prefab
+                - PreyAgent.prefab
                 - Environment.prefab
-                - Snatcher.prefab
+                - Predator.prefab
                 - badPoint.prefab
                 - goodPoint.prefab
             - Scenes/
                 - predator_prey_scene.unity **(Double click this file to launch the initial configuration of the model).**
             - Scripts/
-                - AISnatcher.cs
-                - Collector.cs
+                - AIPredator.cs
+                - Prey.cs
                 - PPEnvironment.cs
                 - PointLogic.cs
                 - PredatorPreyAcademy.cs
@@ -39,8 +39,8 @@ ml-agents-master-2
 
 ## Running the model
 1. Once the **UnitySDK** folder is launched in Unity, you can navigate to **predator-prey/../Scenes** to launch the initial state of the model.
-2. The Unity Prefabs are GameObjects as reusable Assets. We can access the AgentCube object which is the Collector agent. By opening this component you can swap out the Brain which initially is set to **neural_network_1.nn**.
-3. By clicking the **play** button in the Unity window you can run the model which includes five **Collectors** and a single **Snatcher**.
+2. The Unity Prefabs are GameObjects as reusable Assets. We can access the PreyAgent object which is the Prey agent. By opening this component you can swap out the Brain which initially is set to **neural_network_1.nn**.
+3. By clicking the **play** button in the Unity window you can run the model which includes five **Prey** and a single **Predator**.
 
 
 ## Data and experiment results
