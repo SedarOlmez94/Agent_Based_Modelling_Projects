@@ -18,7 +18,7 @@ ml-agents-master-2
             - Brains/
               - neural_network_1.nn (This is the brain that was trained in 580,000 steps, referred to as Scenario_1 in the literature)
               - neural_network_2.nn (This is the brain that was trained in 1.000,000 steps, referred to as Scenario_2 in the literature)
-              - neural_network_3.nn (This is the brain that was trained in 1.000,000 steps, without the Snatcher present, referred to as Scenario_3 in the literature)
+              - neural_network_3.nn (This is the brain that was trained in 1.000,000 steps, referred to as Scenario_3 in the literature)
             - Editor/
             - Materials/
             - Prefabs/
