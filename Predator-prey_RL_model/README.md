@@ -7,7 +7,7 @@ This repository contains the agent-based model outlined in the "Investigating th
 ## Requirements
 - Python programming language: https://www.python.org/downloads/
 - Unity version **2018.4.15** can be downloaded via the Unity Hub from here: https://unity3d.com/get-unity/download
-- Install **ml-agents** in python: https://github.com/Unity-Technologies/ml-agents/tree/master/ml-agents
+- Install **ml-agents** in python: https://github.com/Unity-Technologies/ml-agents
 
 
 ## How to access the predator-prey model
@@ -16,9 +16,9 @@ ml-agents-master-2
     - Assets/
         - predator-prey/
             - Brains/
-              - neural_network_1.nn (This is the brain that was trained in 580,000 steps, referred to as Scenario_1 in the literature)
-              - neural_network_2.nn (This is the brain that was trained in 1.000,000 steps, referred to as Scenario_2 in the literature)
-              - neural_network_3.nn (This is the brain that was trained in 1.000,000 steps, without the Snatcher present, referred to as Scenario_3 in the literature)
+              - neural_network_1.nn (This is the brain that is referred to as Scenario_1 in the literature)
+              - neural_network_2.nn (This is the brain that is referred to as Scenario_2 in the literature)
+              - neural_network_3.nn (This is the brain that is referred to as Scenario_3 in the literature)
             - Editor/
             - Materials/
             - Prefabs/
@@ -48,3 +48,6 @@ ml-agents-master-2
 
 - Access synthetic data from model-runs 1 to 5 in the **Synthetic-data-from-ABM** folder
 - Video of model-run-1 experiment can be found: [here](https://www.dropbox.com/s/c9571is9zz34hbe/Model-run-1.mov?dl=0) (due to a lack of dropbox space, model-runs 2 to 5 were not uploaded, email me for these: solmez@turing.ac.uk)
+
+## Notes
+- The Agent ID is consistent throughout each model-run. Every agent that is initialised will have a unique ID that is assigned to the object and this will remain the same for each agent throughout the experiments. 
