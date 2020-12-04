@@ -44,16 +44,14 @@ ml-agents-master-2
 
 
 ## Data and experiment results
-- Access data produced by the model for experiments one and two in the **Synthetic-data-from-ABM** folder:
-
-
-Synthetic-data-from-ABM
-    - Experiment_1_model_condition_1-results
-    - Experiment_1&2_model_condition_2-results
-    - Experiment_2_model_condition_1-results
-    - Experiment_2_model_condition_3-results
-    - Statistical_significance_test_all_experiments.ipynb (Jupyter Notebook for analysis of results.)
-    - Stats Test Outputs_Filled.xlsx (results tabulated in an excel spreadsheet.)
+Access data produced by the model for experiments one and two in the **Synthetic-data-from-ABM** folder:
+Synthetic-data-from-ABM/
+- Experiment_1_model_condition_1-results
+- Experiment_1&2_model_condition_2-results
+- Experiment_2_model_condition_1-results
+- Experiment_2_model_condition_3-results
+- Statistical_significance_test_all_experiments.ipynb (Jupyter Notebook for analysis of results.)
+- Stats Test Outputs_Filled.xlsx (results tabulated in an excel spreadsheet.)
 
 
 ## Notes
