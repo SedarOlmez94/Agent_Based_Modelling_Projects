@@ -116,7 +116,7 @@ public class Prey : Agent
 			}
 			currentTime += Time.deltaTime;
 	}
-
+	// UPDATE FILE PATH FOR YOUR SYSTEM!
 	// Export data to CSV
 	public static void updateRecord(int ID, int goodPoint, int badPoint, float velocity, float x_axis, float z_axis, int seenByPredator, int touchedWall, int academyScore,  string filepath)
 	{
