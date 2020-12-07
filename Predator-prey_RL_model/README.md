@@ -38,9 +38,22 @@ ml-agents-master-2
 
 
 ## Running the model
-1. Once the **UnitySDK** folder is launched in Unity, you can navigate to **predator-prey/../Scenes** to launch the initial state of the model.
-2. The Unity Prefabs are GameObjects as reusable Assets. We can access the PreyAgent object which is the Prey agent. By opening this component you can swap out the Brain which initially is set to **neural_network_1.nn**.
-3. By clicking the **play** button in the Unity window you can run the model which includes five **Prey** and a single **Predator**.
+![screenshot1](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen1.jpg)
+Once Unity has been downloaded, click **Open**
+![screenshot2](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen2.jpg)
+Navigate to the **UnitySDK** directory and click **Select folder**
+![screenshot3](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen3.jpg)
+If the **predator_prey_scene** is not automatically opened, click **predatory-prey** -> **Scenes** -> **predator_prey_scene** to open it.
+![screenshot4](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen4.jpg)
+Intially neural network/brain one is attached to prey agents, however, if you wish to swap the brain object. Click **Prefab** -> **PreyAgent** -> **Open Prefab**
+![screenshot5](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen5.jpg)
+Now you are editing all prey agents in the scene, click **Brains** -> **Highlight the neural network object you want (single click)
+![screenshot6](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen6.jpg)
+For this example, we highligh the second **neural_network 2** then drag and drop it into the **Behaviour Parameters script, model field**.
+![screenshot7](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen7.jpg)
+Once the brain object has been switched, you can exit the **Prefab** by clicking the **left** arrow highlighted at the **top right**.
+![screenshot8](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen8.jpg)
+As you return to the scene view, if you click on a **PreyAgent** object in the scene window, you can see that it's model parameter has changed to the neural network you attached. Now you can click the **Play** button to run the simulation.
 
 
 ## Data and experiment results
