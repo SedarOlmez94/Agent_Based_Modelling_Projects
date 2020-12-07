@@ -13,9 +13,9 @@ using MLAgents;
 public class PPEnvironment : Area
 {
     // A goodPoint game object is declared.
-	public GameObject goodPoint;
+	public GameObject positivePoint;
     // A badPoint game object is declared.
-	public GameObject badPoint;
+	public GameObject negativePoint;
     // A predator game object is declared.
     // public GameObject predator;
     // A public integer variable for the number of goodPoints is declared.
@@ -61,9 +61,9 @@ public class PPEnvironment : Area
 		}
 
         // An amount of goodpoints is created.
-        CreatePoint(numPoint, goodPoint);
+        CreatePoint(numPoint, positivePoint);
         // An amount of bad point is also created.
-		CreatePoint(numBadPoint, badPoint);
+		CreatePoint(numBadPoint, negativePoint);
 	}
 
 	public override void ResetArea(){}

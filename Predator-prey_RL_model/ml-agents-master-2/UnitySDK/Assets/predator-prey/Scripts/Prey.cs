@@ -33,9 +33,9 @@ public class Prey : Agent
     public bool contribute;
     // A boolean indicating if the entity the agent comes across is observable.
     public bool useVectorObs;
-    // Variable to track the number of good points and bad points consumed.
-	private int goodPointAmount;
-	private int badPointAmount;
+    // Variable to track the number of positive points and negative points consumed.
+	private int positivePointAmount;
+	private int negativePointAmount;
 	// Seen by predator number of times the agent is seen by the predator.
 	private int seenByPredator;
 	// Touched wall
@@ -108,23 +108,23 @@ public class Prey : Agent
     }
 
 
-   void Update()
-	 {
-		 	if (currentTime >= timeToWrite){
-				updateRecord(this.GetInstanceID(), goodPointAmount, badPointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenByPredator, this.wallTouch, myAcademy.totalScore, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/prey_data.csv");
+    void Update()
+	{
+		if (currentTime >= timeToWrite){
+				updateRecord(this.GetInstanceID(), positivePointAmount, negativePointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenByPredator, this.wallTouch, myAcademy.totalScore, "C:/Users/drolm/OneDrive - University of Leeds/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/prey_data.csv");
 				currentTime = 0f;
 			}
 			currentTime += Time.deltaTime;
 	}
-	// UPDATE FILE PATH FOR YOUR SYSTEM!
+
 	// Export data to CSV
-	public static void updateRecord(int ID, int goodPoint, int badPoint, float velocity, float x_axis, float z_axis, int seenByPredator, int touchedWall, int academyScore,  string filepath)
+	public static void updateRecord(int ID, int goodPoint, int badPoint, float velocity, float x_axis, float z_axis, int seenByPredator, int touchedWall, double academyScore,  string filepath)
 	{
         using (System.IO.StreamWriter file = new System.IO.StreamWriter(@filepath, true))
 		{
             if(column_titles != true)
 			{
-				file.WriteLine("AgentID" + "," + "GoodPointAmount" + "," + "BadPointAmount" + "," + "Velocity" + "," + "xAxisPos" + "," + "zAxisPos" + "," + "seenByPredator" + "," + "touchedWall" + "," +"academyScore" +","+ "date-time");
+				file.WriteLine("AgentID" + "," + "positivePointAmount" + "," + "negativePointAmount" + "," + "Velocity" + "," + "xAxisPos" + "," + "zAxisPos" + "," + "seenByPredator" + "," + "touchedWall" + "," +"academyScore" +","+ "date-time");
 			}
 			file.WriteLine(ID + "," + goodPoint + "," + badPoint + "," + velocity +","+ x_axis + "," + z_axis +","+ seenByPredator +"," + touchedWall +","+ academyScore +","+ System.DateTime.UtcNow);
 			column_titles = true;
@@ -257,8 +257,8 @@ public class Prey : Agent
         transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
 
 		//-----------------------
-		goodPointAmount = 0;
-		badPointAmount = 0;
+		positivePointAmount = 0;
+		negativePointAmount = 0;
         //-----------------------
 
         // The SetResetParameters() method is called.
@@ -279,8 +279,8 @@ public class Prey : Agent
 	AddReward(1.0f);
 
 	// We increment the goodPoint amount by 1
-	goodPointAmount += 1;
-
+	positivePointAmount += 1;
+			
 			if (contribute)
 			{
 				myAcademy.totalScore += 1.0;
@@ -295,7 +295,7 @@ public class Prey : Agent
 
             AddReward(-0.2f);
 
-            badPointAmount += 1;
+            negativePointAmount += 1;
 
 			if (contribute)
 			{
