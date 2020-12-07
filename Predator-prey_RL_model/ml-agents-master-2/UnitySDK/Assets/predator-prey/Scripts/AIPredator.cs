@@ -114,15 +114,14 @@ public class AIPredator: MonoBehaviour {
 		}
 	}
 
-    // Uncomment if you wish to download synthetic data produced by the Predator.
-	//void Update()
-	//{
- //   if (currentTime >= timeToWrite){
- //     updateRecord(this.rb.velocity.magnitude, this.transform.position.x, this.transform.position.z, dstToTarget, viewCastAngle, wallTouch, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/predator_data.csv");
- //     currentTime = 0f;
- //   }
- //   currentTime += Time.deltaTime;
-	//}
+	void Update()
+	{
+    if (currentTime >= timeToWrite){
+      updateRecord(this.rb.velocity.magnitude, this.transform.position.x, this.transform.position.z, dstToTarget, viewCastAngle, wallTouch, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/predator_data.csv");
+      currentTime = 0f;
+    }
+    currentTime += Time.deltaTime;
+	}
 
 	//A method called LateUpdate that calls the D_FieldOfView() method.
 	void LateUpdate()

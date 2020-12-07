@@ -107,16 +107,15 @@ public class Prey : Agent
         return new Color32(r, g, b, 255);
     }
 
-    // Uncomment if you wish to download synthetic data from the model.
- //  void Update()
-	//{
-	//	if (currentTime >= timeToWrite){
-	//			updateRecord(this.GetInstanceID(), goodPointAmount, badPointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenByPredator, this.wallTouch, myAcademy.totalScore, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/prey_data.csv");
-	//			currentTime = 0f;
-	//		}
 
-	//		currentTime += Time.deltaTime;
-	//}
+   void Update()
+	 {
+		 	if (currentTime >= timeToWrite){
+				updateRecord(this.GetInstanceID(), goodPointAmount, badPointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenByPredator, this.wallTouch, myAcademy.totalScore, "/Users/solmez/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/prey_data.csv");
+				currentTime = 0f;
+			}
+			currentTime += Time.deltaTime;
+	}
 
 	// Export data to CSV
 	public static void updateRecord(int ID, int goodPoint, int badPoint, float velocity, float x_axis, float z_axis, int seenByPredator, int touchedWall, int academyScore,  string filepath)
@@ -281,7 +280,7 @@ public class Prey : Agent
 
 	// We increment the goodPoint amount by 1
 	goodPointAmount += 1;
-			
+
 			if (contribute)
 			{
 				myAcademy.totalScore += 1.0;
