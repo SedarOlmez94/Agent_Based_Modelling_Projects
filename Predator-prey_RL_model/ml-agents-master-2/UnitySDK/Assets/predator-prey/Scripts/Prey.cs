@@ -111,7 +111,7 @@ public class Prey : Agent
     void Update()
 	{
 		if (currentTime >= timeToWrite){
-				updateRecord(this.GetInstanceID(), positivePointAmount, negativePointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenByPredator, this.wallTouch, myAcademy.totalScore, "C:/Users/drolm/OneDrive - University of Leeds/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/prey_data.csv");
+				updateRecord(this.GetInstanceID(), positivePointAmount, negativePointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenByPredator, this.wallTouch, myAcademy.totalScore, "../Data/prey_data.csv");
 				currentTime = 0f;
 			}
 			currentTime += Time.deltaTime;

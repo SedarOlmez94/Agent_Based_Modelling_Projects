@@ -118,7 +118,7 @@ public class AIPredator: MonoBehaviour {
 	void Update()
 	{
     if (currentTime >= timeToWrite){
-      updateRecord(this.rb.velocity.magnitude, this.transform.position.x, this.transform.position.z, dstToTarget, viewCastAngle, wallTouch, "C:/Users/drolm/OneDrive - University of Leeds/Desktop/ml-agents-master-2/UnitySDK/Assets/Data/predator_data.csv");
+      updateRecord(this.rb.velocity.magnitude, this.transform.position.x, this.transform.position.z, dstToTarget, viewCastAngle, wallTouch, "../Data/predator_data.csv");
       currentTime = 0f;
     }
     currentTime += Time.deltaTime;
