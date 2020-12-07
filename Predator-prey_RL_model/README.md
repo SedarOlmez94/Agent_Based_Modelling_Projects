@@ -38,7 +38,7 @@ ml-agents-master-2
 
 
 ## Running the model
-![screenshot1](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen1.jpg)
+![screenshot1](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/blob/master/Predator-prey_RL_model/Instructions/screen1.jpg)
 Once Unity has been downloaded, click **Open**
 ![screenshot2](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/tree/master/Predator-prey_RL_model/Instructions/screen2.jpg)
 Navigate to the **UnitySDK** directory and click **Select folder**
