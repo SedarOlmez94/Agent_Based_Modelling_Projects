@@ -70,9 +70,23 @@ As you return to the scene view, if you click on a **PreyAgent** object in the s
 ![screenshot8](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/blob/master/Predator-prey_RL_model/Instructions/screen8.jpg)
 
 
+## Access dummy data produced by model run
+Dummy data is produced by the model each time you **Play** it, this contains raw model data that can be used for analysis. A Data folder was created and is located at: **..\UnitySDK\Assets\predator-prey\Data** 
+- To make sure the data is exported to this or any other directory, you must edit the **Prey.cs** and **AIPredator.cs** script.
+- These script files can be found in **..\UnitySDK\Assets\predator-prey\Scripts\AIPredator.cs** and **..\UnitySDK\Assets\predator-prey\Scripts\Prey.cs**.
+- You can open these script files in any IDE.
+- For the **Prey.cs** change the directory **../Data/prey_data.csv** at **Line 114** to a location of your choosing.
+```C#
+updateRecord(this.GetInstanceID(), positivePointAmount, negativePointAmount, this.agentRigidBody.velocity.magnitude, this.transform.position.x, this.transform.position.z, this.seenByPredator, this.wallTouch, myAcademy.totalScore, "../Data/prey_data.csv");
+```
+- For the **AIPredator.cs** change the directory **../Data/predator_data.csv** at **Line 121** to a location of your choosing.
+```C#
+updateRecord(this.rb.velocity.magnitude, this.transform.position.x, this.transform.position.z, dstToTarget, viewCastAngle, wallTouch, "../Data/predator_data.csv");
+```
+
 
 ## Data and experiment results
-Access data produced by the model for experiments one and two in the **Synthetic-data-from-ABM** folder:
+Access raw data analysed in the paper for experiments one and two in the **Synthetic-data-from-ABM** folder:
 
 
 Synthetic-data-from-ABM/
