@@ -51,7 +51,7 @@ If the **predator_prey_scene** is not automatically opened, click **predatory-pr
 
 
 Initially neural network/brain one is attached to prey agents, however, if you wish to swap the brain object. Click **Prefab** -> **PreyAgent** -> **Open Prefab**
-![screenshot4](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/blob/master/Predator-prey_RL_model/Instructions/screen4.jpg)
+![screenshot4](https://github.com/SedarOlmez94/Agent_Based_Modelling_Projects/blob/master/Predator-prey_RL_model/Instructions/screen4.png)
 
 
 Now you are editing all prey agents in the scene, click **Brains** -> **Highlight the neural network object you want (single click)**
