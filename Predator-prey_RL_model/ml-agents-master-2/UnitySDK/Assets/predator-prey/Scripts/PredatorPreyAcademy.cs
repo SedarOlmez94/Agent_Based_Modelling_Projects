@@ -1,5 +1,4 @@
 ﻿/*
- * Author: Sedar Olmez
  * The academy is part of the MLAgents toolkit https://github.com/Unity-Technologies/ml-agents and
  * is required if the model is to be trained using RL algorithms. The academy defines the parameters
  * of the model and resets the model to an initial state every iteration of the training process.

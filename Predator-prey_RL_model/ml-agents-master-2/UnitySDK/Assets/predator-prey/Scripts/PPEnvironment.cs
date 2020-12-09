@@ -1,4 +1,4 @@
-﻿/* Author: Sedar Olmez
+﻿/*
  * The Environment class is also a compulsory object which extends from the MLAgents https://github.com/Unity-Technologies/ml-agents Area
  * interface. This class creates the components of the environment, more specifically,
  * the area in which points are created and agents roam. The Environment class has two methods

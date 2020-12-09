@@ -1,4 +1,4 @@
-﻿/*Author: Sedar Olmez
+﻿/*
  * The AIPredator Class is attached to the predator agent, this class allows the predator to
  have a field of view which it can use to see within a given radius 0 to 360. The predator
  is considered an autonomous agent which moves randomly around the environment and if it
