@@ -5,9 +5,7 @@ This repository contains the agent-based model outlined in the "Investigating th
 
 
 ## Requirements
-- Python programming language: https://www.python.org/downloads/
 - Unity version **2018.4.15** can be downloaded via the Unity Hub from here: https://unity3d.com/get-unity/download
-- Install **ml-agents** in python: https://github.com/Unity-Technologies/ml-agents
 
 
 ## How to access the predator-prey model
