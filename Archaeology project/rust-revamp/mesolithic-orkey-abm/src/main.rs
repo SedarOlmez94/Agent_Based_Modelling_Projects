@@ -34,5 +34,34 @@ fn main() {
     let mut _unvisited:&[i32] = &[0];
     let mut _visited:&[i32] = &[0];
 
+    // Environment specific (patch only)
+    // patches-own [resistance]
+    // [xcor ycor]
+
+    let mut _resistance:&[i32] = &[0, 0];
+
+    // Agent specific (turtle only)
+    /*
+    breed [migrants migrant]
+      migrants-own
+      [destination secondary]
+     */
     
+    let _turtle = Migrant::new(0, 0);
+
+    
+}
+
+struct Migrant {
+    destination: i32,
+    secondary: i32,
+}
+
+impl Migrant {
+    fn new(destination: i32, secondary: i32) -> Self {
+        Migrant {
+            destination,
+            secondary,
+        }
+    } 
 }
