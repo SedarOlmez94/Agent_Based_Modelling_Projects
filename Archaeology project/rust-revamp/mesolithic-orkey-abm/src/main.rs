@@ -25,6 +25,25 @@ fn main() {
     // [destination secondary]
 
     let _turtle = Migrant::new(0, 0);
+
+
+}
+
+fn setup() {
+    // Setup the simulation environment and initialize agents
+    // This function would typically read the resistance dataset, set up the grid, and create initial agents
+
+    clear_all();
+    reset_ticks();
+
+    let _resistance_dataset = String::from("resistance_surface.asc");
+
+    println!("Dataset Loaded");
+    setup_resistance_surface();
+    println!("Dataset Displayed");
+    setup_migrants();
+    println!("Migrants Ready");
+
 }
 
 struct Migrant {
@@ -39,4 +58,24 @@ impl Migrant {
             secondary,
         }
     }
+}
+
+fn clear_all() {
+    // Clear all agents and reset the environment
+    // This function would typically remove all agents from the simulation and reset any relevant state
+}
+
+fn reset_ticks() {
+    // Reset the simulation ticks
+    // This function would typically reset the simulation clock or step counter
+}
+
+fn setup_resistance_surface() {
+    // Setup the resistance surface
+    // This function would typically read the resistance dataset and initialize the environment grid
+}
+
+fn setup_migrants() {
+    // Setup the initial migrant agents
+    // This function would typically create the initial set of migrant agents
 }
