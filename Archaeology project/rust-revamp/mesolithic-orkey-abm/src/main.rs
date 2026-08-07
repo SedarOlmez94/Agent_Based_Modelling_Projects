@@ -1,5 +1,6 @@
 
 use std::fs;
+use coloriz::*;
 
 // Author: Sedar Olmez
 // Description: This is the main entry point for the Mesolithic Orkey ABM application. It initializes the application and starts the simulation.
@@ -33,12 +34,12 @@ fn main() {
 
     let _turtle = Migrant::new(0, 0);
 
-    setup();
+    setup(_resistance);
 
 
 }
 
-fn setup() {
+fn setup(_resistance: &[i32]) {
     // Setup the simulation environment and initialize agents
     // This function would typically read the resistance dataset, set up the grid, and create initial agents
 
@@ -48,7 +49,7 @@ fn setup() {
     println!("Dataset Loaded");
     let resistance_dataset = setup_resistance_surface(RESISTANCE_DATASET_PATH);
     println!("Dataset Displayed");
-    display_resistance_in_patches(&resistance_dataset);
+    display_resistance_in_patches(&resistance_dataset, _resistance);
     setup_migrants();
     println!("Migrants Ready");
 
@@ -142,15 +143,15 @@ fn display_resistance() {
     ////   gis:paint resistance-dataset 0
 }
 
-fn display_resistance_in_patches(resistance_dataset: &ResistanceSurface) {
+fn display_resistance_in_patches(resistance_dataset: &ResistanceSurface, _resistance: &[i32]) {
     // Display the resistance surface in patches
     // This function would typically render the resistance surface on the simulation interface using patches
 
-// to display-resistance-in-patches
-//   ; This is the preferred way of copying values from a raster dataset
-//   ; into a patch variable in one step, using gis:apply-raster.
+    // to display-resistance-in-patches
+    //   ; This is the preferred way of copying values from a raster dataset
+    //   ; into a patch variable in one step, using gis:apply-raster.
 
-//   gis:apply-raster resistance-dataset resistance
+    //   gis:apply-raster resistance-dataset resistance
     let valid_values = resistance_dataset
         .data
         .iter()
@@ -162,20 +163,25 @@ fn display_resistance_in_patches(resistance_dataset: &ResistanceSurface) {
         "Resistance grid: {}x{} cells, range {min_resistance} - {max_resistance}",
         resistance_dataset.ncols, resistance_dataset.nrows
     );
-//   ; Now, just to make sure it worked, we'll color each patch by its resistance value.
-//   ; set min as 0, otherwise will gradiate from the 'NoData value of '-9999'.
-//   let min-resistance = resistance 0
-//   ;let max-resistance = resistance 5
-//   let max-resistance gis:maximum-of resistance-dataset
-//   ask patches
-//   [ ; note the use of the "<= 0 or >= 0" technique to filter out
-//     ; "not a number" values, as discussed in the documentation.
-//     if (resistance = 0) or (resistance >= 0)
-//     [ set pcolor scale-color red resistance min-resistance max-resistance ] ]
-// print "start"
-//     resize-world 0 234 0 264 ;; this seems to help NetLogo/JVM to better manage space/memory when transitiong to/from large worlds
-//                  ;; set-patch-size 10.0 ;; this seems to help NetLogo not confuse pixel-to-patch sizing when swithcing maps/world settings
-//     ; resize-world 0 (item ncols_position header_items - 1) 0 (item nrows_position header_items - 1)
-// print "finish"
-// end
+
+    //   ; Now, just to make sure it worked, we'll color each patch by its resistance value.
+    //   ; set min as 0, otherwise will gradiate from the 'NoData value of '-9999'.
+    let min_resistance = 0.0;
+    let max_resistance = resistance_dataset.data.len() as f64;
+ 
+    //   ask patches
+    //   [ ; note the use of the "<= 0 or >= 0" technique to filter out
+    //     ; "not a number" values, as discussed in the documentation.
+    //     if (resistance = 0) or (resistance >= 0)
+    if (_resistance[0] == 0) || (_resistance[0] >= 0) {
+        let pcolor = scale_color(_resistance[0] as f64, min_resistance, max_resistance, 0.0, 9.0);
+        println!("Patch color: {pcolor}");
+    }
+    //     [ set pcolor scale-color red resistance min-resistance max-resistance ] ]
+    // print "start"
+    //     resize-world 0 234 0 264 ;; this seems to help NetLogo/JVM to better manage space/memory when transitiong to/from large worlds
+    //                  ;; set-patch-size 10.0 ;; this seems to help NetLogo not confuse pixel-to-patch sizing when swithcing maps/world settings
+    //     ; resize-world 0 (item ncols_position header_items - 1) 0 (item nrows_position header_items - 1)
+    // print "finish"
+    // end
 }
