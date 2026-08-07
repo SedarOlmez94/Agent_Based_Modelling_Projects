@@ -1,6 +1,5 @@
 
 use std::fs;
-use coloriz::*;
 
 // Author: Sedar Olmez
 // Description: This is the main entry point for the Mesolithic Orkey ABM application. It initializes the application and starts the simulation.
@@ -174,14 +173,29 @@ fn display_resistance_in_patches(resistance_dataset: &ResistanceSurface, _resist
     //     ; "not a number" values, as discussed in the documentation.
     //     if (resistance = 0) or (resistance >= 0)
     if (_resistance[0] == 0) || (_resistance[0] >= 0) {
-        let pcolor = scale_color(_resistance[0] as f64, min_resistance, max_resistance, 0.0, 9.0);
-        println!("Patch color: {pcolor}");
+        
+        let pcolour = scale_red(
+            _resistance,
+            min_resistance,
+            max_resistance,
+        );
+
+        println!("Patch color: {pcolour}");
     }
-    //     [ set pcolor scale-color red resistance min-resistance max-resistance ] ]
-    // print "start"
+    
+    
     //     resize-world 0 234 0 264 ;; this seems to help NetLogo/JVM to better manage space/memory when transitiong to/from large worlds
     //                  ;; set-patch-size 10.0 ;; this seems to help NetLogo not confuse pixel-to-patch sizing when swithcing maps/world settings
     //     ; resize-world 0 (item ncols_position header_items - 1) 0 (item nrows_position header_items - 1)
     // print "finish"
     // end
+}
+
+fn scale_red(value: &[i32], min: f64, max: f64) -> String {
+    // Scale the resistance value to a color in the red spectrum
+    // This function would typically map the resistance value to a color for visualization
+
+    let normalized = (value[0] as f64 - min) / (max - min);
+    let red_intensity = (normalized * 255.0).clamp(0.0, 255.0) as u8;
+    format!("#{:02X}0000", red_intensity)
 }
