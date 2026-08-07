@@ -130,6 +130,34 @@ fn setup_resistance_surface(path: &str) -> ResistanceSurface {
     load_resistance_surface(path)
 }
 
+/// Mirrors NetLogo's implicit world state: the patch coordinate bounds set by `resize-world`.
+struct World {
+    min_pxcor: i32,
+    max_pxcor: i32,
+    min_pycor: i32,
+    max_pycor: i32,
+}
+
+impl World {
+    /// Equivalent to NetLogo's `resize-world min-pxcor max-pxcor min-pycor max-pycor`.
+    /// In NetLogo this also wipes all patches/turtles; here it just redefines the bounds
+    /// since patches aren't allocated until something asks for them.
+    fn resize_world(&mut self, min_pxcor: i32, max_pxcor: i32, min_pycor: i32, max_pycor: i32) {
+        self.min_pxcor = min_pxcor;
+        self.max_pxcor = max_pxcor;
+        self.min_pycor = min_pycor;
+        self.max_pycor = max_pycor;
+    }
+
+    fn width(&self) -> i32 {
+        self.max_pxcor - self.min_pxcor + 1
+    }
+
+    fn height(&self) -> i32 {
+        self.max_pycor - self.min_pycor + 1
+    }
+}
+
 fn setup_migrants() {
     // Setup the initial migrant agents
     // This function would typically create the initial set of migrant agents
@@ -167,11 +195,7 @@ fn display_resistance_in_patches(resistance_dataset: &ResistanceSurface, _resist
     //   ; set min as 0, otherwise will gradiate from the 'NoData value of '-9999'.
     let min_resistance = 0.0;
     let max_resistance = resistance_dataset.data.len() as f64;
- 
-    //   ask patches
-    //   [ ; note the use of the "<= 0 or >= 0" technique to filter out
-    //     ; "not a number" values, as discussed in the documentation.
-    //     if (resistance = 0) or (resistance >= 0)
+
     if (_resistance[0] == 0) || (_resistance[0] >= 0) {
         
         let pcolour = scale_red(
@@ -182,13 +206,23 @@ fn display_resistance_in_patches(resistance_dataset: &ResistanceSurface, _resist
 
         println!("Patch color: {pcolour}");
     }
-    
-    
-    //     resize-world 0 234 0 264 ;; this seems to help NetLogo/JVM to better manage space/memory when transitiong to/from large worlds
-    //                  ;; set-patch-size 10.0 ;; this seems to help NetLogo not confuse pixel-to-patch sizing when swithcing maps/world settings
-    //     ; resize-world 0 (item ncols_position header_items - 1) 0 (item nrows_position header_items - 1)
-    // print "finish"
-    // end
+
+    println!("start");
+    let mut world = World { min_pxcor: 0, max_pxcor: 0, min_pycor: 0, max_pycor: 0 };
+    world.resize_world(
+        0,
+        resistance_dataset.ncols as i32 - 1,
+        0,
+        resistance_dataset.nrows as i32 - 1,
+    );
+    println!(
+        "World resized to {}x{} patches (pxcor 0..={}, pycor 0..={})",
+        world.width(),
+        world.height(),
+        world.max_pxcor,
+        world.max_pycor
+    );
+    println!("finish");
 }
 
 fn scale_red(value: &[i32], min: f64, max: f64) -> String {
