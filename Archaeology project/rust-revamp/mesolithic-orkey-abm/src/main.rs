@@ -7,7 +7,7 @@ use rand::prelude::IndexedRandom;
 
 // gis-tools 1.14.1 only ships a GeoTIFF raster reader, not an ESRI ASCII Grid (.asc)
 // reader, so the resistance surface is parsed manually below.
-const RESISTANCE_DATASET_PATH: &str = "data/resistance_surface.asc";
+const RESISTANCE_DATASET_PATH: &str = "../data/resistance_surface.asc";
 
 fn main() {
     let _resistance_dataset = load_resistance_surface(RESISTANCE_DATASET_PATH);
@@ -349,4 +349,26 @@ fn move_migrants(migrants: &mut [Migrant], resistance_dataset: &ResistanceSurfac
 
         migrant.memory.push((migrant.x, migrant.y));
     }
+}
+
+fn tick() {}
+
+fn go(migrants: &mut [Migrant], resistance_dataset: &ResistanceSurface) {
+    move_migrants(migrants, resistance_dataset);
+    tick();
+}
+
+fn patches_white() {
+    // NetLogo: ask patches [set pcolor white] — purely visual; no patch rendering exists here.
+}
+
+fn export(migrants: &[Migrant]) {
+    let mut csv = String::from("migrant_id,step,x,y\n");
+    for (id, migrant) in migrants.iter().enumerate() {
+        for (step, &(x, y)) in migrant.memory.iter().enumerate() {
+            csv.push_str(&format!("{id},{step},{x},{y}\n"));
+        }
+    }
+    fs::write("movement.csv", csv)
+        .unwrap_or_else(|e| panic!("Failed to export movement data: {e}"));
 }
