@@ -1,5 +1,5 @@
-
 use std::fs;
+use rand::prelude::IndexedRandom;
 
 // Author: Sedar Olmez
 // Description: This is the main entry point for the Mesolithic Orkey ABM application. It initializes the application and starts the simulation.
@@ -36,7 +36,7 @@ fn setup(_resistance: &[i32], _number_of_migrants: i32, starting_position: &str)
     let resistance_dataset = setup_resistance_surface(RESISTANCE_DATASET_PATH);
     println!("Dataset Displayed");
     display_resistance_in_patches(&resistance_dataset, _resistance);
-    let (_migrants, _memory, _visited) =
+    let (_migrants, _visited) =
         setup_migrants(_number_of_migrants, starting_position, &resistance_dataset);
     println!("Migrants Ready");
 }
@@ -46,6 +46,7 @@ struct Migrant {
     y: i32,
     destination: Option<(i32, i32)>,
     secondary: i32,
+    memory: Vec<(i32, i32)>,
 }
 
 impl Migrant {
@@ -55,6 +56,7 @@ impl Migrant {
             y: 0,
             destination: None,
             secondary,
+            memory: Vec::new(),
         }
     }
 
@@ -106,7 +108,9 @@ fn load_resistance_surface(path: &str) -> ResistanceSurface {
     let mut lines = contents.lines();
 
     let mut header_value = || -> String {
-        let line = lines.next().expect("Missing header line in resistance surface file");
+        let line = lines
+            .next()
+            .expect("Missing header line in resistance surface file");
         line.split_whitespace()
             .nth(1)
             .expect("Malformed header line in resistance surface file")
@@ -127,7 +131,15 @@ fn load_resistance_surface(path: &str) -> ResistanceSurface {
         }
     }
 
-    ResistanceSurface { ncols, nrows, xllcorner, yllcorner, cellsize, nodata_value, data }
+    ResistanceSurface {
+        ncols,
+        nrows,
+        xllcorner,
+        yllcorner,
+        cellsize,
+        nodata_value,
+        data,
+    }
 }
 
 fn setup_resistance_surface(path: &str) -> ResistanceSurface {
@@ -189,7 +201,11 @@ fn max_one_of_neighbors_by_resistance(
     let max_pycor = resistance_dataset.nrows as i32 - 1;
     neighbors(pxcor, pycor, max_pxcor, max_pycor)
         .into_iter()
-        .filter_map(|(nx, ny)| resistance_dataset.resistance_at_patch(nx, ny).map(|r| (r, (nx, ny))))
+        .filter_map(|(nx, ny)| {
+            resistance_dataset
+                .resistance_at_patch(nx, ny)
+                .map(|r| (r, (nx, ny)))
+        })
         .max_by(|(r1, _), (r2, _)| r1.partial_cmp(r2).unwrap())
         .map(|(_, coord)| coord)
 }
@@ -198,7 +214,7 @@ fn setup_migrants(
     number_of_migrants: i32,
     starting_position: &str,
     resistance_dataset: &ResistanceSurface,
-) -> (Vec<Migrant>, Vec<(i32, i32)>, Vec<(i32, i32)>) {
+) -> (Vec<Migrant>, Vec<(i32, i32)>) {
     let mut migrants: Vec<Migrant> = (0..number_of_migrants).map(|_| Migrant::new(0)).collect();
 
     let (x, y) = match starting_position {
@@ -217,20 +233,20 @@ fn setup_migrants(
 
     for migrant in &mut migrants {
         migrant.setxy(x, y);
+        migrant.memory = vec![(x, y)];
     }
 
-    // memory/visited are globals in NetLogo, repeatedly overwritten inside create-migrants;
-    // every migrant spawns at the same (x, y), so the final value is just that one patch.
-    let memory = vec![(x, y)];
+    // `visited` stays a global (unlike memory, it's never read again after setup in the original model).
     let visited = vec![(x, y)];
 
     for migrant in &mut migrants {
-        migrant.destination = max_one_of_neighbors_by_resistance(migrant.x, migrant.y, resistance_dataset);
+        migrant.destination =
+            max_one_of_neighbors_by_resistance(migrant.x, migrant.y, resistance_dataset);
         println!("{:?}", migrant.destination);
     }
     println!("Destination Set");
 
-    (migrants, memory, visited)
+    (migrants, visited)
 }
 
 fn display_resistance() {
@@ -260,7 +276,12 @@ fn display_resistance_in_patches(resistance_dataset: &ResistanceSurface, _resist
     }
 
     println!("start");
-    let mut world = World { min_pxcor: 0, max_pxcor: 0, min_pycor: 0, max_pycor: 0 };
+    let mut world = World {
+        min_pxcor: 0,
+        max_pxcor: 0,
+        min_pycor: 0,
+        max_pycor: 0,
+    };
     world.resize_world(
         0,
         resistance_dataset.ncols as i32 - 1,
@@ -281,4 +302,51 @@ fn scale_red(value: &[i32], min: f64, max: f64) -> String {
     let normalized = (value[0] as f64 - min) / (max - min);
     let red_intensity = (normalized * 255.0).clamp(0.0, 255.0) as u8;
     format!("#{:02X}0000", red_intensity)
+}
+
+fn move_migrants(migrants: &mut [Migrant], resistance_dataset: &ResistanceSurface) {
+    let max_pxcor = resistance_dataset.ncols as i32 - 1;
+    let max_pycor = resistance_dataset.nrows as i32 - 1;
+    let mut rng = rand::rng();
+
+    for migrant in migrants.iter_mut() {
+        let all_neighbors = neighbors(migrant.x, migrant.y, max_pxcor, max_pycor);
+        let unvisited: Vec<(i32, i32)> = all_neighbors
+            .iter()
+            .copied()
+            .filter(|coord| !migrant.memory.contains(coord))
+            .collect();
+
+        // `set destination one-of unvisited with-max [resistance]`
+        let best_resistance = unvisited
+            .iter()
+            .filter_map(|&(nx, ny)| resistance_dataset.resistance_at_patch(nx, ny))
+            .fold(f64::NEG_INFINITY, f64::max);
+        let destination: Vec<(i32, i32)> = unvisited
+            .iter()
+            .copied()
+            .filter(|&(nx, ny)| resistance_dataset.resistance_at_patch(nx, ny) == Some(best_resistance))
+            .collect();
+        let destination = destination.choose(&mut rng).copied();
+        migrant.destination = destination;
+
+        match destination {
+            // `member? destination neighbors [move-to destination]`
+            Some((nx, ny)) => migrant.setxy(nx, ny),
+            // `destination = NOBODY [move-to one-of neighbors with [member? self [memory] of myself]]`
+            None => {
+                let visited_neighbors: Vec<(i32, i32)> = all_neighbors
+                    .iter()
+                    .copied()
+                    .filter(|coord| migrant.memory.contains(coord))
+                    .collect();
+                match visited_neighbors.choose(&mut rng) {
+                    Some(&(nx, ny)) => migrant.setxy(nx, ny),
+                    None => println!("Help!"),
+                }
+            }
+        }
+
+        migrant.memory.push((migrant.x, migrant.y));
+    }
 }
