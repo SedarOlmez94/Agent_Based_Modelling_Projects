@@ -1,31 +1,22 @@
-use std::fs;
+use eframe::egui;
 use rand::prelude::IndexedRandom;
+use rand::{Rng, RngExt};
+use std::fs;
 
 // Author: Sedar Olmez
 // Description: This is the main entry point for the Mesolithic Orkey ABM application. It initializes the application and starts the simulation.
-// The application is a translation from Netlogo to Rust.
+// The application is a translation from Netlogo to Rust. The original NetLogo code was written by Leo Sucharyna Thomas in 2017
 
 // gis-tools 1.14.1 only ships a GeoTIFF raster reader, not an ESRI ASCII Grid (.asc)
 // reader, so the resistance surface is parsed manually below.
 const RESISTANCE_DATASET_PATH: &str = "../data/resistance_surface.asc";
 
-fn main() {
-    let _resistance_dataset = load_resistance_surface(RESISTANCE_DATASET_PATH);
-    let _xllcorner_position = 0;
-    let _yllcorner_position = 0;
-    let _cellsize_position = 0;
-    let _nodata_value_position = 0;
-    let _memory = 0;
-    let mut _unvisited: &[i32] = &[];
-    let mut _visited: &[i32] = &[];
-
-    let mut _resistance: &[i32] = &[0, 0];
-
-    let _turtle = Migrant::new(0);
-    let _number_of_migrants = 0;
-    let starting_position = "1. (203)(34)";
-
-    setup(_resistance, _number_of_migrants, starting_position);
+fn main() -> eframe::Result {
+    eframe::run_native(
+        "Mesolithic Orkney ABM",
+        eframe::NativeOptions::default(),
+        Box::new(|cc| Ok(Box::new(App::new(cc)))),
+    )
 }
 
 fn setup(_resistance: &[i32], _number_of_migrants: i32, starting_position: &str) {
@@ -36,8 +27,12 @@ fn setup(_resistance: &[i32], _number_of_migrants: i32, starting_position: &str)
     let resistance_dataset = setup_resistance_surface(RESISTANCE_DATASET_PATH);
     println!("Dataset Displayed");
     display_resistance_in_patches(&resistance_dataset, _resistance);
-    let (_migrants, _visited) =
-        setup_migrants(_number_of_migrants, starting_position, &resistance_dataset);
+    let (_migrants, _visited) = setup_migrants(
+        _number_of_migrants,
+        starting_position,
+        &resistance_dataset,
+        1,
+    );
     println!("Migrants Ready");
 }
 
@@ -47,6 +42,7 @@ struct Migrant {
     destination: Option<(i32, i32)>,
     secondary: i32,
     memory: Vec<(i32, i32)>,
+    search_radius: i32,
 }
 
 impl Migrant {
@@ -57,6 +53,7 @@ impl Migrant {
             destination: None,
             secondary,
             memory: Vec::new(),
+            search_radius: 1,
         }
     }
 
@@ -176,9 +173,20 @@ impl World {
 
 /// Equivalent to NetLogo's `neighbors`: the up-to-8 surrounding patches, clipped to the world.
 fn neighbors(pxcor: i32, pycor: i32, max_pxcor: i32, max_pycor: i32) -> Vec<(i32, i32)> {
-    let mut result = Vec::with_capacity(8);
-    for dx in -1..=1 {
-        for dy in -1..=1 {
+    patches_within_radius(pxcor, pycor, 1, max_pxcor, max_pycor)
+}
+
+/// All patches within Chebyshev distance `radius` (a `radius`=1 square is the same as `neighbors`).
+fn patches_within_radius(
+    pxcor: i32,
+    pycor: i32,
+    radius: i32,
+    max_pxcor: i32,
+    max_pycor: i32,
+) -> Vec<(i32, i32)> {
+    let mut result = Vec::new();
+    for dx in -radius..=radius {
+        for dy in -radius..=radius {
             if dx == 0 && dy == 0 {
                 continue;
             }
@@ -210,14 +218,9 @@ fn max_one_of_neighbors_by_resistance(
         .map(|(_, coord)| coord)
 }
 
-fn setup_migrants(
-    number_of_migrants: i32,
-    starting_position: &str,
-    resistance_dataset: &ResistanceSurface,
-) -> (Vec<Migrant>, Vec<(i32, i32)>) {
-    let mut migrants: Vec<Migrant> = (0..number_of_migrants).map(|_| Migrant::new(0)).collect();
-
-    let (x, y) = match starting_position {
+/// Looks up the fixed (x, y) coordinates for one of the named `STARTING_POSITIONS`.
+fn resolve_starting_position(starting_position: &str) -> (i32, i32) {
+    match starting_position {
         "1. (203)(34)" => (203, 34),
         "2. (192)(48)" => (192, 48),
         "3. (186)(27)" => (186, 27),
@@ -229,15 +232,52 @@ fn setup_migrants(
             println!("error in choice of map to load!");
             (0, 0)
         }
-    };
+    }
+}
+
+/// Samples a per-migrant search radius from a normal distribution capped to `[1, max_radius]`.
+fn sample_normal_radius(max_radius: i32, rng: &mut impl Rng) -> i32 {
+    if max_radius <= 1 {
+        return max_radius.max(1);
+    }
+    let mean = max_radius as f64 / 2.0;
+    let std_dev = max_radius as f64 / 4.0;
+    let u1: f64 = rng.random_range(f64::EPSILON..1.0);
+    let u2: f64 = rng.random_range(0.0..1.0);
+    let z = (-2.0_f64 * u1.ln()).sqrt() * (2.0 * std::f64::consts::PI * u2).cos();
+    (mean + std_dev * z).round().clamp(1.0, max_radius as f64) as i32
+}
+
+fn setup_migrants(
+    number_of_migrants: i32,
+    starting_position: &str,
+    resistance_dataset: &ResistanceSurface,
+    search_radius_max: i32,
+) -> (Vec<Migrant>, Vec<(i32, i32)>) {
+    let mut migrants: Vec<Migrant> = (0..number_of_migrants).map(|_| Migrant::new(0)).collect();
+    let mut rng = rand::rng();
+    let mut visited = Vec::new();
 
     for migrant in &mut migrants {
+        // With more than one migrant, each spawns at a randomly chosen named starting position.
+        let (x, y) = if number_of_migrants > 1 {
+            let name = STARTING_POSITIONS
+                .choose(&mut rng)
+                .copied()
+                .unwrap_or(starting_position);
+            resolve_starting_position(name)
+        } else {
+            resolve_starting_position(starting_position)
+        };
         migrant.setxy(x, y);
         migrant.memory = vec![(x, y)];
+        migrant.search_radius = if number_of_migrants > 1 {
+            sample_normal_radius(search_radius_max, &mut rng)
+        } else {
+            search_radius_max
+        };
+        visited.push((x, y));
     }
-
-    // `visited` stays a global (unlike memory, it's never read again after setup in the original model).
-    let visited = vec![(x, y)];
 
     for migrant in &mut migrants {
         migrant.destination =
@@ -322,12 +362,40 @@ fn move_migrants(migrants: &mut [Migrant], resistance_dataset: &ResistanceSurfac
             .iter()
             .filter_map(|&(nx, ny)| resistance_dataset.resistance_at_patch(nx, ny))
             .fold(f64::NEG_INFINITY, f64::max);
-        let destination: Vec<(i32, i32)> = unvisited
+        let candidates: Vec<(i32, i32)> = unvisited
             .iter()
             .copied()
-            .filter(|&(nx, ny)| resistance_dataset.resistance_at_patch(nx, ny) == Some(best_resistance))
+            .filter(|&(nx, ny)| {
+                resistance_dataset.resistance_at_patch(nx, ny) == Some(best_resistance)
+            })
             .collect();
-        let destination = destination.choose(&mut rng).copied();
+        let destination = candidates.choose(&mut rng).copied().or_else(|| {
+            // Widen the search: if the immediate neighbors are all visited/inaccessible,
+            // look further afield (up to the migrant's search radius) for an unvisited patch.
+            let wide_unvisited: Vec<(i32, i32)> = patches_within_radius(
+                migrant.x,
+                migrant.y,
+                migrant.search_radius,
+                max_pxcor,
+                max_pycor,
+            )
+            .into_iter()
+            .filter(|coord| !migrant.memory.contains(coord))
+            .collect();
+            let best_wide = wide_unvisited
+                .iter()
+                .filter_map(|&(nx, ny)| resistance_dataset.resistance_at_patch(nx, ny))
+                .fold(f64::NEG_INFINITY, f64::max);
+            wide_unvisited
+                .iter()
+                .copied()
+                .filter(|&(nx, ny)| {
+                    resistance_dataset.resistance_at_patch(nx, ny) == Some(best_wide)
+                })
+                .collect::<Vec<_>>()
+                .choose(&mut rng)
+                .copied()
+        });
         migrant.destination = destination;
 
         match destination {
@@ -371,4 +439,238 @@ fn export(migrants: &[Migrant]) {
     }
     fs::write("movement.csv", csv)
         .unwrap_or_else(|e| panic!("Failed to export movement data: {e}"));
+}
+
+const TICK_INTERVAL: std::time::Duration = std::time::Duration::from_millis(150);
+
+const STARTING_POSITIONS: [&str; 7] = [
+    "1. (203)(34)",
+    "2. (192)(48)",
+    "3. (186)(27)",
+    "4. (174)(21)",
+    "5. (161)(12)",
+    "6. (144)(7)",
+    "7. (154)(0)",
+];
+
+/// Same north/south row flip as `ResistanceSurface::resistance_at_patch`, for painting pixels.
+fn patch_to_pixel(pxcor: i32, pycor: i32, ncols: usize, nrows: usize) -> Option<(usize, usize)> {
+    if pxcor < 0 || pycor < 0 {
+        return None;
+    }
+    let col = pxcor as usize;
+    let row = nrows.checked_sub(1)?.checked_sub(pycor as usize)?;
+    (col < ncols && row < nrows).then_some((col, row))
+}
+
+fn resistance_color(value: f64, min: f64, max: f64) -> egui::Color32 {
+    let normalized = ((value - min) / (max - min)).clamp(0.0, 1.0);
+    egui::Color32::from_rgb((normalized * 255.0) as u8, 0, 0)
+}
+
+/// Renders the resistance surface as a red heatmap; NODATA cells are drawn dark gray.
+fn build_heatmap_image(resistance_dataset: &ResistanceSurface) -> egui::ColorImage {
+    let valid = resistance_dataset
+        .data
+        .iter()
+        .copied()
+        .filter(|&v| v != resistance_dataset.nodata_value);
+    let min = valid.clone().fold(f64::INFINITY, f64::min);
+    let max = valid.fold(f64::NEG_INFINITY, f64::max);
+
+    let ncols = resistance_dataset.ncols;
+    let nrows = resistance_dataset.nrows;
+    let mut image =
+        egui::ColorImage::new([ncols, nrows], vec![egui::Color32::BLACK; ncols * nrows]);
+    for (pixel, &value) in image.pixels.iter_mut().zip(&resistance_dataset.data) {
+        *pixel = if value == resistance_dataset.nodata_value {
+            egui::Color32::from_gray(20)
+        } else {
+            resistance_color(value, min, max)
+        };
+    }
+    image
+}
+
+/// UI state driving the simulation: dropdown/text-input parameters, the running migrants,
+/// and the heatmap texture (resistance in red, migrant trails painted blue on top).
+struct App {
+    resistance_dataset: ResistanceSurface,
+    heatmap_image: egui::ColorImage,
+    texture: egui::TextureHandle,
+    migrants: Vec<Migrant>,
+    starting_position: String,
+    number_of_migrants_input: String,
+    search_radius: i32,
+    running: bool,
+    tick_count: u64,
+    last_tick: std::time::Instant,
+}
+
+impl App {
+    fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        let resistance_dataset = setup_resistance_surface(RESISTANCE_DATASET_PATH);
+        let heatmap_image = build_heatmap_image(&resistance_dataset);
+        let texture = cc.egui_ctx.load_texture(
+            "resistance-heatmap",
+            heatmap_image.clone(),
+            egui::TextureOptions::NEAREST,
+        );
+
+        App {
+            resistance_dataset,
+            heatmap_image,
+            texture,
+            migrants: Vec::new(),
+            starting_position: STARTING_POSITIONS[0].to_string(),
+            number_of_migrants_input: "1".to_string(),
+            search_radius: 1,
+            running: false,
+            tick_count: 0,
+            last_tick: std::time::Instant::now(),
+        }
+    }
+
+    /// `setup` + starting the animation loop: rebuilds migrants from the current UI parameters.
+    fn start(&mut self) {
+        let number_of_migrants = self
+            .number_of_migrants_input
+            .trim()
+            .parse::<i32>()
+            .unwrap_or(0)
+            .max(0);
+        self.heatmap_image = build_heatmap_image(&self.resistance_dataset);
+        let (migrants, _visited) = setup_migrants(
+            number_of_migrants,
+            &self.starting_position,
+            &self.resistance_dataset,
+            self.search_radius,
+        );
+        self.migrants = migrants;
+        self.tick_count = 0;
+        self.paint_migrant_trails();
+        self.sync_texture();
+        self.running = number_of_migrants > 0;
+        self.last_tick = std::time::Instant::now();
+    }
+
+    /// One `go` tick, auto-stopping once every migrant is stuck (no unvisited or visited neighbors left).
+    fn step(&mut self) {
+        go(&mut self.migrants, &self.resistance_dataset);
+        self.tick_count += 1;
+        self.paint_migrant_trails();
+        self.sync_texture();
+
+        let max_pxcor = self.resistance_dataset.ncols as i32 - 1;
+        let max_pycor = self.resistance_dataset.nrows as i32 - 1;
+        let all_stuck = self.migrants.iter().all(|migrant| {
+            patches_within_radius(
+                migrant.x,
+                migrant.y,
+                migrant.search_radius,
+                max_pxcor,
+                max_pycor,
+            )
+            .iter()
+            .all(|&(nx, ny)| {
+                migrant.memory.contains(&(nx, ny))
+                    || self
+                        .resistance_dataset
+                        .resistance_at_patch(nx, ny)
+                        .is_none()
+            })
+        });
+        if all_stuck {
+            self.running = false;
+        }
+    }
+
+    fn paint_migrant_trails(&mut self) {
+        let ncols = self.resistance_dataset.ncols;
+        let nrows = self.resistance_dataset.nrows;
+        for migrant in &self.migrants {
+            if let Some(&(x, y)) = migrant.memory.last() {
+                if let Some((col, row)) = patch_to_pixel(x, y, ncols, nrows) {
+                    self.heatmap_image.pixels[row * ncols + col] = egui::Color32::BLUE;
+                }
+            }
+        }
+    }
+
+    fn sync_texture(&mut self) {
+        self.texture
+            .set(self.heatmap_image.clone(), egui::TextureOptions::NEAREST);
+    }
+}
+
+impl eframe::App for App {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::Panel::left("controls").show(ui, |ui| {
+            ui.heading("Simulation Controls");
+            ui.add_space(8.0);
+
+            egui::ComboBox::from_label("Starting position")
+                .selected_text(self.starting_position.clone())
+                .show_ui(ui, |ui| {
+                    for position in STARTING_POSITIONS {
+                        ui.selectable_value(
+                            &mut self.starting_position,
+                            position.to_string(),
+                            position,
+                        );
+                    }
+                });
+
+            ui.horizontal(|ui| {
+                ui.label("Number of migrants:");
+                ui.text_edit_singleline(&mut self.number_of_migrants_input);
+            });
+            if self.number_of_migrants_input.trim().parse::<i32>().is_err() {
+                ui.colored_label(egui::Color32::RED, "Enter a whole number");
+            }
+
+            ui.add_space(8.0);
+            ui.add(egui::Slider::new(&mut self.search_radius, 1..=20).text("Widen search radius"));
+
+            ui.add_space(8.0);
+            ui.horizontal(|ui| {
+                if ui.button("Go").clicked() {
+                    self.start();
+                }
+                if ui.button("Stop").clicked() {
+                    self.running = false;
+                }
+            });
+
+            ui.add_space(8.0);
+            ui.label(format!("Tick: {}", self.tick_count));
+            ui.label(if self.running {
+                "Status: running"
+            } else {
+                "Status: stopped"
+            });
+        });
+
+        egui::CentralPanel::default().show(ui, |ui| {
+            let available = ui.available_size();
+            let side = available.x.min(available.y);
+            let (rect, _response) =
+                ui.allocate_exact_size(egui::vec2(side, side), egui::Sense::hover());
+            ui.painter().image(
+                self.texture.id(),
+                rect,
+                egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
+                egui::Color32::WHITE,
+            );
+        });
+
+        if self.running {
+            let now = std::time::Instant::now();
+            if now.duration_since(self.last_tick) >= TICK_INTERVAL {
+                self.step();
+                self.last_tick = now;
+            }
+            ui.ctx().request_repaint_after(TICK_INTERVAL);
+        }
+    }
 }
