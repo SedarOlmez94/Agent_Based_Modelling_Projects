@@ -7,7 +7,7 @@ use std::fs;
 
 // gis-tools 1.14.1 only ships a GeoTIFF raster reader, not an ESRI ASCII Grid (.asc)
 // reader, so the resistance surface is parsed manually below.
-const RESISTANCE_DATASET_PATH: &str = "../data/resistance_surface.asc";
+const RESISTANCE_DATASET_PATH: &str = "data/resistance_surface.asc";
 
 fn main() {
     let _resistance_dataset = load_resistance_surface(RESISTANCE_DATASET_PATH);
@@ -21,12 +21,14 @@ fn main() {
 
     let mut _resistance: &[i32] = &[0, 0];
 
-    let _turtle = Migrant::new(0, 0);
+    let _turtle = Migrant::new(0);
+    let _number_of_migrants = 0;
+    let starting_position = "1. (203)(34)";
 
-    setup(_resistance);
+    setup(_resistance, _number_of_migrants, starting_position);
 }
 
-fn setup(_resistance: &[i32]) {
+fn setup(_resistance: &[i32], _number_of_migrants: i32, starting_position: &str) {
     clear_all();
     reset_ticks();
 
@@ -34,21 +36,31 @@ fn setup(_resistance: &[i32]) {
     let resistance_dataset = setup_resistance_surface(RESISTANCE_DATASET_PATH);
     println!("Dataset Displayed");
     display_resistance_in_patches(&resistance_dataset, _resistance);
-    setup_migrants();
+    let (_migrants, _memory, _visited) =
+        setup_migrants(_number_of_migrants, starting_position, &resistance_dataset);
     println!("Migrants Ready");
 }
 
 struct Migrant {
-    destination: i32,
+    x: i32,
+    y: i32,
+    destination: Option<(i32, i32)>,
     secondary: i32,
 }
 
 impl Migrant {
-    fn new(destination: i32, secondary: i32) -> Self {
+    fn new(secondary: i32) -> Self {
         Migrant {
-            destination,
+            x: 0,
+            y: 0,
+            destination: None,
             secondary,
         }
+    }
+
+    fn setxy(&mut self, x: i32, y: i32) {
+        self.x = x;
+        self.y = y;
     }
 }
 
@@ -70,6 +82,21 @@ struct ResistanceSurface {
 impl ResistanceSurface {
     fn value(&self, row: usize, col: usize) -> f64 {
         self.data[row * self.ncols + col]
+    }
+
+    /// Resistance at a NetLogo patch coordinate, or `None` if out of bounds/NODATA.
+    /// Patch pycor grows northward while raster rows grow southward, so the row is flipped.
+    fn resistance_at_patch(&self, pxcor: i32, pycor: i32) -> Option<f64> {
+        if pxcor < 0 || pycor < 0 {
+            return None;
+        }
+        let col = pxcor as usize;
+        let row = self.nrows.checked_sub(1)?.checked_sub(pycor as usize)?;
+        if col >= self.ncols {
+            return None;
+        }
+        let v = self.value(row, col);
+        (v != self.nodata_value).then_some(v)
     }
 }
 
@@ -135,7 +162,76 @@ impl World {
     }
 }
 
-fn setup_migrants() {}
+/// Equivalent to NetLogo's `neighbors`: the up-to-8 surrounding patches, clipped to the world.
+fn neighbors(pxcor: i32, pycor: i32, max_pxcor: i32, max_pycor: i32) -> Vec<(i32, i32)> {
+    let mut result = Vec::with_capacity(8);
+    for dx in -1..=1 {
+        for dy in -1..=1 {
+            if dx == 0 && dy == 0 {
+                continue;
+            }
+            let (nx, ny) = (pxcor + dx, pycor + dy);
+            if (0..=max_pxcor).contains(&nx) && (0..=max_pycor).contains(&ny) {
+                result.push((nx, ny));
+            }
+        }
+    }
+    result
+}
+
+/// Equivalent to NetLogo's `max-one-of neighbors [resistance]`.
+fn max_one_of_neighbors_by_resistance(
+    pxcor: i32,
+    pycor: i32,
+    resistance_dataset: &ResistanceSurface,
+) -> Option<(i32, i32)> {
+    let max_pxcor = resistance_dataset.ncols as i32 - 1;
+    let max_pycor = resistance_dataset.nrows as i32 - 1;
+    neighbors(pxcor, pycor, max_pxcor, max_pycor)
+        .into_iter()
+        .filter_map(|(nx, ny)| resistance_dataset.resistance_at_patch(nx, ny).map(|r| (r, (nx, ny))))
+        .max_by(|(r1, _), (r2, _)| r1.partial_cmp(r2).unwrap())
+        .map(|(_, coord)| coord)
+}
+
+fn setup_migrants(
+    number_of_migrants: i32,
+    starting_position: &str,
+    resistance_dataset: &ResistanceSurface,
+) -> (Vec<Migrant>, Vec<(i32, i32)>, Vec<(i32, i32)>) {
+    let mut migrants: Vec<Migrant> = (0..number_of_migrants).map(|_| Migrant::new(0)).collect();
+
+    let (x, y) = match starting_position {
+        "1. (203)(34)" => (203, 34),
+        "2. (192)(48)" => (192, 48),
+        "3. (186)(27)" => (186, 27),
+        "4. (174)(21)" => (174, 21),
+        "5. (161)(12)" => (161, 12),
+        "6. (144)(7)" => (144, 7),
+        "7. (154)(0)" => (154, 0),
+        _ => {
+            println!("error in choice of map to load!");
+            (0, 0)
+        }
+    };
+
+    for migrant in &mut migrants {
+        migrant.setxy(x, y);
+    }
+
+    // memory/visited are globals in NetLogo, repeatedly overwritten inside create-migrants;
+    // every migrant spawns at the same (x, y), so the final value is just that one patch.
+    let memory = vec![(x, y)];
+    let visited = vec![(x, y)];
+
+    for migrant in &mut migrants {
+        migrant.destination = max_one_of_neighbors_by_resistance(migrant.x, migrant.y, resistance_dataset);
+        println!("{:?}", migrant.destination);
+    }
+    println!("Destination Set");
+
+    (migrants, memory, visited)
+}
 
 fn display_resistance() {
     // NetLogo: gis:paint resistance-dataset 0
