@@ -1,11 +1,16 @@
+// Author: Sedar Olmez
+// Description: This is the main entry point for the Mesolithic Orkey ABM application. It initializes the application and starts the simulation.
+// The application is a translation from Netlogo to Rust. The original NetLogo code was written by Leo Sucharyna Thomas in 2017
+
+// Several functions are 1:1 translations of NetLogo procedures kept for reference
+// (e.g. the CLI `setup` harness and the console `display_*`/`export` helpers) even
+// though the egui front-end doesn't call them, so dead code is allowed crate-wide.
+#![allow(dead_code)]
+
 use eframe::egui;
 use rand::prelude::IndexedRandom;
 use rand::{Rng, RngExt};
 use std::fs;
-
-// Author: Sedar Olmez
-// Description: This is the main entry point for the Mesolithic Orkey ABM application. It initializes the application and starts the simulation.
-// The application is a translation from Netlogo to Rust. The original NetLogo code was written by Leo Sucharyna Thomas in 2017
 
 // gis-tools 1.14.1 only ships a GeoTIFF raster reader, not an ESRI ASCII Grid (.asc)
 // reader, so the resistance surface is parsed manually below.
@@ -589,10 +594,10 @@ impl App {
         let ncols = self.resistance_dataset.ncols;
         let nrows = self.resistance_dataset.nrows;
         for migrant in &self.migrants {
-            if let Some(&(x, y)) = migrant.memory.last() {
-                if let Some((col, row)) = patch_to_pixel(x, y, ncols, nrows) {
-                    self.heatmap_image.pixels[row * ncols + col] = egui::Color32::BLUE;
-                }
+            if let Some(&(x, y)) = migrant.memory.last()
+                && let Some((col, row)) = patch_to_pixel(x, y, ncols, nrows)
+            {
+                self.heatmap_image.pixels[row * ncols + col] = egui::Color32::BLUE;
             }
         }
     }
@@ -672,5 +677,133 @@ impl eframe::App for App {
             }
             ui.ctx().request_repaint_after(TICK_INTERVAL);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Builds a small in-memory resistance surface for deterministic tests,
+    /// avoiding any dependency on the on-disk `.asc` file or the working directory.
+    fn test_surface() -> ResistanceSurface {
+        // 3x3 grid; each cell's resistance equals its row-major index.
+        ResistanceSurface {
+            ncols: 3,
+            nrows: 3,
+            xllcorner: 0.0,
+            yllcorner: 0.0,
+            cellsize: 1.0,
+            nodata_value: -9999.0,
+            data: vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+        }
+    }
+
+    #[test]
+    fn neighbors_are_clipped_to_world_bounds() {
+        // Corner patch has only 3 in-bounds neighbors.
+        let corner = neighbors(0, 0, 2, 2);
+        assert_eq!(corner.len(), 3);
+        // Center patch has all 8 neighbors.
+        let center = neighbors(1, 1, 2, 2);
+        assert_eq!(center.len(), 8);
+    }
+
+    #[test]
+    fn neighbors_matches_radius_one() {
+        let n = neighbors(1, 1, 2, 2);
+        let r = patches_within_radius(1, 1, 1, 2, 2);
+        assert_eq!(n, r);
+    }
+
+    #[test]
+    fn patches_within_radius_widens_search() {
+        // Radius 2 on a 5x5 world from the center yields all 24 surrounding patches.
+        let patches = patches_within_radius(2, 2, 2, 4, 4);
+        assert_eq!(patches.len(), 24);
+        assert!(!patches.contains(&(2, 2)), "must exclude the center patch");
+    }
+
+    #[test]
+    fn resistance_at_patch_flips_rows_and_handles_bounds() {
+        let surface = test_surface();
+        // pycor grows north; pycor=2 maps to raster row 0 (top).
+        assert_eq!(surface.resistance_at_patch(0, 2), Some(0.0));
+        // pycor=0 maps to the bottom raster row.
+        assert_eq!(surface.resistance_at_patch(0, 0), Some(6.0));
+        // Out of bounds returns None.
+        assert_eq!(surface.resistance_at_patch(-1, 0), None);
+        assert_eq!(surface.resistance_at_patch(3, 0), None);
+    }
+
+    #[test]
+    fn resistance_at_patch_treats_nodata_as_none() {
+        let mut surface = test_surface();
+        surface.data[0] = surface.nodata_value;
+        assert_eq!(surface.resistance_at_patch(0, 2), None);
+    }
+
+    #[test]
+    fn patch_to_pixel_round_trips_within_bounds() {
+        assert_eq!(patch_to_pixel(0, 2, 3, 3), Some((0, 0)));
+        assert_eq!(patch_to_pixel(2, 0, 3, 3), Some((2, 2)));
+        assert_eq!(patch_to_pixel(-1, 0, 3, 3), None);
+    }
+
+    #[test]
+    fn max_one_of_neighbors_picks_highest_resistance() {
+        let surface = test_surface();
+        // From patch (0,0) the neighbors are (1,0),(0,1),(1,1); highest resistance wins.
+        let best = max_one_of_neighbors_by_resistance(0, 0, &surface);
+        assert!(best.is_some());
+        let (bx, by) = best.unwrap();
+        let best_r = surface.resistance_at_patch(bx, by).unwrap();
+        for (nx, ny) in neighbors(0, 0, 2, 2) {
+            if let Some(r) = surface.resistance_at_patch(nx, ny) {
+                assert!(best_r >= r);
+            }
+        }
+    }
+
+    #[test]
+    fn resolve_starting_position_maps_named_positions() {
+        assert_eq!(resolve_starting_position("1. (203)(34)"), (203, 34));
+        assert_eq!(resolve_starting_position("7. (154)(0)"), (154, 0));
+    }
+
+    #[test]
+    fn sample_normal_radius_stays_within_bounds() {
+        let mut rng = rand::rng();
+        assert_eq!(sample_normal_radius(1, &mut rng), 1);
+        for _ in 0..1000 {
+            let r = sample_normal_radius(20, &mut rng);
+            assert!((1..=20).contains(&r), "radius {r} out of range");
+        }
+    }
+
+    #[test]
+    fn move_migrants_records_a_new_memory_entry() {
+        let surface = test_surface();
+        let mut migrants = vec![Migrant::new(0)];
+        migrants[0].setxy(1, 1);
+        migrants[0].memory = vec![(1, 1)];
+        let before = migrants[0].memory.len();
+        move_migrants(&mut migrants, &surface);
+        assert_eq!(migrants[0].memory.len(), before + 1);
+        // The migrant must have moved to one of its neighbors.
+        let (x, y) = (migrants[0].x, migrants[0].y);
+        assert!(neighbors(1, 1, 2, 2).contains(&(x, y)));
+    }
+
+    #[test]
+    fn move_migrants_avoids_revisiting_when_possible() {
+        let surface = test_surface();
+        let mut migrants = vec![Migrant::new(0)];
+        migrants[0].setxy(0, 0);
+        migrants[0].memory = vec![(0, 0)];
+        move_migrants(&mut migrants, &surface);
+        // After one move, it should have stepped onto a previously unvisited neighbor.
+        let (x, y) = (migrants[0].x, migrants[0].y);
+        assert_ne!((x, y), (0, 0));
     }
 }
